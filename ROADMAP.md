@@ -6,6 +6,8 @@
 > - Build **Elo ratings** to measure each player's **peak** and the age at which they reached it. That enables fair
 >   cross-era comparisons by age, plus a playful "peak vs peak" simulator.
 > - Then: rivalries (head-to-head), playing styles, court speed and match prediction.
+> - **What makes a player win:** rank the aspects of the game that matter most, both for a single match and for
+>   becoming a champion, and turn them into training priorities for club players, with the limits stated clearly.
 > - Each item below is a GitHub issue.
 
 ## Princípios
@@ -43,6 +45,33 @@
 - Começando em 1991, quem estava no meio da carreira (Lendl, Becker, Edberg) entra sem o histórico anterior: o Elo
   deles no início dos anos 90 aparece subestimado.
 
+**O que faz ganhar (para quem treina)**
+- Dá para **ranquear os aspectos** que mais pesam na vitória. Na prévia com 2000–2025 (66.202 partidas com
+  estatísticas), quem foi melhor em cada aspecto venceu:
+
+  | Aspecto | Vencedor foi melhor |
+  |---|---|
+  | Pontos ganhos com o 1º saque | 83% |
+  | Pontos ganhos com o 2º saque | 78% |
+  | Break points salvos | 69% |
+  | Aces por game | 60% |
+  | Duplas faltas por game (menos) | 57% |
+  | 1º saque dentro | 57% |
+
+- **Cuidado com o desenho do modelo.** A devolução de um jogador é o espelho do saque do adversário. Pôr as duas
+  coisas juntas faz a devolução "explicar tudo" (+6,7 contra ~0 dos componentes de saque).
+- **O modelo correto** usa os componentes do saque de cada jogador; o lado do adversário é a devolução.
+  - Por desvio-padrão, pesam: pontos ganhos com o 1º saque ≈ +2,7, com o 2º ≈ +1,9 e 1º saque dentro ≈ +0,75.
+    Simetricamente, a devolução contra cada um desses.
+  - Aces e duplas faltas ficam ≈ 0 depois disso: valem pelo ponto que dão ou tiram, não por si.
+- **Ganhar partida ≠ ser campeão.** Campeão é bom em muitos aspectos, constante e decide sob pressão. Isso é uma
+  análise no nível do jogador, não da partida.
+- **Limites para o amador:**
+  - **Não é causa:** é correlação em profissionais.
+  - **Sem erros e winners:** a base não tem erros não forçados, winners, troca de bola nem subida à rede. No nível
+    amador os erros dominam.
+  - **Hipóteses:** o guia traduz os números em prioridades de treino, deixando isso claro.
+
 **Desde 1968:** descartado. Ganharíamos Borg, McEnroe e Connors, mas com buracos grandes nos dados. 1991+ cobre
 Sampras, Agassi, Big 3 e a nova geração com tudo medido.
 
@@ -53,7 +82,7 @@ Sampras, Agassi, Big 3 e a nova geração com tudo medido.
 | 1 | Pontos e torneios | TPW%, "venceu perdendo", perfil × torneio, páginas de torneio, janela de 52 semanas |
 | 2 | Auge e épocas | Elo geral e por superfície, pico e idade do auge, corrida por idade, curva de envelhecimento, Pico × Pico |
 | 3 | Rivalidades e histórias | H2H, sacador × devolvedor, velocidade da quadra, viradas e sequências, pressão acima do esperado |
-| 4 | Modelos | Previsão de partidas e calibração (Elo × ranking × ML), ponte para as próximas disciplinas |
+| 4 | Modelos e o que faz ganhar | O que faz ganhar uma partida, perfil de campeão, guia para quem treina, previsão de partidas e calibração (Elo × ranking × ML) |
 
 ## Backlog
 Esforço: **P** = um dia ou menos · **M** = alguns dias · **G** = uma semana ou mais.
@@ -81,6 +110,9 @@ Esforço: **P** = um dia ou menos · **M** = alguns dias · **G** = uma semana o
 | [17](https://github.com/gabrielisoton/tenis-atp/issues/18) | Histórias: viradas de 0–2, quinto set, pneus, sequências, matadores de gigantes | 3 | M | 1 |
 | [18](https://github.com/gabrielisoton/tenis-atp/issues/19) | Pressão acima do esperado (break points e tie-break) | 3 | M | — |
 | [19](https://github.com/gabrielisoton/tenis-atp/issues/20) | Previsão de partidas e calibração (Elo × ranking × ML) | 4 | G | 9 |
+| [20](https://github.com/gabrielisoton/tenis-atp/issues/21) | O que faz ganhar uma partida: ranking dos aspectos (leitura simples + modelo por superfície e nível) | 4 | M | — (melhor com 1) |
+| [21](https://github.com/gabrielisoton/tenis-atp/issues/22) | O que faz um campeão: perfil dos Top 10 e de quem ganha títulos | 4 | M | — (Elo em 9 ajuda) |
+| [22](https://github.com/gabrielisoton/tenis-atp/issues/23) | Guia para quem treina: prioridades a partir dos dados, com os limites | 4 | P | 20, 21 |
 
 Cada linha é uma issue no GitHub (o número leva até ela), com labels `fase-N` e `esforco-P/M/G`.
 Acompanhamento no quadro [Tênis em números](https://github.com/users/gabrielisoton/projects/1) (campo **Fase** e **Status**).
