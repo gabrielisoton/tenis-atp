@@ -83,3 +83,4 @@ Esforço: **P** = um dia ou menos · **M** = alguns dias · **G** = uma semana o
 | [19](https://github.com/gabrielisoton/tenis-atp/issues/20) | Previsão de partidas e calibração (Elo × ranking × ML) | 4 | G | 9 |
 
 Cada linha é uma issue no GitHub (o número leva até ela), com labels `fase-N` e `esforco-P/M/G`.
+Acompanhamento no quadro [Tênis em números](https://github.com/users/gabrielisoton/projects/1) (campo **Fase** e **Status**).

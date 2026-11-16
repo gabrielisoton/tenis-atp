@@ -4,7 +4,7 @@ Projeto pessoal de analytics de tênis: todas as **66.819 partidas** do circuito
 com saque, devolução, break points, tie-breaks e títulos de cada jogador. Site estático em **português e inglês**.
 
 - **Site:** https://gabrielisoton.github.io/tenis-atp/ (em inglês: `?lang=en`)
-- **Roadmap e backlog:** [ROADMAP.md](ROADMAP.md) e as [issues](https://github.com/gabrielisoton/tenis-atp/issues)
+- **Roadmap e backlog:** [ROADMAP.md](ROADMAP.md) e as [issues](https://github.com/gabrielisoton/tenis-atp/issues) · [quadro](https://github.com/users/gabrielisoton/projects/1)
 
 > *Personal tennis analytics project: every main-tour ATP match from 2000 to 2025, with serve, return, break
 > points, tie-breaks and titles per player. Static site in Portuguese and English.*
