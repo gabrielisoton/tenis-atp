@@ -61,25 +61,25 @@ Esforço: **P** = um dia ou menos · **M** = alguns dias · **G** = uma semana o
 
 | # | Item | Fase | Esforço | Depende de |
 |---|---|---|---|---|
-| 0 | **Só depois da nota da IA003:** limpar o repositório da disciplina (tirar `projeto/`, redirecionar para este site) | 0 | P | nota |
-| 1 | Base 1991+ com data do torneio, ids dos jogadores e níveis; o site passa a mostrar 1991–hoje | 0 | M | — |
-| 2 | JSON por jogador e torneio carregado sob demanda | 0 | M | 1 |
-| 3 | Atualização automática da TML (Action mensal) + selo "dados até" | 0 | P | 1 |
-| 4 | TPW% (pontos ganhos totais) como critério, com IC de Wilson | 1 | P | — |
-| 5 | "Venceu perdendo nos pontos": lista e por jogador | 1 | P | — |
-| 6 | Perfil × torneio (V–D, títulos, TPW em cada torneio) | 1 | M | 1, 2 |
-| 7 | Páginas de torneio (campeões, donos, recordes) | 1 | M | 1, 2 |
-| 8 | Janela móvel de 52 semanas no perfil | 1 | P | 1 |
-| 9 | Elo geral e por superfície + validação contra picos conhecidos | 2 | G | 1 |
-| 10 | Pico e idade do auge (ranking de picos) | 2 | M | 9 |
-| 11 | Corrida de títulos e Slams por idade | 2 | P | 1 |
-| 12 | Curva de envelhecimento do circuito por época | 2 | P | 1 |
-| 13 | Simulador "Pico × Pico" (probabilidade Elo por superfície, MD3/MD5, com aviso) | 2 | M | 9, 10 |
-| 14 | Confrontos diretos (H2H) | 3 | M | 1, 2 |
-| 15 | Mapa sacador × devolvedor por época | 3 | P | — |
-| 16 | Velocidade da quadra (aces por torneio e ano, ajustado pelos jogadores) | 3 | M | 1 |
-| 17 | Histórias: viradas de 0–2, quinto set, pneus, sequências, matadores de gigantes | 3 | M | 1 |
-| 18 | Pressão acima do esperado (break points e tie-break) | 3 | M | — |
-| 19 | Previsão de partidas e calibração (Elo × ranking × ML) | 4 | G | 9 |
+| [0](https://github.com/gabrielisoton/tenis-atp/issues/1) | **Só depois da nota da IA003:** limpar o repositório da disciplina (tirar `projeto/`, redirecionar para este site) | 0 | P | nota |
+| [1](https://github.com/gabrielisoton/tenis-atp/issues/2) | Base 1991+ com data do torneio, ids dos jogadores e níveis; o site passa a mostrar 1991–hoje | 0 | M | — |
+| [2](https://github.com/gabrielisoton/tenis-atp/issues/3) | JSON por jogador e torneio carregado sob demanda | 0 | M | 1 |
+| [3](https://github.com/gabrielisoton/tenis-atp/issues/4) | Atualização automática da TML (Action mensal) + selo "dados até" | 0 | P | 1 |
+| [4](https://github.com/gabrielisoton/tenis-atp/issues/5) | TPW% (pontos ganhos totais) como critério, com IC de Wilson | 1 | P | — |
+| [5](https://github.com/gabrielisoton/tenis-atp/issues/6) | "Venceu perdendo nos pontos": lista e por jogador | 1 | P | — |
+| [6](https://github.com/gabrielisoton/tenis-atp/issues/7) | Perfil × torneio (V–D, títulos, TPW em cada torneio) | 1 | M | 1, 2 |
+| [7](https://github.com/gabrielisoton/tenis-atp/issues/8) | Páginas de torneio (campeões, donos, recordes) | 1 | M | 1, 2 |
+| [8](https://github.com/gabrielisoton/tenis-atp/issues/9) | Janela móvel de 52 semanas no perfil | 1 | P | 1 |
+| [9](https://github.com/gabrielisoton/tenis-atp/issues/10) | Elo geral e por superfície + validação contra picos conhecidos | 2 | G | 1 |
+| [10](https://github.com/gabrielisoton/tenis-atp/issues/11) | Pico e idade do auge (ranking de picos) | 2 | M | 9 |
+| [11](https://github.com/gabrielisoton/tenis-atp/issues/12) | Corrida de títulos e Slams por idade | 2 | P | 1 |
+| [12](https://github.com/gabrielisoton/tenis-atp/issues/13) | Curva de envelhecimento do circuito por época | 2 | P | 1 |
+| [13](https://github.com/gabrielisoton/tenis-atp/issues/14) | Simulador "Pico × Pico" (probabilidade Elo por superfície, MD3/MD5, com aviso) | 2 | M | 9, 10 |
+| [14](https://github.com/gabrielisoton/tenis-atp/issues/15) | Confrontos diretos (H2H) | 3 | M | 1, 2 |
+| [15](https://github.com/gabrielisoton/tenis-atp/issues/16) | Mapa sacador × devolvedor por época | 3 | P | — |
+| [16](https://github.com/gabrielisoton/tenis-atp/issues/17) | Velocidade da quadra (aces por torneio e ano, ajustado pelos jogadores) | 3 | M | 1 |
+| [17](https://github.com/gabrielisoton/tenis-atp/issues/18) | Histórias: viradas de 0–2, quinto set, pneus, sequências, matadores de gigantes | 3 | M | 1 |
+| [18](https://github.com/gabrielisoton/tenis-atp/issues/19) | Pressão acima do esperado (break points e tie-break) | 3 | M | — |
+| [19](https://github.com/gabrielisoton/tenis-atp/issues/20) | Previsão de partidas e calibração (Elo × ranking × ML) | 4 | G | 9 |
 
-Cada linha é uma issue no GitHub, com labels `fase-N` e `esforco-P/M/G`.
+Cada linha é uma issue no GitHub (o número leva até ela), com labels `fase-N` e `esforco-P/M/G`.
