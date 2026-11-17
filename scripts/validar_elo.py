@@ -54,7 +54,12 @@ for nome, (a0, a1) in {"Roger Federer": (2004, 2008), "Rafael Nadal": (2008, 201
 idades = [r["auge_idade"] for r in au.values() if not r["no_auge"] and not r["carreira_antes_1991"] and r["auge_idade"]]
 checar(23 <= float(np.median(idades)) <= 29, f"idade mediana no auge: {np.median(idades):.1f} anos ({len(idades)} jogadores)")
 checar(au["Jannik Sinner"]["no_auge"] and not au["Novak Djokovic"]["no_auge"], "Sinner marcado como 'no auge agora'; Djokovic não")
-# 5. contas: soma de Elo se conserva (o que um ganha o outro perde) — com K diferente para cada um, não é
+# 5. curva de envelhecimento: pico entre 25 e 30 anos; a média ingênua sobe com a idade (sobrevivência)
+cv = elo.curva_idade(elo.depois(d))
+checar(25 <= cv["delta"]["pico"] <= 30, f"curva de envelhecimento (método delta): pico aos {cv['delta']['pico']} anos")
+ing = dict(zip(cv["ingenua"]["idades"], cv["ingenua"]["elo"]))
+checar(ing[33] > ing[24], f"média ingênua sobe por sobrevivência: {ing[24]:.0f} aos 24 → {ing[33]:.0f} aos 33")
+# 6. contas: soma de Elo se conserva (o que um ganha o outro perde) — com K diferente para cada um, não é
 #    exato; checamos só que nenhuma nota é absurda
 checar(dep["elo"].between(1000, 2800).all(), f"todas as notas entre 1000 e 2800 (min {dep['elo'].min():.0f}, max {dep['elo'].max():.0f})")
 

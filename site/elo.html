@@ -87,6 +87,15 @@
   </div>
   <div class="cartao rolagem" style="max-height:520px;overflow:auto;margin-top:14px"><table class="t" id="t-auges"></table></div>
   <p class="nota" id="auge-nota"></p>
+
+  <h2><span data-l="pt">A curva da carreira: em que idade se joga melhor?</span><span data-l="en">The career curve: at what age do players peak?</span></h2>
+  <div id="cv-comoler"></div>
+  <div id="cv-placar"></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-cv" class="grafico" style="min-height:440px"></div></div>
+    <div class="cartao"><div id="g-cv-epoca" class="grafico" style="min-height:440px"></div></div>
+  </div>
+  <p class="nota" id="cv-nota"></p>
   </section>
 
   <section class="painel-aba" data-p="corrida" hidden>
@@ -274,6 +283,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
         <td class="n">${r.auge_idade === null ? "—" : br(r.auge_idade, 1)}</td><td class="n">${br(r.pico, 0)}</td><td>${mesAno(r.pico_data + "-01")}</td>
         <td class="n">${r.pico_idade === null ? "—" : br(r.pico_idade, 1)}</td>
         <td>${r.no_auge ? `<span class="tag" style="background:#fbfde9">${T("no auge agora", "at peak now")}</span>` : r.carreira_antes_1991 ? `<span class="tag" style="background:#f1efe8">${T("carreira antes de 1991", "career before 1991")}</span>` : ""}</td></tr>`).join("");
+    desenharCurvaIdade();
     const e0 = EP[0], e2 = EP[EP.length - 1];
     document.getElementById("auge-nota").innerHTML = T(`<b>Leitura:</b> nos anos 90 os jogadores chegavam ao auge mais cedo (mediana de ${br(e0.mediana, 1)}
       anos); depois de 2003 o auge passou para perto dos ${br(e2.mediana, 0)}. É coerente com carreiras mais longas, preparo físico melhor e
@@ -281,6 +291,59 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       últimas épocas não é conclusiva.`, `<b>Reading:</b> in the 1990s players reached their peak earlier (median ${br(e0.mediana, 1)});
       after 2003 the peak moved to around ${br(e2.mediana, 0)}. That fits longer careers, better fitness and the Big 3's long dominance.
       The intervals are wide (${e0.n} to ${e2.n} players per era), so the difference between the last two eras is not conclusive.`);
+  }
+
+  function desenharCurvaIdade() {
+    const CV = E.envelhecimento, D = CV.delta, I = CV.ingenua;
+    const base = D.idades.indexOf(20), ing20 = I.elo[I.idades.indexOf(20)];
+    document.getElementById("cv-comoler").innerHTML = comoLer(T(`A conta mais óbvia, <b>a média do Elo por idade</b>, engana: ela sobe até os 36
+      anos porque só os bons continuam jogando (quem cai de nível se aposenta antes). É o <b>viés de sobrevivência</b>. O jeito certo é
+      comparar <b>cada jogador com ele mesmo</b> um ano depois (de 24 para 25, de 25 para 26…), tirar a média dessas variações e somar idade a
+      idade: é o "método delta", usado em analytics de vários esportes. Entram os anos com pelo menos ${CV.min_partidas} partidas nas duas
+      idades. A faixa é o IC 95%, por reamostragem de jogadores.`, `The obvious calculation, <b>average Elo by age</b>, is misleading: it
+      keeps rising until 36 because only good players keep playing (those who decline retire earlier). That is <b>survivorship bias</b>.
+      The right way is to compare <b>each player with himself</b> a year later (24 to 25, 25 to 26…), average those changes and add them up
+      age by age: the "delta method" used in analytics across sports. Only years with at least ${CV.min_partidas} matches at both ages
+      count. The band is the 95% CI, from resampling players.`));
+    const EPS = Object.entries(CV.por_epoca);
+    placar(document.getElementById("cv-placar"), [
+      { rot: T("Melhor idade", "Best age"), num: `${D.pico} ${T("anos", "years")}`, sub: T(`${br(D.jogadores, 0)} jogadores, ${br(D.pares, 0)} pares de anos`, `${br(D.jogadores, 0)} players, ${br(D.pares, 0)} pairs of years`) },
+      { rot: T("Dos 20 ao auge", "From 20 to the peak"), num: `+${br(D.nivel[D.idades.indexOf(D.pico)], 0)}`, sub: T("pontos de Elo", "Elo points") },
+      { rot: T("Aos 30, longe do auge", "At 30, below the peak"), num: br(D.aos_30, 0), sub: T("pontos de Elo (média geral)", "Elo points (overall)") },
+      { rot: T("Melhor idade por época", "Best age by era"), num: EPS.map(([, x]) => x.pico).join(" → "), sub: EPS.map(([e]) => e).join(" · ") },
+    ]);
+    const faixa = (x, inf, sup, cor) => [
+      { x, y: sup, mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false },
+      { x, y: inf, mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: cor, hoverinfo: "skip", showlegend: false }];
+    plot(document.getElementById("g-cv"), [
+      ...faixa(D.idades, D.ic_inf, D.ic_sup, "rgba(98,80,214,.18)"),
+      { x: D.idades, y: D.nivel, mode: "lines+markers", name: T("mesmo jogador, ano a ano", "same player, year to year"), line: { color: CORES.pop, width: 3 },
+        hovertemplate: `${T("idade", "age")} %{x}: %{y:+.0f}<extra></extra>` },
+      { x: I.idades.filter(a => a >= 18 && a <= 36), y: I.idades.map((a, k) => [a, I.elo[k] - ing20]).filter(([a]) => a >= 18 && a <= 36).map(([, v]) => v),
+        mode: "lines", name: T("média por idade (enganosa)", "average by age (misleading)"), line: { color: CORES.neutra, width: 2, dash: "dash" },
+        hovertemplate: `${T("idade", "age")} %{x}: %{y:+.0f}<extra>${T("média simples", "simple average")}</extra>` },
+    ], { height: 440, title: { text: T("Elo ao longo da idade (0 = aos 20 anos)", "Elo across age (0 = at age 20)"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+      xaxis: { title: T("idade (anos)", "age (years)"), dtick: 2 }, yaxis: { title: T("Elo em relação aos 20 anos", "Elo relative to age 20"), gridcolor: "rgba(137,135,129,.22)", zeroline: true },
+      legend: { orientation: "h", y: -0.2, yanchor: "top", x: 0 }, margin: { l: 70, r: 10, t: 50, b: 110 } });
+    const coresEp = [CORES.sup.Grama, CORES.pop, CORES.top], fundos = ["rgba(27,175,122,.15)", "rgba(98,80,214,.15)", "rgba(213,81,129,.15)"];
+    plot(document.getElementById("g-cv-epoca"), EPS.flatMap(([e, x], k) => [
+      ...faixa(x.idades, x.ic_inf, x.ic_sup, fundos[k]),
+      { x: x.idades, y: x.nivel, mode: "lines+markers", name: `${e} · ${T("pico", "peak")} ${x.pico}`, line: { color: coresEp[k], width: 3 }, marker: { size: 5 },
+        hovertemplate: `${e} · ${T("idade", "age")} %{x}: %{y:+.0f}<extra></extra>` }]),
+      { height: 440, title: { text: T("A curva por época (0 = aos 20 anos)", "The curve by era (0 = at age 20)"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        xaxis: { title: T("idade (anos)", "age (years)"), dtick: 2 }, yaxis: { title: T("Elo em relação aos 20 anos", "Elo relative to age 20"), gridcolor: "rgba(137,135,129,.22)", zeroline: true },
+        legend: { orientation: "h", y: -0.2, yanchor: "top", x: 0 }, margin: { l: 70, r: 10, t: 50, b: 110 } });
+    const [ea, eb] = [EPS[0][1], EPS[EPS.length - 1][1]];
+    document.getElementById("cv-nota").innerHTML = T(`<b>Leitura:</b> o jogador típico melhora rápido até os 24, chega ao auge por volta dos ${D.pico} e
+      cai devagar depois dos 30. A curva <b>mudou com as épocas</b>: nos anos 90 o auge vinha aos ${ea.pico} e, aos 30, o jogador já estava
+      ${br(-ea.aos_30, 0)} pontos abaixo dele; na época mais recente o auge chega aos ${eb.pico} e, aos 30, a queda é de só ${br(-eb.aos_30, 0)}.
+      Carreiras ficaram mais longas. <b>Limites:</b> o método delta também perde quem cai muito e para de jogar antes de completar o ano
+      seguinte, então a queda depois dos 30 é, se algo, um pouco maior do que a curva mostra; e o Elo mede força relativa ao circuito de
+      cada época.`, `<b>Reading:</b> the typical player improves fast until 24, peaks around ${D.pico} and declines slowly after 30. The
+      curve <b>changed with the eras</b>: in the 1990s the peak came at ${ea.pico} and by 30 a player was already ${br(-ea.aos_30, 0)} points
+      below it; in the most recent era the peak comes at ${eb.pico} and the drop by 30 is only ${br(-eb.aos_30, 0)}. Careers got longer.
+      <b>Limits:</b> the delta method also misses players who decline sharply and stop before completing the next year, so the decline
+      after 30 is, if anything, slightly steeper than the curve shows; and Elo measures strength relative to each era's tour.`);
   }
 
   function desenharCorrida(C) {

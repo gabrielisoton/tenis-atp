@@ -170,6 +170,7 @@ def exportar(pop: pd.DataFrame, min_pico_serie: float = 2050.0) -> dict:
         "series": series,
         "auges": (lista := auges(dep, min_pico_serie)),
         "idade_auge_por_epoca": idade_auge_por_epoca(lista),
+        "envelhecimento": curva_idade(dep),
     }
 
 
@@ -228,3 +229,62 @@ def idade_auge_por_epoca(lista: list[dict]) -> list[dict]:
         saida.append({"epoca": f"{a}–{min(b, int(ok['ano'].max()))}", "n": n, "mediana": float(g.median()), "media": float(g.mean()),
                       "ic_inf": float(g.mean() - 1.96 * ep) if ep else None, "ic_sup": float(g.mean() + 1.96 * ep) if ep else None})
     return saida
+
+
+# ------------------------------------------------------------------ curva de envelhecimento
+def _nivel(d: dict, base: int = 20, idades=range(18, 37)) -> dict:
+    """Soma variações médias d[a] (Elo de a → a+1) num nível por idade, com 0 aos `base` anos."""
+    nivel = {base: 0.0}
+    for a in range(base, max(idades)):
+        if a in d and a in nivel:
+            nivel[a + 1] = nivel[a] + d[a]
+    for a in range(base - 1, min(idades) - 1, -1):
+        if a in d and a + 1 in nivel:
+            nivel[a] = nivel[a + 1] - d[a]
+    return nivel
+
+
+def curva_idade(dep: pd.DataFrame, min_partidas: int = 10, reamostras: int = 300, semente: int = 0) -> dict:
+    """Curva de envelhecimento pelo Elo: ingênua (média por idade) × método delta (mesmo jogador, a → a+1).
+
+    A média ingênua sobe com a idade por sobrevivência: quem continua jogando aos 33 é quem é bom. O método
+    delta compara cada jogador com ele mesmo um ano depois (os dois anos com ≥ min_partidas partidas) e soma
+    as variações médias. IC 95% por reamostragem de jogadores. Por época: a época é a do ano de idade a.
+    """
+    x = dep[~dep["ano"].between(*AQUECIMENTO) & dep["idade"].notna()].copy()
+    x["a"] = np.floor(x["idade"]).astype(int)
+    s = x.groupby(["id", "a"]).agg(elo=("elo", "mean"), n=("elo", "size"), ano=("ano", "median")).reset_index()
+    s = s[s["a"].between(17, 38)]
+    ing = s[s["n"] >= min_partidas].groupby("a")["elo"].agg(["mean", "size"])
+    m = s[s["n"] >= min_partidas]
+    p = m.merge(m.assign(a=m["a"] - 1), on=["id", "a"], suffixes=("", "_2"))
+    p["d"] = p["elo_2"] - p["elo"]
+    p["epoca"] = pd.cut(p["ano"], [1992, 2002, 2012, 2100], labels=["1993–2002", "2003–2012", "2013–2025"])
+    rng = np.random.default_rng(semente)
+
+    def com_ic(pp):
+        # soma de w·d e de w por jogador × idade; cada reamostra de jogadores vira um produto de matrizes
+        pp = pp.assign(w=2 / (1 / pp["n"] + 1 / pp["n_2"]))
+        pp = pp.assign(wd=pp["w"] * pp["d"])
+        wd = pp.pivot_table(index="id", columns="a", values="wd", aggfunc="sum", fill_value=0.0)
+        w = pp.pivot_table(index="id", columns="a", values="w", aggfunc="sum", fill_value=0.0)
+        idades_a = wd.columns.astype(int).tolist()
+        media = lambda c: {a: float(x) for a, x, t in zip(idades_a, c @ wd.to_numpy(), c @ w.to_numpy()) if t > 0 for x in [x / t]}  # noqa: E731
+        nivel = _nivel(media(np.ones(len(wd))))
+        cont = rng.multinomial(len(wd), np.full(len(wd), 1 / len(wd)), size=reamostras)
+        amostras = [_nivel(media(c)) for c in cont]
+        idades = sorted(nivel)
+        ic = {a: np.percentile([b[a] for b in amostras if a in b], [2.5, 97.5]) for a in idades}
+        pico = max(nivel, key=nivel.get)
+        return {"idades": idades, "nivel": [round(nivel[a], 1) for a in idades],
+                "ic_inf": [round(float(ic[a][0]), 1) for a in idades], "ic_sup": [round(float(ic[a][1]), 1) for a in idades],
+                "pico": int(pico), "aos_30": round(nivel.get(30, np.nan) - nivel[pico], 1),
+                "pares": int(len(pp)), "jogadores": int(pp["id"].nunique())}
+
+    return {
+        "ingenua": {"idades": ing.index.astype(int).tolist(), "elo": ing["mean"].round(1).tolist(), "n": ing["size"].astype(int).tolist()},
+        "delta": com_ic(p),
+        "por_epoca": {str(e): com_ic(g) for e, g in p.groupby("epoca", observed=True)},
+        "pares_por_idade": p.groupby("a").size().astype(int).to_dict(),
+        "min_partidas": min_partidas,
+    }
