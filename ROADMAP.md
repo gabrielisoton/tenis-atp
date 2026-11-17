@@ -6,8 +6,13 @@
 > - Build **Elo ratings** to measure each player's **peak** and the age at which they reached it. That enables fair
 >   cross-era comparisons by age, plus a playful "peak vs peak" simulator.
 > - Then: rivalries (head-to-head), playing styles, court speed and match prediction.
-> - **What makes a player win:** rank the aspects of the game that matter most, both for a single match and for
->   becoming a champion, and turn them into training priorities for club players, with the limits stated clearly.
+> - **What makes a player win:** rank the aspects of the game that matter most in a single match, and turn them into
+>   training priorities for club players, with the limits stated clearly.
+> - **The world No. 1s:** follow each No. 1's indicators **from low rankings to the top**:
+>   - by ranking phase and by season, with milestones and the "breakthrough year";
+>   - against everyone and only against the Top 10;
+>   - side-by-side comparisons by age;
+>   - what all No. 1s have in common, and what fades first after the peak.
 > - Each item below is a GitHub issue.
 
 ## Princípios
@@ -65,7 +70,37 @@
     Simetricamente, a devolução contra cada um desses.
   - Aces e duplas faltas ficam ≈ 0 depois disso: valem pelo ponto que dão ou tiram, não por si.
 - **Ganhar partida ≠ ser campeão.** Campeão é bom em muitos aspectos, constante e decide sob pressão. Isso é uma
-  análise no nível do jogador, não da partida.
+  análise no nível do jogador, não da partida. Ela virou a página **"Os nº 1"** (abaixo).
+
+**Os nº 1: a jornada até o topo**
+- **Por que é a análise mais forte:** uma carreira tem história (começo, ano da virada, auge, declínio), e é isso que
+  prende o fã. O grupo é o dos **nº 1 do mundo**: critério objetivo, fácil de explicar.
+- **O que todos têm em comum** (prévia com 2000–2025: 13 nº 1 contra 366 jogadores com ≥ 100 partidas):
+  - **2º saque:** +1,9 desvio-padrão;
+  - **sets decisivos:** +1,9 (100% dos nº 1 acima de +1);
+  - **devolução:** +1,5;
+  - **tie-breaks:** +1,5;
+  - aces (+0,2) e 1º saque dentro (+0,1) estão quase na média. **Saque grande não faz um nº 1.**
+- **A jornada (Djokovic):** da fase de ranking > 50 ao nº 1:
+
+  | Indicador | > 50 | Nº 1 |
+  |---|---|---|
+  | Pontos com o 1º saque | 68% | 74,5% |
+  | Com o 2º saque | 50% | 56,5% |
+  | Devolução | 38% | 43% |
+
+  Contra o Top 10, as vitórias saltam de 27% em 2010 para **86% em 2011**, o "ano da virada" que aparece sozinho nos
+  dados.
+- **Desenho:**
+  - **eixo principal:** fase de ranking (> 50, 11–50, 4–10, 2–3, nº 1), que lida com as poucas partidas do começo de
+    carreira; temporada como linha do tempo complementar;
+  - **duas réguas:** contra todos e só contra Top 10, porque no topo os adversários são mais fortes;
+  - **seções:** a jornada, comparar jornadas (por idade), o que todos têm em comum e depois do topo.
+- **Cuidados:**
+  - **Cobertura:** só 8 dos 13 nº 1 têm o começo da carreira na base 2000+. A **base 1991+ (#2) é pré-requisito**.
+  - **Começo da carreira:** sem Challengers nem qualifying na TML, o começo tem poucas partidas.
+  - **Clutch:** momentos decisivos só viram "clutch" comparados ao esperado (#19).
+  - **Não é causa:** "o que mudou" na subida não é receita.
 - **Limites para o amador:**
   - **Não é causa:** é correlação em profissionais.
   - **Sem erros e winners:** a base não tem erros não forçados, winners, troca de bola nem subida à rede. No nível
@@ -80,9 +115,9 @@ Sampras, Agassi, Big 3 e a nova geração com tudo medido.
 |---|---|---|
 | 0 | Fundação | Base 1991+ com datas e ids, atualização automática, carregamento sob demanda |
 | 1 | Pontos e torneios | TPW%, "venceu perdendo", perfil × torneio, páginas de torneio, janela de 52 semanas |
-| 2 | Auge e épocas | Elo geral e por superfície, pico e idade do auge, corrida por idade, curva de envelhecimento, Pico × Pico |
+| 2 | Auge e épocas | Elo geral e por superfície, pico e idade do auge, corrida por idade, curva de envelhecimento, Pico × Pico, **Os nº 1: a jornada até o topo** |
 | 3 | Rivalidades e histórias | H2H, sacador × devolvedor, velocidade da quadra, viradas e sequências, pressão acima do esperado |
-| 4 | Modelos e o que faz ganhar | O que faz ganhar uma partida, perfil de campeão, guia para quem treina, previsão de partidas e calibração (Elo × ranking × ML) |
+| 4 | Modelos e o que faz ganhar | O que faz ganhar uma partida, guia para quem treina, previsão de partidas e calibração (Elo × ranking × ML) |
 
 ## Backlog
 Esforço: **P** = um dia ou menos · **M** = alguns dias · **G** = uma semana ou mais.
@@ -111,7 +146,7 @@ Esforço: **P** = um dia ou menos · **M** = alguns dias · **G** = uma semana o
 | [18](https://github.com/gabrielisoton/tenis-atp/issues/19) | Pressão acima do esperado (break points e tie-break) | 3 | M | — |
 | [19](https://github.com/gabrielisoton/tenis-atp/issues/20) | Previsão de partidas e calibração (Elo × ranking × ML) | 4 | G | 9 |
 | [20](https://github.com/gabrielisoton/tenis-atp/issues/21) | O que faz ganhar uma partida: ranking dos aspectos (leitura simples + modelo por superfície e nível) | 4 | M | — (melhor com 1) |
-| [21](https://github.com/gabrielisoton/tenis-atp/issues/22) | O que faz um campeão: perfil dos Top 10 e de quem ganha títulos | 4 | M | — (Elo em 9 ajuda) |
+| [21](https://github.com/gabrielisoton/tenis-atp/issues/22) | **Os nº 1:** a jornada até o topo (fase de ranking + temporada, ano da virada, régua contra Top 10), comparar jornadas, o que têm em comum, depois do topo | 2 | G | 1, 2 (18 ajuda) |
 | [22](https://github.com/gabrielisoton/tenis-atp/issues/23) | Guia para quem treina: prioridades a partir dos dados, com os limites | 4 | P | 20, 21 |
 
 Cada linha é uma issue no GitHub (o número leva até ela), com labels `fase-N` e `esforco-P/M/G`.
