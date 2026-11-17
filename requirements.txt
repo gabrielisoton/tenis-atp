@@ -1,4 +1,4 @@
-pandas>=2.2
+pandas>=2.2,<3  # o pandas 3 muda texto e ausentes (string dtype); o projeto foi validado no 2.x
 pyarrow>=15
 scipy>=1.13
 numpy>=1.26
