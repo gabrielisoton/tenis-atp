@@ -1,12 +1,12 @@
 # 🎾 Tênis em números · Tennis by numbers
 
-Projeto pessoal de analytics de tênis: todas as **66.819 partidas** do circuito principal da ATP entre 2000 e 2025,
+Projeto pessoal de analytics de tênis: todas as **96.165 partidas** do circuito principal da ATP entre 1991 e 2025,
 com saque, devolução, break points, tie-breaks e títulos de cada jogador. Site estático em **português e inglês**.
 
 - **Site:** https://gabrielisoton.github.io/tenis-atp/ (em inglês: `?lang=en`)
 - **Roadmap e backlog:** [ROADMAP.md](ROADMAP.md) e as [issues](https://github.com/gabrielisoton/tenis-atp/issues) · [quadro](https://github.com/users/gabrielisoton/projects/1)
 
-> *Personal tennis analytics project: every main-tour ATP match from 2000 to 2025, with serve, return, break
+> *Personal tennis analytics project: every main-tour ATP match from 1991 to 2025, with serve, return, break
 > points, tie-breaks and titles per player. Static site in Portuguese and English.*
 
 ## Páginas
@@ -20,7 +20,7 @@ com saque, devolução, break points, tie-breaks e títulos de cada jogador. Sit
 ## Como funciona
 O Python é o motor: baixa a base, monta a população e exporta JSON. O site só desenha e filtra no navegador.
 ```
-dados/      baixar.py (CSVs da TML) → preparar_populacao.py (base/populacao.parquet)
+dados/      baixar.py (CSVs da TML, 1991+) → preparar_populacao.py (base/populacao.parquet, com data, ids e ordem)
 tenis/      estatistica.py, analises.py (critérios, líderes, perfis), exportacao.py, idiomas.py (rótulos em inglês)
 scripts/    exportar_site.py (gera site/data/*.json) · validar_estatistica.py (confere contra o scipy)
 site/       index, circuito, explorar, jogadores + assets/ + data/  → publicado no GitHub Pages pelo Actions

@@ -248,7 +248,7 @@ function combobox(input, opcoes, detalhe, aoEscolher, maxItens = 150) {
 /* compara com os valores calculados no Python */
 function conferir(J) {
   const tudo = new Set([0, 1, 2, 3]), niv = new Set([0, 1, 2, 3, 4]);
-  const { tab } = tabelaJogadores(J, [2000, 2025], tudo, niv, 100);
+  const { tab } = tabelaJogadores(J, J.anos, tudo, niv, 100);
   const erros = [];
   for (const c of J.criterios) {
     const top = rankear(tab.map(r => ({ ...r })), c).slice(0, 3).map(r => [r.nome, r[c.chave]]);
@@ -256,7 +256,7 @@ function conferir(J) {
       if (!top[k] || top[k][0] !== n || Math.abs(top[k][1] - v) > 1e-5) erros.push(`top3 ${c.chave} #${k + 1}: ${top[k]} × ${n} ${v}`);
     });
   }
-  const p = perfil(J, "Roger Federer", [2000, 2025], tudo);
+  const p = perfil(J, "Roger Federer", J.anos, tudo);
   J.checagem.federer.forEach(ref => {
     const f = p.ficha.find(x => x.c.chave === ref.chave);
     const ok = (a, b) => (a === null && b === null) || Math.abs(a - b) < 1e-4;

@@ -2,7 +2,7 @@
 
 - Top N × demais: onde os melhores do ranking se diferenciam (saque, devolução, break points…)
 - Ranking × zebras: chance de o favorito vencer conforme a diferença de ranking
-- Linha do tempo: como o jogo mudou de 2000 a 2025
+- Linha do tempo: como o jogo mudou temporada a temporada
 - Jogadores: ranking por critério e perfil individual (página extra "Jogadores")
 """
 from __future__ import annotations

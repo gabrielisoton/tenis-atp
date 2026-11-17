@@ -22,11 +22,15 @@ function secaoBase(el, r, { unidade = "Unidade amostral", tituloPop = "Populaç�
     <div class="cartao">
       <h3>${tituloPop}</h3>
       <p><b>${T("População", "Population")}:</b> ${T(`todas as partidas de simples do circuito principal da ATP (Grand Slams, ATP Finals,
-        Masters 1000, ATP 500 e 250) <b>concluídas</b> entre 2000 e 2025.`, `every <b>completed</b> singles match on the main
-        ATP tour (Grand Slams, ATP Finals, Masters 1000, ATP 500 and 250) between 2000 and 2025.`)}</p>
+        Masters 1000, ATP 500 e 250) <b>concluídas</b> entre ${r.ano_min} e ${r.ano_max}.`, `every <b>completed</b> singles match on the main
+        ATP tour (Grand Slams, ATP Finals, Masters 1000, ATP 500 and 250) between ${r.ano_min} and ${r.ano_max}.`)}</p>
+      <p style="font-size:.9rem;color:var(--tinta-2)">${T(`<b>Por que ${r.ano_min}?</b> É a primeira temporada com estatísticas
+        de saque, devolução e duração em quase todas as partidas (${br(r.pct_com_estatisticas, 1)}% da base). Antes disso a fonte só
+        tem resultado e placar.`, `<b>Why ${r.ano_min}?</b> It is the first season with serve, return and duration stats for almost
+        every match (${br(r.pct_com_estatisticas, 1)}% of the data). Before that the source only has results and scores.`)}</p>
       <p><b>${unidade}:</b> ${T("a partida", "the match")}.</p>
       <div class="funil">${[
-        [T("Partidas brutas 2000–2025", "Raw matches 2000–2025"), e.partidas_brutas_2000_2025],
+        [T(`Partidas brutas ${r.periodo}`, `Raw matches ${r.periodo}`), e.partidas_brutas],
         [T("Só circuito principal", "Main tour only"), e.apos_filtro_nivel],
         [T("Só partidas concluídas = população", "Completed matches only = population"), e.apos_excluir_nao_concluidas],
       ].map(([rot, v], i) => `<div class="passo" style="margin-left:${i * 14}px;margin-right:${i * 14}px">

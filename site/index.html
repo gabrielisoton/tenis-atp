@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-en="Tennis by numbers">Tênis em números</title>
-<meta name="description" content="O circuito ATP de 2000 a 2025 em números: quem é o melhor em cada aspecto do jogo, ranking, zebras e a evolução do tênis. · The ATP tour from 2000 to 2025 in numbers: who is the best at each part of the game.">
+<meta name="description" content="O circuito ATP desde 1991 em números: quem é o melhor em cada aspecto do jogo, ranking, zebras e a evolução do tênis. · The ATP tour from 2000 to 2025 in numbers: who is the best at each part of the game.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css?v=4">
 <script src="assets/site.js?v=4"></script>
-<script src="assets/comum.js?v=6"></script>
-<script src="assets/base.js?v=4"></script>
+<script src="assets/comum.js?v=7"></script>
+<script src="assets/base.js?v=5"></script>
 </head>
 <body>
 <header class="hero">
   <div id="quadra"></div>
   <div class="hero-dentro">
-    <span class="etiqueta"><span data-l="pt">Analytics de tênis</span><span data-l="en">Tennis analytics</span> · ATP 2000–2025</span>
+    <span class="etiqueta"><span data-l="pt">Analytics de tênis</span><span data-l="en">Tennis analytics</span> · ATP <span data-meta="periodo"></span></span>
     <h1 data-l="pt">Tênis em números<br><em>quem é o melhor</em> em cada aspecto do jogo?</h1>
     <h1 data-l="en">Tennis by numbers<br><em>who is the best</em> at each part of the game?</h1>
-    <p data-l="pt">Todas as <b>66.819 partidas</b> do circuito principal da ATP entre 2000 e 2025, com saque, devolução, break points,
+    <p data-l="pt">Todas as <b><span data-meta="N"></span> partidas</b> do circuito principal da ATP entre <span data-meta="ano_min"></span> e <span data-meta="ano_max"></span>, com saque, devolução, break points,
       tie-breaks e títulos de cada jogador. Explore o circuito, compare a elite com o resto e veja o perfil completo de
       cada jogador.</p>
-    <p data-l="en">All <b>66,819 matches</b> on the main ATP tour between 2000 and 2025, with every player's serve, return,
+    <p data-l="en">All <b><span data-meta="N"></span> matches</b> on the main ATP tour between <span data-meta="ano_min"></span> and <span data-meta="ano_max"></span>, with every player's serve, return,
       break points, tie-breaks and titles. Explore the tour, compare the elite with the rest and see each player's full
       profile.</p>
   </div>
@@ -40,8 +40,8 @@
         <span data-l="en">What a typical match looks like: surfaces, duration, aces, ranking. With filters.</span></div></a>
     <a class="cartao set" href="explorar.html"><span class="faixa" style="background:var(--top)"></span>
       <div class="n">Tie-break</div><h3><span data-l="pt">Explorar</span><span data-l="en">Explore</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Top 10 × resto: onde a elite se diferencia. Ranking e zebras. Como o jogo mudou em 25 anos.</span>
-        <span data-l="en">Top 10 vs the rest: where the elite stands out. Ranking and upsets. How the game changed in 25 years.</span></div></a>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Top 10 × resto: onde a elite se diferencia. Ranking e zebras. Como o jogo mudou desde 1991.</span>
+        <span data-l="en">Top 10 vs the rest: where the elite stands out. Ranking and upsets. How the game has changed since 1991.</span></div></a>
     <a class="cartao set" href="jogadores.html"><span class="faixa" style="background:var(--top)"></span>
       <div class="n"><span data-l="pt">Vestiário</span><span data-l="en">Locker room</span></div>
       <h3><span data-l="pt">Jogadores</span><span data-l="en">Players</span></h3>
@@ -85,7 +85,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const r = meta.resumo;
   placar(document.getElementById("placar"), [
     { rot: T("Partidas", "Matches"), num: br(r.N, 0), sub: T("circuito principal, concluídas", "main tour, completed") },
-    { rot: T("Temporadas", "Seasons"), num: "26", sub: r.periodo },
+    { rot: T("Temporadas", "Seasons"), num: String(r.n_temporadas), sub: r.periodo },
     { rot: T("Jogadores", "Players"), num: br(r.n_jogadores, 0), sub: T(`${br(r.n_torneios, 0)} edições de torneios`, `${br(r.n_torneios, 0)} tournament editions`) },
     { rot: T("Colunas", "Columns"), num: br(r.n_variaveis, 0), sub: T("na base processada", "in the processed data") },
   ]);

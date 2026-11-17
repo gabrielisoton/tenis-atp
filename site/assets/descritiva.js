@@ -96,7 +96,7 @@ function aplicarFiltros(d, f) {
   return idx;
 }
 function montarFiltros(el, meta, f, aoMudar) {
-  const anos = []; for (let a = 2000; a <= 2025; a++) anos.push(a);
+  const anos = []; for (let a = meta.resumo.ano_min; a <= meta.resumo.ano_max; a++) anos.push(a);
   const chips = (grupo, lista, cor) => lista.map(([v, r]) =>
     `<button class="chip ${f[grupo].has(v) ? "on" : ""}" data-g="${grupo}" data-v="${v}">` +
     (cor ? `<span class="pt" style="background:${cor[r]}"></span>` : "") + `${r}</button>`).join("");

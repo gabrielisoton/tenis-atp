@@ -148,8 +148,19 @@ function plot(el, dados, layout = {}) {
 function rodape() {
   const f = document.createElement("footer");
   f.innerHTML = `${SITE.rodape ? L(SITE.rodape) + "<br>" : ""}
-    ${T("Dados", "Data")}: <a href="https://github.com/Tennismylife/TML-Database">TML-Database (Tennismylife)</a>, ATP 2000–2025, ${T("uso educacional", "educational use")}.`;
+    ${T("Dados", "Data")}: <a href="https://github.com/Tennismylife/TML-Database">TML-Database (Tennismylife)</a>, ATP <span data-meta="periodo"></span>, ${T("uso educacional", "educational use")}.`;
   document.body.append(f);
 }
 
-document.addEventListener("DOMContentLoaded", () => { aplicarIdiomaFixo(); montarNav(); rodape(); });
+/* números da base no texto fixo: <span data-meta="N|periodo|ano_min|ano_max|n_temporadas"></span>
+   (vêm de data/meta.json, então o texto acompanha a base quando ela é atualizada) */
+function preencherMeta() {
+  const alvos = document.querySelectorAll("[data-meta]");
+  if (!alvos.length) return;
+  carregar("meta").then(m => alvos.forEach(el => {
+    const v = m.resumo[el.dataset.meta];
+    el.textContent = typeof v === "number" && v > 9999 ? br(v, 0) : v;
+  }));
+}
+
+document.addEventListener("DOMContentLoaded", () => { aplicarIdiomaFixo(); montarNav(); rodape(); preencherMeta(); });

@@ -9,16 +9,16 @@
 <link rel="stylesheet" href="assets/estilo.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=4"></script>
-<script src="assets/comum.js?v=6"></script>
-<script src="assets/descritiva.js?v=5"></script>
+<script src="assets/comum.js?v=7"></script>
+<script src="assets/descritiva.js?v=6"></script>
 </head>
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
   <span class="etiqueta">Tie-break · <span data-l="pt">Explorar</span><span data-l="en">Explore</span></span>
   <h1><span data-l="pt">O que separa os melhores do resto?</span><span data-l="en">What sets the best apart from the rest?</span></h1>
-  <p data-l="pt">Análises descritivas com a <b>população inteira</b> (66.819 partidas do circuito principal, 2000–2025). Ajudam a
+  <p data-l="pt">Análises descritivas com a <b>população inteira</b> (<span data-meta="N"></span> partidas do circuito principal, <span data-meta="periodo"></span>). Ajudam a
     entender o jogo e conversam com IA.</p>
-  <p data-l="en">Descriptive analyses of the <b>whole population</b> (66,819 main-tour matches, 2000–2025). They help explain
+  <p data-l="en">Descriptive analyses of the <b>whole population</b> (<span data-meta="N"></span> main-tour matches, <span data-meta="periodo"></span>). They help explain
     the game and connect with AI.</p>
 </div></header>
 <main class="conteudo" id="area">
@@ -68,19 +68,25 @@
     <div class="cartao"><div id="tempo-g" class="grafico" style="min-height:420px"></div><p class="nota" id="tempo-txt"></p></div>
     <div class="cartao" style="margin-top:14px"><h3 style="margin-top:0"><span data-l="pt">Destaques</span><span data-l="en">Highlights</span></h3>
       <ul data-l="pt">
-      <li>As partidas <b>ficaram mais longas</b>: o melhor de 3 passou de cerca de 91 para 109 minutos. Uma hipótese é o
+      <li>As partidas <b>encurtaram e depois ficaram bem mais longas</b>: o melhor de 3 caiu de 96 minutos em 1991 para cerca
+        de 88 no fim dos anos 90 (quadras rápidas, saque e voleio) e subiu para 109–111 minutos nos anos 2020. Uma hipótese é o
         jogo mais físico, com trocas longas do fundo de quadra. A base não permite testar a causa.</li>
-      <li>A <b>idade dos vencedores subiu</b> até cerca de 2015 (era do Big 3 e dos veteranos) e depois começou a cair com a
-        nova geração.</li>
-      <li>A % de vitórias do favorito <b>subiu na era de domínio do Big 3</b> (cerca de 68% entre 2009 e 2016) e <b>voltou a
-        cerca de 64%</b> depois. O circuito ficou mais imprevisível.</li></ul>
+      <li>Os <b>aces subiram cerca de 70%</b> por partida (8,0 em 1991, 13,4 em 2025). Os vencedores também ficaram mais altos
+        (184 cm em média em 1991, 188 cm em 2025).</li>
+      <li>A <b>idade dos vencedores subiu</b> de 24,3 anos (1991) até o pico de 28,2 (2016–17), a era do Big 3 e dos veteranos,
+        e voltou a cerca de 26,5 com a nova geração.</li>
+      <li>A % de vitórias do favorito <b>chegou ao máximo no domínio do Big 3</b> (68–69% em 2014–15) e <b>voltou a cerca de
+        64%</b>, o mesmo nível dos anos 90. Os <b>canhotos</b> caíram de 20% das vitórias em 1991 para 12% em 2025.</li></ul>
       <ul data-l="en">
-      <li>Matches <b>got longer</b>: best of 3 went from about 91 to 109 minutes. One hypothesis is a more physical game,
+      <li>Matches <b>got shorter, then much longer</b>: best of 3 dropped from 96 minutes in 1991 to about 88 in the late
+        1990s (fast courts, serve and volley) and rose to 109–111 minutes in the 2020s. One hypothesis is a more physical game,
         with long baseline rallies. The data cannot test the cause.</li>
-      <li>The <b>winners' age went up</b> until about 2015 (the era of the Big 3 and the veterans) and then started to fall
-        with the new generation.</li>
-      <li>The favourite's win rate <b>rose during the Big 3's dominance</b> (about 68% between 2009 and 2016) and <b>went back
-        to about 64%</b> afterwards. The tour became less predictable.</li></ul></div>
+      <li><b>Aces rose by about 70%</b> per match (8.0 in 1991, 13.4 in 2025). Winners also got taller (184 cm on average in
+        1991, 188 cm in 2025).</li>
+      <li>The <b>winners' age rose</b> from 24.3 (1991) to a peak of 28.2 (2016–17), the era of the Big 3 and the veterans,
+        and went back to about 26.5 with the new generation.</li>
+      <li>The favourite's win rate <b>peaked during the Big 3's dominance</b> (68–69% in 2014–15) and <b>went back to about
+        64%</b>, the same level as the 1990s. <b>Left-handers</b> fell from 20% of wins in 1991 to 12% in 2025.</li></ul></div>
   </section>
 </main>
 <script>

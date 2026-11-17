@@ -62,6 +62,7 @@ def jogadores(pop: pd.DataFrame) -> dict:
     fed = an.perfil_jogador(lg, pop, "Roger Federer")["ficha"][["chave", "valor", "percentil", "posicao", "total"]]
     return {
         "nomes": nomes,
+        "anos": [int(pop["ano"].min()), int(pop["ano"].max())],
         "criterios": [{"chave": c.chave, "nome": c.nome, "num": c.num, "den": c.den, "maior_melhor": c.maior_melhor,
                        "tipo": c.tipo, "grupo": c.grupo, "desc": c.desc} for c in an.CRITERIOS],
         "linhas": col,

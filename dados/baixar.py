@@ -1,4 +1,7 @@
-"""Passo 1 — baixa os CSVs anuais da TML-Database (ATP, 2000–2025).
+"""Passo 1 — baixa os CSVs anuais da TML-Database (ATP, 1991–2025).
+
+1991 é a primeira temporada com estatísticas de saque e duração em quase todas as partidas; antes disso a
+base só tem resultado, placar e (desde 1973) ranking. A temporada em andamento entra pela atualização automática.
 
 Fonte: https://github.com/Tennismylife/TML-Database (mesmo esquema de colunas
 da antiga base JeffSackmann/tennis_atp, removida do GitHub em 2026).
@@ -9,7 +12,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent  # pasta dados/
 RAW = BASE / "base" / "raw"
 URL = "https://raw.githubusercontent.com/Tennismylife/TML-Database/master/{ano}.csv"
-ANOS = range(2000, 2026)
+ANOS = range(1991, 2026)
 
 
 def main() -> None:

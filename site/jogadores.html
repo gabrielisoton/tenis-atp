@@ -9,9 +9,9 @@
 <link rel="stylesheet" href="assets/estilo.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=4"></script>
-<script src="assets/comum.js?v=6"></script>
-<script src="assets/descritiva.js?v=5"></script>
-<script src="assets/jogadores.js?v=6"></script>
+<script src="assets/comum.js?v=7"></script>
+<script src="assets/descritiva.js?v=6"></script>
+<script src="assets/jogadores.js?v=7"></script>
 <style>
   .barra-pct { position: relative; height: 10px; background: #ecebe5; border-radius: 6px; min-width: 90px; }
   .barra-pct i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
@@ -48,9 +48,9 @@
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
   <span class="etiqueta"><span data-l="pt">Vestiário · Jogadores</span><span data-l="en">Locker room · Players</span></span>
   <h1><span data-l="pt">Quem é o melhor em cada aspecto do jogo?</span><span data-l="en">Who is the best at each part of the game?</span></h1>
-  <p data-l="pt">Todas as partidas do circuito principal da ATP de 2000 a 2025. Os números cobrem só esse recorte, <b>sem
+  <p data-l="pt">Todas as partidas do circuito principal da ATP entre <span data-meta="ano_min"></span> e <span data-meta="ano_max"></span>. Os números cobrem só esse recorte, <b>sem
     Challengers, qualificatórios, Copa Davis nem Olimpíadas</b>, então diferem das estatísticas oficiais de carreira.</p>
-  <p data-l="en">Every match on the main ATP tour from 2000 to 2025. The numbers cover only that scope, <b>without
+  <p data-l="en">Every match on the main ATP tour between <span data-meta="ano_min"></span> and <span data-meta="ano_max"></span>. The numbers cover only that scope, <b>without
     Challengers, qualifying, Davis Cup or the Olympics</b>, so they differ from official career statistics.</p>
 </div></header>
 <main class="conteudo" id="area">
@@ -118,7 +118,7 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   CR.forEach(c => { c.nome = tr(c.nome); c.grupo = tr(c.grupo); c.desc = tr(c.desc); });
   const PP = T("p.p.", "pp"), PART = T("partidas", "matches");
 
-  const anos = []; for (let a = 2000; a <= 2025; a++) anos.push(a);
+  const [A0, A1] = J.anos, anos = []; for (let a = A0; a <= A1; a++) anos.push(a);
   const opAnos = sel => anos.map(a => `<option ${a === sel ? "selected" : ""}>${a}</option>`).join("");
   const chips = (el, lista, set, cores, aoMudar) => {
     el.innerHTML = lista.map((r, v) => `<button class="chip ${set.has(v) ? "on" : ""}" data-v="${v}">` +
@@ -138,10 +138,10 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   const eixoC = c => ({ tickformat: c.tipo === "%" ? ".0%" : null });
 
   /* ================= líderes ================= */
-  const LD = { a0: 2000, a1: 2025, sup: new Set([0, 1, 2, 3]), niv: new Set([0, 1, 2, 3, 4]) };
+  const LD = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]), niv: new Set([0, 1, 2, 3, 4]) };
   const COR_MED = { ouro: "#c98500", prata: "#a8a6a0", bronze: "#8c5a3c" }, ICO = { ouro: "🥇", prata: "🥈", bronze: "🥉" };
   const TOPN = 10;
-  document.getElementById("l-a0").innerHTML = opAnos(2000); document.getElementById("l-a1").innerHTML = opAnos(2025);
+  document.getElementById("l-a0").innerHTML = opAnos(A0); document.getElementById("l-a1").innerHTML = opAnos(A1);
   document.getElementById("l-comoler").innerHTML = comoLer(T(`Cada linha é um critério, com os <b>três melhores</b> jogadores do
     recorte (entre os que têm o mínimo de partidas) e o valor de cada um. Em duplas faltas por game, o melhor é quem comete
     <b>menos</b>.<br><br><b>Vantagem do 1º</b> é a distância para o 2º colocado (em pontos percentuais nas proporções).<br><br>
@@ -223,10 +223,10 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   desenharLideres();
 
   /* ================= ranking ================= */
-  const R = { a0: 2000, a1: 2025, sup: new Set([0, 1, 2, 3]), niv: new Set([0, 1, 2, 3, 4]) };
+  const R = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]), niv: new Set([0, 1, 2, 3, 4]) };
   const rc = document.getElementById("r-crit");
   rc.innerHTML = CR.map(c => `<option value="${c.chave}">${c.grupo} · ${c.nome}</option>`).join("");
-  document.getElementById("r-a0").innerHTML = opAnos(2000); document.getElementById("r-a1").innerHTML = opAnos(2025);
+  document.getElementById("r-a0").innerHTML = opAnos(A0); document.getElementById("r-a1").innerHTML = opAnos(A1);
   document.getElementById("r-comoler").innerHTML = comoLer(T(`Cada linha é um jogador com pelo menos o mínimo de partidas no
     recorte. Os valores são <b>razões de somas</b>: em "pontos ganhos no saque", somamos todos os pontos que ele venceu sacando e
     dividimos por todos os pontos que sacou.<br><br><b>Por que o mínimo de partidas importa?</b> O valor de cada jogador é uma
@@ -296,9 +296,9 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   desenharRanking();
 
   /* ================= perfil ================= */
-  const P = { a0: 2000, a1: 2025, sup: new Set([0, 1, 2, 3]) };
+  const P = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]) };
   const car = carreira(J);
-  document.getElementById("p-a0").innerHTML = opAnos(2000); document.getElementById("p-a1").innerHTML = opAnos(2025);
+  document.getElementById("p-a0").innerHTML = opAnos(A0); document.getElementById("p-a1").innerHTML = opAnos(A1);
   let critAnual = "vitorias";
 
   function desenharPerfil() {
@@ -311,7 +311,7 @@ ligarAbas(document.getElementById("area"), "#abas-j");
     const jogo = fic.filter(f => f.c.tipo !== "n" && f.percentil !== null).sort((a, b) => a.percentil - b.percentil);
     const de = (pos, tot) => T(`${pos}º de ${tot}`, `${ordinal(pos)} of ${tot}`);
     const li = f => `<li><b>${f.c.nome}</b>: ${fmtC(f.c, f.valor)} · ${T("melhor que", "better than")} ${fmtPctl(f.percentil)} ${T("dos demais", "of the others")} (${de(f.posicao, f.total)})</li>`;
-    const recorte = (P.a0 === 2000 && P.a1 === 2025 ? T("toda a base", "whole database") : `${P.a0}–${P.a1}`) +
+    const recorte = (P.a0 === A0 && P.a1 === A1 ? T("toda a base", "whole database") : `${P.a0}–${P.a1}`) +
       (P.sup.size === 4 ? "" : " · " + [...P.sup].map(s => tr(SUPS[s]).toLowerCase()).join(", "));
     corpo.innerHTML = `
       <div id="p-placar"></div>

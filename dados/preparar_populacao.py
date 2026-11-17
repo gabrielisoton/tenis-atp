@@ -1,15 +1,16 @@
 """Passo 2 — monta a POPULAÇÃO a partir dos CSVs brutos da TML-Database.
 
 População de interesse: todas as partidas de simples do circuito principal
-da ATP entre 2000 e 2025 (Grand Slams, ATP Finals, Masters 1000, ATP 500 e
+da ATP entre 1991 e 2025 (Grand Slams, ATP Finals, Masters 1000, ATP 500 e
 ATP 250) que foram concluídas em quadra.
 
 Ficam fora:
 - Copa Davis (D), Jogos Olímpicos (O) e eventos por equipes ou de exibição
-  (nível A: ATP Cup, United Cup, Laver Cup, Next Gen Finals com sets curtos);
+  (nível A: World Team Cup, Grand Slam Cup, ATP Cup, United Cup, Laver Cup, Next Gen Finals);
 - partidas não concluídas: W/O (walkover), RET (abandono) e DEF (desclassificação).
 
-Unidade de análise: a partida.
+Unidade de análise: a partida. Data do torneio, ids e ordem da partida ficam na base para análises de
+carreira (Elo, janelas de 52 semanas, jogadores homônimos).
 """
 import json
 import re
@@ -37,6 +38,7 @@ RODADAS = {
 }
 MAOS = {"R": "Destro", "L": "Canhoto"}
 SET_RE = re.compile(r"\d+-\d+")
+ANOS = (1991, 2025)  # temporadas completas; a atual entra pela atualização automática
 
 
 def carregar_brutos() -> pd.DataFrame:
@@ -46,8 +48,41 @@ def carregar_brutos() -> pd.DataFrame:
     return pd.concat([pd.read_csv(f, low_memory=False) for f in arquivos], ignore_index=True)
 
 
+def nomes_por_id(pop: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
+    """Um nome por jogador (id), e um id por nome exibido.
+
+    - Erro de digitação na fonte: o mesmo id com nomes diferentes fica com o nome mais frequente
+      (ex.: uma partida de John Millman, id MH30, registrada como "Marc-Andrea Huesler").
+    - Homônimos: nomes iguais com ids diferentes ganham o país no nome, menos o de mais partidas
+      (ex.: Martin Damm, tcheco dos anos 90, e "Martin Damm (USA)", americano a partir de 2024).
+    """
+    lados = [("vencedor", "id_vencedor", "pais_vencedor"), ("perdedor", "id_perdedor", "pais_perdedor")]
+    todos = pd.concat([pop[list(c)].set_axis(["nome", "id", "pais"], axis=1) for c in lados])
+    mais_frequente = lambda s: s.value_counts(dropna=False).index[0]  # noqa: E731
+    nome = todos.groupby("id")["nome"].agg(mais_frequente)
+    pais = todos.groupby("id")["pais"].agg(mais_frequente)
+    partidas = todos["id"].value_counts()
+    correcoes = []
+    for n, ids in nome.groupby(nome).groups.items():
+        if len(ids) > 1:
+            principal = max(ids, key=lambda i: partidas[i])
+            for i in ids:
+                if i != principal:
+                    nome[i] = f"{n} ({pais[i]})"
+                    correcoes.append(f"homônimo: {i} {n} → {nome[i]}")
+    for n_col, id_col, _ in lados:
+        novo = pop[id_col].map(nome)
+        trocas = pop.loc[pop[n_col] != novo, [id_col, n_col]].drop_duplicates()
+        correcoes += [f"nome: {i} {antigo} → {nome[i]}" for i, antigo in trocas.itertuples(index=False)
+                      if not antigo == nome[i].split(" (")[0]]
+        pop[n_col] = novo
+    return pop, sorted(set(correcoes))
+
+
 def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    etapas = {"partidas_brutas_2000_2025": len(bruto)}
+    ano = bruto["tourney_date"].astype(str).str[:4].astype(int)
+    bruto = bruto[ano.between(*ANOS)]
+    etapas = {"partidas_brutas": len(bruto)}
 
     df = bruto[bruto["tourney_level"].astype(str).isin(NIVEIS)].copy()
     etapas["apos_filtro_nivel"] = len(df)
@@ -60,8 +95,14 @@ def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     rank_ok = df["winner_rank"].notna() & df["loser_rank"].notna()
     minutos = df["minutes"].where(df["minutes"].between(20, 720))  # <20 min = erro de registro
 
+    data = pd.to_datetime(df["tourney_date"].astype(str), format="%Y%m%d")
     pop = pd.DataFrame({
-        "ano": df["tourney_date"].astype(str).str[:4].astype(int),
+        "ano": data.dt.year,
+        "data": data.dt.strftime("%Y-%m-%d"),           # início do torneio
+        "id_torneio": df["tourney_id"].astype(str),
+        "ordem": df["match_num"],                         # ordem da partida dentro do torneio
+        "id_vencedor": df["winner_id"].astype(str),
+        "id_perdedor": df["loser_id"].astype(str),
         "torneio": df["tourney_name"],
         "nivel": df["tourney_level"].astype(str).map(NIVEIS),
         "superficie": df["surface"].map(SUPERFICIES),
@@ -99,13 +140,18 @@ def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         rank_ok, np.where(df["winner_rank"] < df["loser_rank"], "Sim", "Não"), None
     )
     pop["dif_ranking"] = (df["winner_rank"] - df["loser_rank"]).abs()
-    pop = pop.reset_index(drop=True)
+    pop, correcoes = nomes_por_id(pop)
+    pop = pop.sort_values(["data", "id_torneio", "ordem"], kind="stable").reset_index(drop=True)
     pop.insert(0, "id_partida", np.arange(1, len(pop) + 1))
 
     etapas["N_populacao"] = len(pop)
     resumo = {
         "fonte": "TML-Database (Tennismylife) — https://github.com/Tennismylife/TML-Database",
         "periodo": f"{pop['ano'].min()}–{pop['ano'].max()}",
+        "ano_min": int(pop["ano"].min()), "ano_max": int(pop["ano"].max()),
+        "n_temporadas": int(pop["ano"].nunique()),
+        "pct_com_estatisticas": round(100 * pop["v_svpt"].notna().mean(), 1),
+        "correcoes_de_nome": correcoes,
         "N": len(pop),
         "n_variaveis": pop.shape[1],
         "n_variaveis_brutas": bruto.shape[1],
