@@ -70,6 +70,7 @@ function br(x, casas = 2) {
   if (x === null || x === undefined || Number.isNaN(x)) return "—";
   return Number(x).toLocaleString(EM_INGLES ? "en-US" : "pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
 }
+const dataCurta = d => d ? new Date(d + "T12:00:00").toLocaleDateString(EM_INGLES ? "en-GB" : "pt-BR") : "—";
 const pct = (x, casas = 1) => (x === null || x === undefined) ? "—" : br(100 * x, casas) + "%";
 
 /* ---------------- navegação ---------------- */
@@ -148,7 +149,8 @@ function plot(el, dados, layout = {}) {
 function rodape() {
   const f = document.createElement("footer");
   f.innerHTML = `${SITE.rodape ? L(SITE.rodape) + "<br>" : ""}
-    ${T("Dados", "Data")}: <a href="https://github.com/Tennismylife/TML-Database">TML-Database (Tennismylife)</a>, ATP <span data-meta="periodo"></span>, ${T("uso educacional", "educational use")}.`;
+    ${T("Dados", "Data")}: <a href="https://github.com/Tennismylife/TML-Database">TML-Database (Tennismylife)</a>, ATP <span data-meta="periodo"></span>, ${T("uso educacional", "educational use")}.
+    <span class="selo-dados">${T("Dados até", "Data up to")} <b data-meta="data_corte"></b> (<span data-meta="ultimos_torneios"></span>)</span>`;
   document.body.append(f);
 }
 
@@ -168,7 +170,8 @@ function preencherMeta() {
   if (!alvos.length) return;
   carregar("meta").then(m => alvos.forEach(el => {
     const v = m.resumo[el.dataset.meta];
-    el.textContent = typeof v === "number" && v > 9999 ? br(v, 0) : v;
+    el.textContent = el.dataset.meta === "data_corte" ? dataCurta(v) : Array.isArray(v) ? v.join(T(" e ", " and "))
+      : typeof v === "number" && v > 9999 ? br(v, 0) : v;
   }));
 }
 

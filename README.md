@@ -1,13 +1,14 @@
 # 🎾 Tênis em números · Tennis by numbers
 
-Projeto pessoal de analytics de tênis: todas as **96.165 partidas** do circuito principal da ATP entre 1991 e 2025,
-com saque, devolução, break points, tie-breaks e títulos de cada jogador. Site estático em **português e inglês**.
+Projeto pessoal de analytics de tênis: todas as partidas do circuito principal da ATP **desde 1991** (mais de 96 mil),
+com saque, devolução, break points, tie-breaks e títulos de cada jogador. Site estático em **português e inglês**,
+atualizado todo mês; o rodapé de cada página mostra até quando vão os dados.
 
 - **Site:** https://gabrielisoton.github.io/tenis-atp/ (em inglês: `?lang=en`)
 - **Roadmap e backlog:** [ROADMAP.md](ROADMAP.md) e as [issues](https://github.com/gabrielisoton/tenis-atp/issues) · [quadro](https://github.com/users/gabrielisoton/projects/1)
 
-> *Personal tennis analytics project: every main-tour ATP match from 1991 to 2025, with serve, return, break
-> points, tie-breaks and titles per player. Static site in Portuguese and English.*
+> *Personal tennis analytics project: every main-tour ATP match since 1991, with serve, return, break points,
+> tie-breaks and titles per player. Static site in Portuguese and English, updated monthly.*
 
 ## Páginas
 Cinco páginas, cada uma respondendo a um tipo de pergunta. Cada aba tem endereço próprio (`pagina.html#aba`), para
@@ -49,6 +50,17 @@ python scripts/validar_elo.py              # Elo: previsão, calibração e pico
 python scripts/validar_numero1.py          # nº 1: anos da virada, cobertura, marcos e o que todos têm em comum
 python -m http.server 8600 -d site     # http://localhost:8600
 ```
+
+## Atualização automática
+A Action [`atualizar.yml`](.github/workflows/atualizar.yml) roda no dia 3 de cada mês (ou à mão, em *Actions*):
+1. `dados/baixar.py` baixa de novo as duas últimas temporadas e grava `dados/base/fonte.json`, o sha256 de cada CSV;
+2. se esse arquivo não mudou, a TML não tem partidas novas e a Action para aí;
+3. se mudou, refaz a base, exporta o site e roda as três validações; passando, faz o commit e publica.
+
+**Temporada em andamento:** entra parcial. Elo, títulos, confrontos e perfis usam todas as partidas; as contas
+**por temporada** (linha do tempo, nº 1 de cada ano, temporadas dos nº 1) usam só temporadas completas, e a
+temporada termina com o ATP Finals (sem partidas desde 1º/nov, ela ainda está em andamento). "Jogador ativo" é
+quem jogou nos 12 meses antes da última data da base. O selo "dados até" sai de `resumo_populacao.json`.
 
 ## Idiomas
 Seletor **PT / EN** na barra (a escolha fica salva e vai na URL, `?lang=en`).

@@ -1,23 +1,30 @@
 {
   "fonte": "TML-Database (Tennismylife) — https://github.com/Tennismylife/TML-Database",
-  "periodo": "1991–2025",
+  "periodo": "1991–2026",
   "ano_min": 1991,
-  "ano_max": 2025,
-  "n_temporadas": 35,
+  "ano_max": 2026,
+  "n_temporadas": 36,
+  "data_corte": "2026-01-17",
+  "ultimos_torneios": [
+    "Adelaide",
+    "Auckland"
+  ],
+  "temporada_parcial": true,
+  "ultima_temporada_completa": 2025,
   "pct_com_estatisticas": 99.7,
   "n_stats_impossiveis": 168,
   "correcoes_de_nome": [
     "homônimo: D0DT Martin Damm → Martin Damm (USA)",
     "nome: MH30 Marc-Andrea Huesler → John Millman"
   ],
-  "N": 96165,
+  "N": 96274,
   "n_variaveis": 57,
   "n_variaveis_brutas": 50,
   "etapas_filtro": {
-    "partidas_brutas": 111361,
-    "apos_filtro_nivel": 99407,
-    "apos_excluir_nao_concluidas": 96165,
-    "N_populacao": 96165
+    "partidas_brutas": 111498,
+    "apos_filtro_nivel": 99519,
+    "apos_excluir_nao_concluidas": 96274,
+    "N_populacao": 96274
   },
   "pct_ausentes": {
     "id_partida": 0.0,
@@ -66,18 +73,18 @@
     "p_1won": 0.1,
     "p_2won": 0.1,
     "p_svgms": 0.1,
-    "p_bpsav": 0.11,
+    "p_bpsav": 0.1,
     "p_bpfac": 0.1,
     "decada": 0.0,
     "set_decisivo": 0.0,
-    "favorito_venceu": 0.38,
-    "dif_ranking": 0.38,
+    "favorito_venceu": 0.39,
+    "dif_ranking": 0.39,
     "games_vencedor": 0.0,
     "games_perdedor": 0.0,
     "stats_ok": 0.0,
     "pontos_vencedor": 0.28,
     "pontos_perdedor": 0.28
   },
-  "n_torneios": 2387,
-  "n_jogadores": 2271
+  "n_torneios": 2391,
+  "n_jogadores": 2273
 }

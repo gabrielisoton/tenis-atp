@@ -24,7 +24,6 @@ SAIDA = BASE / "base" / "titulos.parquet"
 URL = "https://raw.githubusercontent.com/Tennismylife/TML-Database/master/{ano}.csv"
 NIVEIS = {"G": "Grand Slam", "F": "ATP Finals", "M": "Masters 1000", "500": "ATP 500", "250": "ATP 250"}
 ANOS_ANTIGOS = range(1968, 1991)
-ANO_FIM = 2025
 
 
 def baixar_antigos() -> None:
@@ -37,8 +36,7 @@ def baixar_antigos() -> None:
 
 def finais(arquivos, niveis) -> pd.DataFrame:
     d = pd.concat([pd.read_csv(f, low_memory=False) for f in arquivos], ignore_index=True)
-    d = d[(d["round"] == "F") & d["tourney_level"].astype(str).isin(niveis)
-          & (d["tourney_date"].astype(str).str[:4].astype(int) <= ANO_FIM)]
+    d = d[(d["round"] == "F") & d["tourney_level"].astype(str).isin(niveis)]
     data = pd.to_datetime(d["tourney_date"].astype(str), format="%Y%m%d")
     return pd.DataFrame({
         "data": data.dt.strftime("%Y-%m-%d"), "ano": data.dt.year, "torneio": d["tourney_name"],

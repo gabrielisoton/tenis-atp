@@ -18,6 +18,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from tenis import analises as an
+
 INICIAL = 1500.0
 # Elo puro sai confiante demais nos extremos (só circuito principal). As PROBABILIDADES usam a diferença
 # multiplicada por ESCALA_PROB, ajustada em 1993–2015 e conferida em 2016–2025 (scripts/validar_elo.py).
@@ -135,7 +137,8 @@ def exportar(pop: pd.DataFrame, min_pico_serie: float = 2050.0) -> dict:
     # nº 1 por Elo no fim de cada temporada, entre quem jogou nos últimos 12 meses
     n1 = []
     datas = pd.to_datetime(dep["data"])
-    for ano in sorted(dep.loc[valido, "ano"].unique()):
+    completa = an.ultima_temporada_completa(pop)
+    for ano in sorted(dep.loc[valido & (dep["ano"] <= completa), "ano"].unique()):
         fim = pd.Timestamp(f"{ano}-12-31")
         ate = dep[datas <= fim]
         ativo = ate[pd.to_datetime(ate["data"]) > fim - pd.Timedelta(days=365)].groupby("id").tail(1)
@@ -263,7 +266,7 @@ def curva_idade(dep: pd.DataFrame, min_partidas: int = 10, reamostras: int = 300
     m = s[s["n"] >= min_partidas]
     p = m.merge(m.assign(a=m["a"] - 1), on=["id", "a"], suffixes=("", "_2"))
     p["d"] = p["elo_2"] - p["elo"]
-    p["epoca"] = pd.cut(p["ano"], [1992, 2002, 2012, 2100], labels=["1993–2002", "2003–2012", "2013–2025"])
+    p["epoca"] = pd.cut(p["ano"], [1992, 2002, 2012, 2100], labels=["1993–2002", "2003–2012", f"2013–{int(x['ano'].max())}"])
     rng = np.random.default_rng(semente)
 
     def com_ic(pp):

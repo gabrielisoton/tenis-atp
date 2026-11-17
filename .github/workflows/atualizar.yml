@@ -1,0 +1,75 @@
+# Atualização automática: todo mês baixa a TML; se algum CSV mudou (dados/base/fonte.json), refaz a base,
+# exporta o site, roda as validações, faz o commit e publica. Sem partidas novas, não faz nada.
+name: Atualizar dados
+
+on:
+  schedule:
+    - cron: "0 9 3 * *"   # dia 3 de cada mês, 6h de Brasília
+  workflow_dispatch:
+    inputs:
+      forcar:
+        description: "Refazer a base mesmo sem mudança na TML"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # commit dos dados novos
+  actions: write    # disparar a publicação (push feito pelo GITHUB_TOKEN não dispara outros workflows)
+
+concurrency:
+  group: atualizar
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Baixar a TML
+        run: python dados/baixar.py
+
+      - name: A fonte mudou?
+        id: fonte
+        run: |
+          if git diff --quiet -- dados/base/fonte.json && [ "${{ inputs.forcar }}" != "true" ]; then
+            echo "mudou=false" >> "$GITHUB_OUTPUT"; echo "TML sem partidas novas: nada a fazer."
+          else
+            echo "mudou=true" >> "$GITHUB_OUTPUT"; git diff --stat -- dados/base/fonte.json
+          fi
+
+      - name: Refazer a base e o site
+        if: steps.fonte.outputs.mudou == 'true'
+        run: |
+          python dados/preparar_populacao.py
+          python dados/preparar_titulos.py
+          python dados/preparar_h2h.py
+          python scripts/exportar_site.py
+
+      - name: Validar
+        if: steps.fonte.outputs.mudou == 'true'
+        run: |
+          python scripts/validar_estatistica.py
+          python scripts/validar_elo.py
+          python scripts/validar_numero1.py
+
+      - name: Commit e publicação
+        if: steps.fonte.outputs.mudou == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add dados/base site/data
+          if git diff --cached --quiet; then echo "Nada mudou no site."; exit 0; fi
+          corte=$(python -c "import json; print(json.load(open('dados/base/resumo_populacao.json', encoding='utf-8'))['data_corte'])")
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Atualiza os dados da TML (até $corte)"
+          git push
+          gh workflow run pages.yml --ref main

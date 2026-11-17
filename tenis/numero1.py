@@ -54,7 +54,8 @@ def exportar(pop: pd.DataFrame, titulos: pd.DataFrame) -> dict:
     ref = tab[CRIT_JOGO].copy()
     ref["df_game"] = -ref["df_game"]                                 # menos duplas faltas = melhor
     z = (ref - ref.mean()) / ref.std()
-    ultimo_ano = int(pop["ano"].max())
+    corte = pd.Timestamp(pop["data"].max())                         # ativo = jogou nos 12 meses antes do corte
+    completa = an.ultima_temporada_completa(pop)                    # temporadas: só as completas
     datas = pd.concat([pop[["vencedor", "data", "ranking_vencedor"]].set_axis(["nome", "data", "rk"], axis=1),
                        pop[["perdedor", "data", "ranking_perdedor"]].set_axis(["nome", "data", "rk"], axis=1)])
     jogadores, queda = {}, []
@@ -79,7 +80,7 @@ def exportar(pop: pd.DataFrame, titulos: pd.DataFrame) -> dict:
         t10 = g[g["rank_oponente"] <= 10].groupby("ano")[["partida", "venceu"]].sum()
         temporadas = []
         for ano, s in temp.iterrows():
-            if s["partida"] < 5:
+            if s["partida"] < 5 or ano > completa:
                 continue
             temporadas.append({"ano": int(ano), "melhor_rank": None if g[g["ano"] == ano]["rank"].isna().all() else int(g[g["ano"] == ano]["rank"].min()),
                                **_ind(s), "n_top10": int(t10.loc[ano, "partida"]) if ano in t10.index else 0,
@@ -114,7 +115,7 @@ def exportar(pop: pd.DataFrame, titulos: pd.DataFrame) -> dict:
         jogadores[nome] = {"cobertura": cobertura, "fases": fases, "temporadas": temporadas, "virada": virada, "marcos": marcos,
                            "idade_elo": idade_elo, "z": {k: round(float(v), 2) for k, v in assin.items()},
                            "auge": None if nome not in auges else {k: auges[nome][k] for k in ("auge", "auge_ini", "auge_fim", "auge_idade")},
-                           "ativo": bool(temp.index.max() >= ultimo_ano)}
+                           "ativo": bool(d["dt"].max() > corte - pd.Timedelta(days=365))}
         # depois do topo: quem já parou, do ano do auge às duas últimas temporadas com ≥ 15 partidas
         t15 = temp[temp["partida"] >= 15]
         if not jogadores[nome]["ativo"] and nome in auges:

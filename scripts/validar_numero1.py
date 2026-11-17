@@ -24,7 +24,7 @@ for nome, ano in {"Novak Djokovic": 2011, "Roger Federer": 2004, "Rafael Nadal":
     checar((J[nome]["virada"] or {}).get("ano") == ano, f"ano da virada de {nome}: {(J[nome]['virada'] or {}).get('ano')} (esperado {ano})")
 checar(J["Pete Sampras"]["cobertura"] == "ja_no_topo" and J["Boris Becker"]["cobertura"] == "antes_1991" and J["Novak Djokovic"]["cobertura"] == "completa",
        "cobertura: Sampras já no topo em 1991, Becker com carreira antes de 1991, Djokovic com a jornada completa")
-checar(J["Novak Djokovic"]["marcos"]["slams"] == 24 and J["Roger Federer"]["marcos"]["titulos"] == 103, "marcos: Djokovic 24 Slams, Federer 103 títulos")
+checar(J["Novak Djokovic"]["marcos"]["slams"] >= 24 and J["Roger Federer"]["marcos"]["titulos"] == 103, "marcos: Djokovic 24+ Slams, Federer 103 títulos")
 c = {r["crit"]: r["z"] for r in N["em_comum"]}
 checar(min(c["ganhos_2"], c["devolucao"]) > max(c["aces_game"], c["primeiro_dentro"]),
        f"em comum: 2º saque ({c['ganhos_2']}) e devolução ({c['devolucao']}) acima de aces ({c['aces_game']}) e 1º saque dentro ({c['primeiro_dentro']})")

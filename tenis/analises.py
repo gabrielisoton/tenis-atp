@@ -463,9 +463,18 @@ LINHA_TEMPO = {
 }
 
 
+def ultima_temporada_completa(pop: pd.DataFrame) -> int:
+    """A temporada termina com o ATP Finals (novembro): sem partidas desde 1º/nov, a última ainda está em andamento.
+
+    Gráficos e contas POR TEMPORADA usam só temporadas completas; o resto (Elo, títulos, H2H, perfis) usa tudo.
+    """
+    corte = str(pop["data"].max())
+    return int(corte[:4]) - int(corte < f"{corte[:4]}-11-01")
+
+
 def linha_tempo(pop: pd.DataFrame) -> list[dict]:
     linhas = []
-    for ano, g in pop.groupby("ano"):
+    for ano, g in pop[pop["ano"] <= ultima_temporada_completa(pop)].groupby("ano"):
         b3 = g.loc[g["melhor_de"] == "Melhor de 3", "minutos"]
         fav = g["favorito_venceu"].dropna()
         linhas.append({

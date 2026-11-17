@@ -25,6 +25,9 @@
   | 1973–1990 | ✅ | ✅ | ❌ | ❌ |
   | **1991–hoje** | ✅ | ✅ | ✅ (~91% das partidas) | ✅ |
 
+- **Temporada em andamento entra parcial** (Action mensal, item 3): conta em Elo, títulos, confrontos e perfis; as
+  contas por temporada usam só temporadas completas. Em nov/2026 a TML de 2026 ia só até 17/01/2026 (Adelaide e
+  Auckland), e o selo "dados até" deixa isso claro.
 - **Sem ponto a ponto:** a base tem o total de cada partida, não o que aconteceu em cada game.
 - **Python calcula, o site desenha.** Toda métrica nova nasce em `tenis/analises.py` e, quando o site refaz a conta
   no navegador, tem checagem Python × JS.
@@ -128,7 +131,7 @@ abas dessas páginas, não como páginas novas:
 | Épocas | 21 Os nº 1 (feito) |
 | Torneios (nova, quando o item 7 for feito) | 7 páginas de torneio · 16 velocidade da quadra |
 | O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar · 22 guia para quem treina |
-| Sobre os dados | 3 atualização automática (selo "dados até") · 19 previsão de partidas e calibração |
+| Sobre os dados | 3 atualização automática (selo "dados até", feito: o selo fica no rodapé de todas as páginas) · 19 previsão de partidas e calibração |
 
 ## Fases
 | Fase | Tema | Entrega visível |

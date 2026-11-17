@@ -27,16 +27,14 @@ SUPERFICIES = {"Hard": "Dura", "Clay": "Saibro", "Grass": "Grama", "Carpet": "Ca
 RODADAS = {"R128": "1ª rodada (R128)", "R64": "R64", "R32": "R32", "R16": "Oitavas (R16)", "QF": "Quartas",
            "SF": "Semifinal", "F": "Final", "RR": "Fase de grupos"}
 SET_RE = re.compile(r"(\d+)-(\d+)")
-ANO_FIM = 2025
 
 
 def main() -> None:
     d = pd.concat([pd.read_csv(f, low_memory=False) for f in sorted(RAW.glob("*.csv"))], ignore_index=True)
     d["lv"] = d["tourney_level"].astype(str)
-    ano = d["tourney_date"].astype(str).str[:4].astype(int)
     placar = d["score"].astype(str)
     ok = (d["lv"].isin(NIVEIS) & ~((d["lv"] == "A") & d["tourney_name"].str.contains(EXCLUIR_A, case=False, na=False))
-          & ~placar.str.contains("W/O|Walkover", case=False) & (ano <= ANO_FIM))
+          & ~placar.str.contains("W/O|Walkover", case=False))
     d = d[ok].copy()
     data = pd.to_datetime(d["tourney_date"].astype(str), format="%Y%m%d")
     games = d["score"].astype(str).map(lambda s: [tuple(map(int, x)) for x in SET_RE.findall(s)])

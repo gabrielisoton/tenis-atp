@@ -1,7 +1,7 @@
 """Passo 2 — monta a POPULAÇÃO a partir dos CSVs brutos da TML-Database.
 
 População de interesse: todas as partidas de simples do circuito principal
-da ATP entre 1991 e 2025 (Grand Slams, ATP Finals, Masters 1000, ATP 500 e
+da ATP de 1991 até a última partida da TML (Grand Slams, ATP Finals, Masters 1000, ATP 500 e
 ATP 250) que foram concluídas em quadra.
 
 Ficam fora:
@@ -38,7 +38,7 @@ RODADAS = {
 }
 MAOS = {"R": "Destro", "L": "Canhoto"}
 SET_RE = re.compile(r"\d+-\d+")
-ANOS = (1991, 2025)  # temporadas completas; a atual entra pela atualização automática
+ANO_INI = 1991  # a temporada em andamento entra parcial (resumo: data_corte e temporada_parcial)
 
 
 def carregar_brutos() -> pd.DataFrame:
@@ -100,7 +100,7 @@ def nomes_por_id(pop: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
 
 def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     ano = bruto["tourney_date"].astype(str).str[:4].astype(int)
-    bruto = bruto[ano.between(*ANOS)]
+    bruto = bruto[ano >= ANO_INI]
     etapas = {"partidas_brutas": len(bruto)}
 
     df = bruto[bruto["tourney_level"].astype(str).isin(NIVEIS)].copy()
@@ -170,6 +170,12 @@ def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "periodo": f"{pop['ano'].min()}–{pop['ano'].max()}",
         "ano_min": int(pop["ano"].min()), "ano_max": int(pop["ano"].max()),
         "n_temporadas": int(pop["ano"].nunique()),
+        # selo "dados até": a última data da base e os torneios dela; a temporada termina com o ATP Finals
+        # (novembro), então sem partidas desde 1º/nov a última temporada ainda está em andamento
+        "data_corte": (corte := str(pop["data"].max())),
+        "ultimos_torneios": sorted(pop.loc[pop["data"] == corte, "torneio"].unique().tolist()),
+        "temporada_parcial": (parcial := corte < f"{corte[:4]}-11-01"),
+        "ultima_temporada_completa": int(corte[:4]) - int(parcial),
         "pct_com_estatisticas": round(100 * pop["stats_ok"].mean(), 1),
         "n_stats_impossiveis": int((pop["v_svpt"].notna() & ~pop["stats_ok"]).sum()),
         "correcoes_de_nome": correcoes,
