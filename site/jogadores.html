@@ -11,7 +11,7 @@
 <script src="assets/site.js?v=5"></script>
 <script src="assets/comum.js?v=7"></script>
 <script src="assets/descritiva.js?v=6"></script>
-<script src="assets/jogadores.js?v=8"></script>
+<script src="assets/jogadores.js?v=9"></script>
 <style>
   .barra-pct { position: relative; height: 10px; background: #ecebe5; border-radius: 6px; min-width: 90px; }
   .barra-pct i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
@@ -325,6 +325,14 @@ ligarAbas(document.getElementById("area"), "#abas-j");
       (P.sup.size === 4 ? "" : " · " + [...P.sup].map(s => tr(SUPS[s]).toLowerCase()).join(", "));
     corpo.innerHTML = `
       <div id="p-placar"></div>
+      ${e.com_pontos ? `<p class="nota">🎭 ${T(
+        `<b>Venceu perdendo nos pontos:</b> ${e.venceu_menos} de ${br(e.v_com_pontos, 0)} vitórias (${pct(e.venceu_menos / e.v_com_pontos)}) vieram
+        com menos pontos que o adversário; e ${e.perdeu_mais} de ${br(e.com_pontos - e.v_com_pontos, 0)} derrotas
+        (${e.com_pontos > e.v_com_pontos ? pct(e.perdeu_mais / (e.com_pontos - e.v_com_pontos)) : "—"}) vieram ganhando mais pontos.`,
+        `<b>Won while losing on points:</b> ${e.venceu_menos} of ${br(e.v_com_pontos, 0)} wins (${pct(e.venceu_menos / e.v_com_pontos)}) came
+        with fewer points than the opponent; and ${e.perdeu_mais} of ${br(e.com_pontos - e.v_com_pontos, 0)} losses
+        (${e.com_pontos > e.v_com_pontos ? pct(e.perdeu_mais / (e.com_pontos - e.v_com_pontos)) : "—"}) came while winning more points.`)}
+        <a href="explorar.html#venceu-perdendo">${T("Ver todas", "See them all")}</a></p>` : ""}
       <p class="nota">${T(`Recorte: <b>${recorte}</b> (${p.anos[0]}–${p.anos[1]} em quadra). Percentil e posição comparam ${nome} aos
         <b>${p.nRef} jogadores</b> com pelo menos 100 partidas na base que têm 20 ou mais partidas nesse recorte.`,
         `Selection: <b>${recorte}</b> (on court ${p.anos[0]}–${p.anos[1]}). Percentile and rank compare ${nome} with the

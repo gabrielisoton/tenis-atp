@@ -6,6 +6,7 @@ Saídas:
 - extras.json      linha do tempo, ranking × vitória do favorito, Top N × demais
 - jogadores.json   somas por jogador × ano × superfície × nível (filtros no navegador) e checagens
 - en.json          rótulos dos dados em inglês (tenis/idiomas.EN)
+- venceu_perdendo.json  partidas vencidas com menos pontos que o adversário (aba do Explorar)
 """
 import sys
 from pathlib import Path
@@ -60,6 +61,7 @@ def jogadores(pop: pd.DataFrame) -> dict:
     cheq = {c.chave: [[j, float(v)] for j, v in an.ranking_criterio(tab, c.chave)[c.chave].head(3).items()]
             for c in an.CRITERIOS}
     fed = an.perfil_jogador(lg, pop, "Roger Federer")["ficha"][["chave", "valor", "percentil", "posicao", "total"]]
+    fed_pontos = lg[lg["jogador"] == "Roger Federer"][["com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais"]].sum()
     return {
         "nomes": nomes,
         "anos": [int(pop["ano"].min()), int(pop["ano"].max())],
@@ -67,7 +69,8 @@ def jogadores(pop: pd.DataFrame) -> dict:
                        "tipo": c.tipo, "grupo": c.grupo, "desc": c.desc} for c in an.CRITERIOS],
         "linhas": col,
         "finais": finais.to_dict("list"),
-        "checagem": {"top3": cheq, "federer": fed.to_dict("records")},
+        "checagem": {"top3": cheq, "federer": fed.to_dict("records"),
+                     "federer_pontos": {k: int(v) for k, v in fed_pontos.items()}},
     }
 
 
@@ -89,6 +92,7 @@ def main() -> None:
     ex.salvar(SAIDA, "extras.json", extras(pop))
     ex.salvar(SAIDA, "jogadores.json", jogadores(pop))
     ex.salvar(SAIDA, "en.json", idiomas.EN)
+    ex.salvar(SAIDA, "venceu_perdendo.json", an.vencer_perdendo(pop))
 
 
 if __name__ == "__main__":

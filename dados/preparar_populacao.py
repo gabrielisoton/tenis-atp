@@ -48,6 +48,25 @@ def carregar_brutos() -> pd.DataFrame:
     return pd.concat([pd.read_csv(f, low_memory=False) for f in arquivos], ignore_index=True)
 
 
+def pontos_e_consistencia(pop: pd.DataFrame) -> None:
+    """Pontos ganhos por cada lado e checagem de que as estatísticas da partida são possíveis.
+
+    Pontos do vencedor = ganhos no próprio saque + ganhos devolvendo o saque do perdedor. Cada game
+    vencido exige pelo menos 4 pontos, então um lado com menos de 4 × (games que venceu) pontos tem
+    estatísticas impossíveis (ex.: 6-1 6-3 com 32 pontos). Essas partidas (~0,15% da base, espalhadas
+    pelos anos) ficam com `stats_ok = False` e saem de todos os critérios de saque, devolução e pontos.
+    """
+    games = pop["placar"].astype(str).map(lambda s: [tuple(map(int, x.split("-"))) for x in SET_RE.findall(s)])
+    pop["games_vencedor"] = games.map(lambda g: sum(a for a, _ in g))
+    pop["games_perdedor"] = games.map(lambda g: sum(b for _, b in g))
+    pv = pop["v_1won"] + pop["v_2won"] + (pop["p_svpt"] - pop["p_1won"] - pop["p_2won"])
+    pp = pop["v_svpt"] + pop["p_svpt"] - pv
+    completas = pop[["v_svpt", "p_svpt", "v_1in", "v_svgms", "v_1won", "v_2won", "p_1won", "p_2won"]].notna().all(axis=1)         & (pop["v_svpt"] > 0) & (pop["p_svpt"] > 0)
+    pop["stats_ok"] = completas & (pv >= 4 * pop["games_vencedor"]) & (pp >= 4 * pop["games_perdedor"])
+    pop["pontos_vencedor"] = pv.where(pop["stats_ok"])
+    pop["pontos_perdedor"] = pp.where(pop["stats_ok"])
+
+
 def nomes_por_id(pop: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
     """Um nome por jogador (id), e um id por nome exibido.
 
@@ -140,6 +159,7 @@ def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         rank_ok, np.where(df["winner_rank"] < df["loser_rank"], "Sim", "Não"), None
     )
     pop["dif_ranking"] = (df["winner_rank"] - df["loser_rank"]).abs()
+    pontos_e_consistencia(pop)
     pop, correcoes = nomes_por_id(pop)
     pop = pop.sort_values(["data", "id_torneio", "ordem"], kind="stable").reset_index(drop=True)
     pop.insert(0, "id_partida", np.arange(1, len(pop) + 1))
@@ -150,7 +170,8 @@ def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "periodo": f"{pop['ano'].min()}–{pop['ano'].max()}",
         "ano_min": int(pop["ano"].min()), "ano_max": int(pop["ano"].max()),
         "n_temporadas": int(pop["ano"].nunique()),
-        "pct_com_estatisticas": round(100 * pop["v_svpt"].notna().mean(), 1),
+        "pct_com_estatisticas": round(100 * pop["stats_ok"].mean(), 1),
+        "n_stats_impossiveis": int((pop["v_svpt"].notna() & ~pop["stats_ok"]).sum()),
         "correcoes_de_nome": correcoes,
         "N": len(pop),
         "n_variaveis": pop.shape[1],

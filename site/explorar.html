@@ -24,7 +24,8 @@
 <main class="conteudo" id="area">
   <div class="abas" id="abas-x" style="margin-top:22px"><button class="on" data-a="top">🏆 <span data-l="pt">Top N × demais</span><span data-l="en">Top N vs the rest</span></button>
     <button data-a="rank">🎯 <span data-l="pt">Ranking e zebras</span><span data-l="en">Ranking and upsets</span></button>
-    <button data-a="tempo">📈 <span data-l="pt">Linha do tempo</span><span data-l="en">Timeline</span></button></div>
+    <button data-a="tempo">📈 <span data-l="pt">Linha do tempo</span><span data-l="en">Timeline</span></button>
+    <button data-a="pontos" id="venceu-perdendo">🎭 <span data-l="pt">Venceu perdendo</span><span data-l="en">Won while losing</span></button></div>
 
   <section class="painel-aba" data-p="top">
     <div class="filtros" style="position:static">
@@ -87,6 +88,31 @@
         and went back to about 26.5 with the new generation.</li>
       <li>The favourite's win rate <b>peaked during the Big 3's dominance</b> (68–69% in 2014–15) and <b>went back to about
         64%</b>, the same level as the 1990s. <b>Left-handers</b> fell from 20% of wins in 1991 to 12% in 2025.</li></ul></div>
+  </section>
+  <section class="painel-aba" data-p="pontos" hidden>
+    <h2 style="margin-top:6px"><span data-l="pt">Dá para vencer ganhando menos pontos que o adversário?</span>
+      <span data-l="en">Can you win while winning fewer points than your opponent?</span></h2>
+    <div id="vp-comoler"></div>
+    <div id="vp-placar"></div>
+    <div class="grade g2" style="margin-top:14px">
+      <div class="cartao"><div id="vp-g" class="grafico" style="min-height:420px"></div></div>
+      <div class="cartao rolagem"><h3 style="margin-top:0"><span data-l="pt">Finais de Grand Slam vencidas com menos pontos</span>
+        <span data-l="en">Grand Slam finals won with fewer points</span></h3><table class="t" id="vp-gs"></table></div></div>
+    <div class="grade g2" style="margin-top:16px">
+      <div class="cartao rolagem"><h3 style="margin-top:0"><span data-l="pt">Quem mais vence perdendo nos pontos</span>
+        <span data-l="en">Who most often wins while losing on points</span></h3><table class="t" id="vp-mais"></table></div>
+      <div class="cartao rolagem"><h3 style="margin-top:0"><span data-l="pt">Quem mais perde ganhando nos pontos</span>
+        <span data-l="en">Who most often loses while winning on points</span></h3><table class="t" id="vp-menos"></table></div></div>
+    <p class="nota" id="vp-nota-jog"></p>
+    <h2><span data-l="pt">Todas as partidas</span><span data-l="en">Every match</span></h2>
+    <div class="filtros" style="position:static">
+      <div class="grupo"><span class="rot"><span data-l="pt">Jogador</span><span data-l="en">Player</span></span>
+        <input class="sel" id="vp-busca" placeholder="Digite parte do nome" data-en-placeholder="Type part of a name" style="min-width:220px"></div>
+      <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><select class="sel" id="vp-niv"></select></div>
+      <div class="grupo"><span class="rot"><span data-l="pt">Rodada</span><span data-l="en">Round</span></span><select class="sel" id="vp-rod"></select></div>
+    </div>
+    <div class="cartao rolagem" style="max-height:520px;overflow:auto"><table class="t" id="vp-t"></table></div>
+    <p class="nota" id="vp-nota"></p>
   </section>
 </main>
 <script>
@@ -196,7 +222,95 @@ ligarAbas(document.getElementById("area"), "#abas-x");
   };
   sel.addEventListener("change", desenharTempo);
   desenharTempo();
+
+  // venceu perdendo nos pontos: dados próprios (~0,5 MB), carregados só quando a aba é aberta
+  let vpPronto = false;
+  const abrirVP = async () => {
+    if (vpPronto) return; vpPronto = true;
+    desenharVP(await carregar("venceu_perdendo"));
+  };
+  document.querySelector('#abas-x button[data-a="pontos"]').addEventListener("click", abrirVP);
+  if (location.hash === "#venceu-perdendo") document.querySelector('#abas-x button[data-a="pontos"]').click();
 })();
+
+function desenharVP(V) {
+  const R = V.resumo, PT = T("pts", "pts");
+  document.getElementById("vp-comoler").innerHTML = comoLer(T(`No tênis o placar é contado em games e sets, não em pontos: quem
+    vence os pontos importantes (break points, games longos, tie-breaks) pode ganhar a partida mesmo somando menos pontos. Aqui os
+    pontos de cada jogador são os ganhos no próprio saque mais os ganhos devolvendo. Ganhar assim não prova "frieza": parte é acaso,
+    e por isso as listas de jogadores exigem pelo menos 100 vitórias (ou 100 derrotas).`, `Tennis is scored in games and sets, not
+    points: whoever wins the big points (break points, long games, tie-breaks) can win the match with fewer points in total. Each
+    player's points here are those won on serve plus those won returning. Winning this way does not prove a player is "clutch": part
+    of it is chance, which is why the player lists require at least 100 wins (or 100 losses).`));
+  const dec = V.por.set_decisivo;
+  placar(document.getElementById("vp-placar"), [
+    { rot: T("Vencidas com menos pontos", "Won with fewer points"), num: pct(R.pct), sub: T(`${br(R.menos, 0)} de ${br(R.n, 0)} partidas`, `${br(R.menos, 0)} of ${br(R.n, 0)} matches`) },
+    { rot: T("Quando vai ao set decisivo", "When it goes to a deciding set"), num: pct(dec["Sim"].pct), sub: T(`sem set decisivo: ${pct(dec["Não"].pct)}`, `without one: ${pct(dec["Não"].pct)}`) },
+    { rot: T("Empate exato em pontos", "Exactly level on points"), num: br(R.empates, 0), sub: T("partidas", "matches") },
+    { rot: T("Finais de Grand Slam", "Grand Slam finals"), num: br(V.finais_gs.length, 0), sub: T("vencidas com menos pontos", "won with fewer points") },
+  ]);
+  // % por contexto
+  const grupos = [["melhor_de", T("Formato", "Format")], ["superficie", T("Superfície", "Surface")], ["nivel", T("Nível", "Level")], ["decada", T("Década", "Decade")]];
+  const y = [], x = [], cd = [];
+  grupos.forEach(([col, nome]) => Object.entries(V.por[col]).forEach(([k, v]) => {
+    if (col === "superficie" && v.n < 1000) return;
+    y.push(`${nome} · ${tr(k)}`); x.push(v.pct); cd.push([v.menos, v.n]);
+  }));
+  plot(document.getElementById("vp-g"), [{ type: "bar", orientation: "h", x: x.reverse(), y: y.reverse(), customdata: cd.reverse(),
+    marker: { color: CORES.top }, text: x.map(v => pct(v)), textposition: "outside", cliponaxis: false,
+    hovertemplate: `%{y}: %{x:.1%} (%{customdata[0]:,} ${T("de", "of")} %{customdata[1]:,})<extra></extra>` }],
+    { height: 420, title: { text: T("% das partidas vencidas com menos pontos", "% of matches won with fewer points"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+      xaxis: { tickformat: ".0%", range: [0, Math.max(...x) * 1.25] }, margin: { l: 190, r: 40, t: 50, b: 40 } });
+  const linhaPartida = f => `<td>${f.ano}</td><td>${f.torneio}</td><td><b>${f.vencedor}</b></td><td>${f.perdedor}</td><td>${f.placar}</td>
+    <td class="n">${f.pontos_vencedor} × ${f.pontos_perdedor}</td>`;
+  document.getElementById("vp-gs").innerHTML = `<tr><th>${T("Ano", "Year")}</th><th>${T("Torneio", "Tournament")}</th><th>${T("Campeão", "Champion")}</th>
+    <th>${T("Vice", "Runner-up")}</th><th>${T("Placar", "Score")}</th><th>${T("Pontos", "Points")}</th></tr>` +
+    V.finais_gs.map(f => `<tr>${linhaPartida(f)}</tr>`).join("");
+  // jogadores (mínimo de 100 vitórias / 100 derrotas com estatísticas)
+  const J = V.jogadores, idx = J.jogador.map((_, i) => i);
+  const tabelaJ = (el, base, conta, taxa, rotBase) => {
+    const top = idx.filter(i => J[base][i] >= 100).sort((a, b) => J[taxa][b] - J[taxa][a]).slice(0, 10);
+    el.innerHTML = `<tr><th>${T("Jogador", "Player")}</th><th>${rotBase}</th><th>${T("Assim", "This way")}</th><th>%</th></tr>` +
+      top.map(i => `<tr><td>${J.jogador[i]}</td><td class="n">${br(J[base][i], 0)}</td><td class="n">${J[conta][i]}</td><td class="n"><b>${pct(J[taxa][i])}</b></td></tr>`).join("");
+  };
+  tabelaJ(document.getElementById("vp-mais"), "v_com_pontos", "venceu_menos", "pct_vitorias", T("Vitórias", "Wins"));
+  tabelaJ(document.getElementById("vp-menos"), "d_com_pontos", "perdeu_mais", "pct_derrotas", T("Derrotas", "Losses"));
+  const fed = J.jogador.indexOf("Roger Federer");
+  document.getElementById("vp-nota-jog").innerHTML = fed < 0 ? "" : T(`Só entram jogadores com pelo menos 100 vitórias (ou 100
+    derrotas) com estatísticas. <b>Roger Federer</b> é o caso mais famoso: ${J.perdeu_mais[fed]} das suas derrotas vieram ganhando mais
+    pontos que o adversário (como a final de Wimbledon 2019) e só ${J.venceu_menos[fed]} vitórias vieram com menos pontos. Os grandes
+    costumam ganhar no total de pontos, então perder assim pesa mais para eles.`, `Only players with at least 100 wins (or 100 losses)
+    with stats are included. <b>Roger Federer</b> is the most famous case: ${J.perdeu_mais[fed]} of his losses came while winning more
+    points than his opponent (like the 2019 Wimbledon final), and only ${J.venceu_menos[fed]} wins came with fewer points. The greats
+    usually win on total points, so losing this way stands out more for them.`);
+  // busca em todas as partidas
+  const P = V.partidas, n = P.ano.length, sem = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const chave = P.vencedor.map((v, i) => sem(v + " " + P.perdedor[i]));
+  const opcoes = (el, lista) => { el.innerHTML = `<option value="">${T("Todos", "All")}</option>` + lista.map(v => `<option value="${v}">${tr(v)}</option>`).join(""); };
+  opcoes(document.getElementById("vp-niv"), ["Grand Slam", "ATP Finals", "Masters 1000", "ATP 500", "ATP 250"]);
+  opcoes(document.getElementById("vp-rod"), ["Final", "Semifinal", "Quartas", "Oitavas (R16)", "R32", "R64", "1ª rodada (R128)", "Fase de grupos"]);
+  const filtrar = () => {
+    const q = sem(document.getElementById("vp-busca").value.trim()), nv = document.getElementById("vp-niv").value, rd = document.getElementById("vp-rod").value;
+    const sel = [];
+    for (let i = 0; i < n && sel.length < 100; i++)
+      if ((!q || chave[i].includes(q)) && (!nv || P.nivel[i] === nv) && (!rd || P.rodada[i] === rd)) sel.push(i);
+    let total = 0; for (let i = 0; i < n; i++) if ((!q || chave[i].includes(q)) && (!nv || P.nivel[i] === nv) && (!rd || P.rodada[i] === rd)) total++;
+    const f = i => ({ ano: P.ano[i], torneio: P.torneio[i], vencedor: P.vencedor[i], perdedor: P.perdedor[i], placar: P.placar[i],
+                      pontos_vencedor: P.pontos_vencedor[i], pontos_perdedor: P.pontos_perdedor[i] });
+    document.getElementById("vp-t").innerHTML = `<tr><th>${T("Ano", "Year")}</th><th>${T("Torneio", "Tournament")}</th><th>${T("Vencedor", "Winner")}</th>
+      <th>${T("Perdedor", "Loser")}</th><th>${T("Placar", "Score")}</th><th>${T("Pontos", "Points")}</th><th>${T("Rodada", "Round")}</th></tr>` +
+      (sel.length ? sel.map(i => `<tr>${linhaPartida(f(i))}<td>${tr(P.rodada[i])}</td></tr>`).join("")
+        : `<tr><td colspan="7">${T("Nenhuma partida com esses filtros.", "No matches with these filters.")}</td></tr>`);
+    document.getElementById("vp-nota").innerHTML = T(`${br(total, 0)} partidas no filtro${total > 100 ? " (mostrando as 100 com maior diferença de pontos)" : ""}, ordenadas da maior
+      para a menor diferença de pontos. Ficam de fora ${br(R.n_stats_impossiveis, 0)} partidas com estatísticas incompletas ou impossíveis
+      (ex.: menos de 4 pontos por game vencido).`, `${br(total, 0)} matches in the filter${total > 100 ? " (showing the 100 with the biggest points gap)" : ""}, sorted
+      from the biggest to the smallest points gap. Left out: ${br(R.n_stats_impossiveis, 0)} matches with incomplete or impossible stats
+      (e.g. fewer than 4 points per game won).`);
+  };
+  document.getElementById("vp-busca").addEventListener("input", filtrar);
+  ["vp-niv", "vp-rod"].forEach(id => document.getElementById(id).addEventListener("change", filtrar));
+  filtrar();
+}
 </script>
 </body>
 </html>

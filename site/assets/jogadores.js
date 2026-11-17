@@ -9,7 +9,7 @@ const NIVS = ["Grand Slam", "ATP Finals", "Masters 1000", "ATP 500", "ATP 250"];
 const COMP = ["partida", "venceu", "vitoria_top10", "vs_top10", "sv_pts", "sv_won", "first_in", "first_won",
   "second_pts", "second_won", "ret_pts", "ret_won", "bp_fac", "bp_sav", "bp_opp", "bp_conv",
   "aces", "dfs", "sv_games", "tb_jogados", "tb_vencidos", "decisivo_jogado", "decisivo_vencido",
-  "final", "titulo", "titulo_gs"];
+  "final", "titulo", "titulo_gs", "com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais"];
 
 function wilson(s, n, z = Z975) {
   if (!n) return [null, null];
@@ -34,7 +34,9 @@ function somar(L, filtro, chaveDe) {
 function valores(s, CRIT) {
   // somas derivadas — iguais a DERIVADOS em tenis/analises.py
   s.pts_ganhos = s.sv_won + s.ret_won; s.pts_jogados = s.sv_pts + s.ret_pts;
-  const v = { partidas: s.partida, V: s.venceu, D: s.partida - s.venceu, melhor_rank: s.mr };
+  const v = { partidas: s.partida, V: s.venceu, D: s.partida - s.venceu, melhor_rank: s.mr,
+    // "venceu perdendo nos pontos" (só partidas com estatísticas consistentes)
+    com_pontos: s.com_pontos, v_com_pontos: s.v_com_pontos, venceu_menos: s.venceu_menos, perdeu_mais: s.perdeu_mais };
   for (const c of CRIT) {
     if (c.tipo === "n") { v[c.chave] = s[c.num]; continue; }
     if (c.tipo === "razao") {
@@ -259,6 +261,8 @@ function conferir(J) {
     });
   }
   const p = perfil(J, "Roger Federer", J.anos, tudo);
+  for (const [k, ref] of Object.entries(J.checagem.federer_pontos || {}))
+    if (p.eu[k] !== ref) erros.push(`federer ${k}: JS ${p.eu[k]} × PY ${ref}`);
   J.checagem.federer.forEach(ref => {
     const f = p.ficha.find(x => x.c.chave === ref.chave);
     const ok = (a, b) => (a === null && b === null) || Math.abs(a - b) < 1e-4;

@@ -38,7 +38,7 @@ METRICAS = [
 
 def longo(df: pd.DataFrame) -> pd.DataFrame:
     """Uma linha por jogador em cada partida (vencedor e perdedor)."""
-    base = df[["id_partida", "ano", "torneio", "superficie", "melhor_de", "nivel", "rodada"]]
+    base = df[["id_partida", "ano", "torneio", "superficie", "melhor_de", "nivel", "rodada", "stats_ok"]]
     tb_v, tb_p = _tie_breaks(df["placar"])
     decisivo = (df["set_decisivo"] == "Sim").astype(int).to_numpy()
     lados = []
@@ -66,6 +66,12 @@ def longo(df: pd.DataFrame) -> pd.DataFrame:
         d["titulo_gs"] = d["titulo"] * (df["nivel"] == "Grand Slam").astype(int)
         d["vs_top10"] = (df[rko] <= 10).astype(int)
         d["vitoria_top10"] = d["vs_top10"] * venceu
+        # "venceu perdendo nos pontos": só partidas com estatísticas consistentes
+        meus, deles = df[f"pontos_{nome}"], df[f"pontos_{'perdedor' if venceu else 'vencedor'}"]
+        d["com_pontos"] = df["stats_ok"].astype(int)
+        d["v_com_pontos"] = d["com_pontos"] * venceu
+        d["venceu_menos"] = ((meus < deles) & bool(venceu)).astype(int)
+        d["perdeu_mais"] = ((meus > deles) & (not venceu)).astype(int)
         lados.append(d)
     return _componentes(pd.concat(lados, ignore_index=True))
 
@@ -97,7 +103,7 @@ def _componentes(lg: pd.DataFrame) -> pd.DataFrame:
     As estatísticas de saque só entram quando a partida as tem completas (mesma regra de
     `metricas`); fora disso ficam NaN e não pesam nas somas.
     """
-    ok = lg[["svpt", "o_svpt", "1in", "svgms"]].notna().all(axis=1) & (lg["svpt"] > 0) & (lg["o_svpt"] > 0)
+    ok = lg[["svpt", "o_svpt", "1in", "svgms"]].notna().all(axis=1) & (lg["svpt"] > 0) & (lg["o_svpt"] > 0)         & lg["stats_ok"].astype(bool)  # estatísticas impossíveis ficam de fora (ver dados/preparar_populacao.py)
     c = {
         "sv_pts": lg["svpt"], "sv_won": lg["1won"] + lg["2won"],
         "first_in": lg["1in"], "first_won": lg["1won"],
@@ -164,7 +170,7 @@ CRIT = {c.chave: c for c in CRITERIOS}
 COMPONENTES = ["partida", "venceu", "vitoria_top10", "vs_top10", "sv_pts", "sv_won", "first_in", "first_won",
                "second_pts", "second_won", "ret_pts", "ret_won", "bp_fac", "bp_sav", "bp_opp", "bp_conv",
                "aces", "dfs", "sv_games", "tb_jogados", "tb_vencidos", "decisivo_jogado", "decisivo_vencido",
-               "final", "titulo", "titulo_gs"]
+               "final", "titulo", "titulo_gs", "com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais"]
 # somas derivadas de outras somas (não vão para o JSON; o site calcula igual em jogadores.js → valores)
 DERIVADOS = {"pts_ganhos": ("sv_won", "ret_won"), "pts_jogados": ("sv_pts", "ret_pts")}
 NIVEIS = ["Grand Slam", "ATP Finals", "Masters 1000", "ATP 500", "ATP 250"]
@@ -385,7 +391,7 @@ def perfil_jogador(lg: pd.DataFrame, pop: pd.DataFrame, nome: str, anos=None, su
 def metricas(g: pd.DataFrame) -> dict:
     """Métricas agregadas (razão das somas, como no analytics de tênis)."""
     s = g.dropna(subset=["svpt", "o_svpt", "1in", "svgms"])
-    s = s[(s["svpt"] > 0) & (s["o_svpt"] > 0)]
+    s = s[(s["svpt"] > 0) & (s["o_svpt"] > 0) & s["stats_ok"].astype(bool)]
     div = lambda a, b: float(a / b) if b else None  # noqa: E731
     return {
         "n": len(g), "n_jogadores": int(g["jogador"].nunique()), "n_com_stats": len(s),
@@ -473,3 +479,40 @@ def linha_tempo(pop: pd.DataFrame) -> list[dict]:
             "canhoto_vencedor": float((g["mao_vencedor"] == "Canhoto").mean()),
         })
     return linhas
+
+
+# ------------------------------------------------------------------ venceu perdendo nos pontos
+def vencer_perdendo(pop: pd.DataFrame, min_partidas: int = 100) -> dict:
+    """Partidas vencidas por quem ganhou MENOS pontos que o adversário (só estatísticas consistentes).
+
+    Devolve o resumo por contexto, as finais de Grand Slam, todas as partidas (para a busca no site)
+    e, por jogador com ≥ `min_partidas` partidas com pontos, quantas vitórias vieram com menos pontos
+    e quantas derrotas com mais pontos.
+    """
+    d = pop[pop["stats_ok"]].copy()
+    d["menos"] = d["pontos_vencedor"] < d["pontos_perdedor"]
+    d["empate"] = d["pontos_vencedor"] == d["pontos_perdedor"]
+    taxa = lambda g: {"n": int(len(g)), "menos": int(g["menos"].sum()), "pct": float(g["menos"].mean())}  # noqa: E731
+    por = {col: {str(k): taxa(g) for k, g in d.groupby(col, observed=True)}
+           for col in ("melhor_de", "superficie", "nivel", "set_decisivo", "decada")}
+    m = d[d["menos"]].assign(dif=lambda x: x["pontos_perdedor"] - x["pontos_vencedor"])
+    m = m.sort_values(["dif", "ano"], ascending=[False, False])
+    cols = ["ano", "torneio", "nivel", "rodada", "superficie", "vencedor", "perdedor", "placar",
+            "pontos_vencedor", "pontos_perdedor"]
+    partidas = {c: (m[c].astype(int).tolist() if c.startswith("pontos") or c == "ano" else m[c].tolist()) for c in cols}
+    finais_gs = m[(m["nivel"] == "Grand Slam") & (m["rodada"] == "Final")].sort_values("ano")[cols]
+    lg = longo(pop)
+    j = lg.groupby("jogador")[["com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais"]].sum()
+    j = j[j["com_pontos"] >= min_partidas].copy()
+    j["d_com_pontos"] = j["com_pontos"] - j["v_com_pontos"]
+    j["pct_vitorias"] = j["venceu_menos"] / j["v_com_pontos"]
+    j["pct_derrotas"] = j["perdeu_mais"] / j["d_com_pontos"].replace(0, np.nan)
+    j["saldo"] = j["venceu_menos"] - j["perdeu_mais"]
+    return {
+        "resumo": {**taxa(d), "empates": int(d["empate"].sum()), "n_stats_impossiveis": int((pop["v_svpt"].notna() & ~pop["stats_ok"]).sum())},
+        "por": por,
+        "finais_gs": finais_gs.to_dict("records"),
+        "partidas": partidas,
+        "jogadores": j.reset_index().round(6).to_dict("list"),
+        "min_partidas": min_partidas,
+    }

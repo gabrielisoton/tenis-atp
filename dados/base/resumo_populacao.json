@@ -4,13 +4,14 @@
   "ano_min": 1991,
   "ano_max": 2025,
   "n_temporadas": 35,
-  "pct_com_estatisticas": 99.9,
+  "pct_com_estatisticas": 99.7,
+  "n_stats_impossiveis": 168,
   "correcoes_de_nome": [
     "homônimo: D0DT Martin Damm → Martin Damm (USA)",
     "nome: MH30 Marc-Andrea Huesler → John Millman"
   ],
   "N": 96165,
-  "n_variaveis": 52,
+  "n_variaveis": 57,
   "n_variaveis_brutas": 50,
   "etapas_filtro": {
     "partidas_brutas": 111361,
@@ -70,7 +71,12 @@
     "decada": 0.0,
     "set_decisivo": 0.0,
     "favorito_venceu": 0.38,
-    "dif_ranking": 0.38
+    "dif_ranking": 0.38,
+    "games_vencedor": 0.0,
+    "games_perdedor": 0.0,
+    "stats_ok": 0.0,
+    "pontos_vencedor": 0.28,
+    "pontos_perdedor": 0.28
   },
   "n_torneios": 2387,
   "n_jogadores": 2271

@@ -14,7 +14,7 @@ com saque, devolução, break points, tie-breaks e títulos de cada jogador. Sit
 |---|---|
 | Início | A base, a população (o que entra e o que fica de fora), o que tem em cada partida, termos de uso |
 | O circuito | Descritiva da população inteira com filtros: superfícies, duração, aces, ranking |
-| Explorar | Top N × demais, ranking × zebras (chance de o favorito vencer), linha do tempo |
+| Explorar | Top N × demais, ranking × zebras (chance de o favorito vencer), linha do tempo, "venceu perdendo nos pontos" |
 | Jogadores | Líderes de todos os critérios (pódio e quadro de medalhas), ranking por critério com IC 95% de Wilson e perfil completo de cada jogador |
 
 ## Como funciona
