@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from tenis import estatistica as est
+from tenis import pressao
 
 TOPS = [5, 10, 20, 50, 100]
 FAIXAS = [(1, 5), (6, 10), (11, 25), (26, 50), (51, 100), (101, 200), (201, 100_000)]
@@ -73,7 +74,7 @@ def longo(df: pd.DataFrame) -> pd.DataFrame:
         d["venceu_menos"] = ((meus < deles) & bool(venceu)).astype(int)
         d["perdeu_mais"] = ((meus > deles) & (not venceu)).astype(int)
         lados.append(d)
-    return _componentes(pd.concat(lados, ignore_index=True))
+    return pressao.esperados(_componentes(pd.concat(lados, ignore_index=True)))
 
 
 _SET = re.compile(r"(\d+)-(\d+)")
@@ -127,9 +128,11 @@ class Criterio:
     num: str               # coluna somada no numerador
     den: str               # coluna somada no denominador
     maior_melhor: bool
-    tipo: str              # "%" proporção (tem IC de Wilson) · "taxa" por game · "razao" · "n" contagem
+    tipo: str              # "%" proporção (IC de Wilson) · "taxa" por game · "razao" · "n" contagem
+                           # · "acima": (num − esp) ÷ den, em p.p. acima do esperado (IC normal)
     grupo: str
     desc: str
+    esp: str = ""          # coluna somada do esperado (só no tipo "acima")
 
 
 CRITERIOS = [
@@ -162,15 +165,26 @@ CRITERIOS = [
              "sets decididos no tie-break"),
     Criterio("decisivos", "Sets decisivos vencidos", "decisivo_vencido", "decisivo_jogado", True, "%", "Pressão",
              "partidas que foram ao 3º set (melhor de 3) ou ao 5º (melhor de 5)"),
+    Criterio("bp_salvos_ae", "Break points salvos acima do esperado", "bp_sav", "bp_fac", True, "acima", "Pressão",
+             "p.p. acima do que o próprio saque na mesma partida previa (fora dos break points); 0 = como o circuito", "bp_sav_esp"),
+    Criterio("bp_conv_ae", "Break points convertidos acima do esperado", "bp_conv", "bp_opp", True, "acima", "Pressão",
+             "p.p. acima do que a própria devolução na mesma partida previa (fora dos break points); 0 = como o circuito", "bp_conv_esp"),
+    Criterio("tb_ae", "Tie-breaks acima do esperado", "tb_v_s", "tb_j_s", True, "acima", "Pressão",
+             "p.p. acima da chance dada pelos pontos que cada um ganhou sacando na mesma partida", "tb_esp"),
+    Criterio("dec_ae", "Sets decisivos acima do esperado", "dec_v_s", "dec_j_s", True, "acima", "Pressão",
+             "p.p. acima da chance dada pelos pontos que cada um ganhou sacando na mesma partida", "dec_esp"),
     Criterio("titulos", "Títulos", "titulo", "partida", True, "n", "Conquistas", "finais vencidas"),
     Criterio("finais", "Finais disputadas", "final", "partida", True, "n", "Conquistas", ""),
     Criterio("titulos_gs", "Títulos de Grand Slam", "titulo_gs", "partida", True, "n", "Conquistas", ""),
 ]
 CRIT = {c.chave: c for c in CRITERIOS}
+Z975 = 1.959963984540054
 COMPONENTES = ["partida", "venceu", "vitoria_top10", "vs_top10", "sv_pts", "sv_won", "first_in", "first_won",
                "second_pts", "second_won", "ret_pts", "ret_won", "bp_fac", "bp_sav", "bp_opp", "bp_conv",
                "aces", "dfs", "sv_games", "tb_jogados", "tb_vencidos", "decisivo_jogado", "decisivo_vencido",
-               "final", "titulo", "titulo_gs", "com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais"]
+               "final", "titulo", "titulo_gs", "com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais",
+               "bp_sav_esp", "bp_conv_esp", "tb_j_s", "tb_v_s", "tb_esp", "dec_j_s", "dec_v_s", "dec_esp"]
+ESPERADOS = ["bp_sav_esp", "bp_conv_esp", "tb_esp", "dec_esp"]   # somas com casas decimais (vão ×100 para o JSON)
 # somas derivadas de outras somas (não vão para o JSON; o site calcula igual em jogadores.js → valores)
 DERIVADOS = {"pts_ganhos": ("sv_won", "ret_won"), "pts_jogados": ("sv_pts", "ret_pts")}
 NIVEIS = ["Grand Slam", "ATP Finals", "Masters 1000", "ATP 500", "ATP 250"]
@@ -215,6 +229,13 @@ def valores(s: pd.DataFrame, confianca: float = 0.95) -> pd.DataFrame:
             out[f"{c.chave}_n"] = s["sv_pts"] + s["ret_pts"]
             continue
         den = s[c.den].replace(0, np.nan)
+        if c.tipo == "acima":
+            esp = s[c.esp]
+            out[c.chave] = (s[c.num] - esp) / den
+            out[f"{c.chave}_n"] = s[c.den]
+            meia = Z975 * np.sqrt((esp * (1 - esp / den)).clip(lower=0)) / den   # binomial com a chance esperada
+            out[f"{c.chave}_ic_inf"], out[f"{c.chave}_ic_sup"] = out[c.chave] - meia, out[c.chave] + meia
+            continue
         out[c.chave] = s[c.num] / den
         out[f"{c.chave}_n"] = s[c.den]
         if c.tipo == "%":

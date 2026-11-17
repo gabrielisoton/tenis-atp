@@ -11,7 +11,7 @@
 <script src="assets/site.js?v=8"></script>
 <script src="assets/comum.js?v=9"></script>
 <script src="assets/descritiva.js?v=7"></script>
-<script src="assets/jogadores.js?v=9"></script>
+<script src="assets/jogadores.js?v=10"></script>
 <style>
   .combo { position: relative; display: inline-block; }
   .combo-seta { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); border: 0; background: none;
@@ -434,7 +434,9 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       devolucao: ["Pontos na devolução", "Return points won"], primeiro_dentro: ["1º saque dentro", "1st serve in"], ganhos_1: ["Ganhos com o 1º saque", "1st serve points won"],
       ganhos_2: ["Ganhos com o 2º saque", "2nd serve points won"], bp_salvos: ["Break points salvos", "Break points saved"], bp_convertidos: ["Break points convertidos", "Break points converted"],
       aces_game: ["Aces por game", "Aces per game"], df_game: ["Duplas faltas por game (menos)", "Double faults per game (fewer)"], tie_breaks: ["Tie-breaks vencidos", "Tie-breaks won"],
-      decisivos: ["Sets decisivos vencidos", "Deciding sets won"] };
+      decisivos: ["Sets decisivos vencidos", "Deciding sets won"], bp_salvos_ae: ["BP salvos acima do esperado", "BP saved above expected"],
+      bp_conv_ae: ["BP convertidos acima do esperado", "BP converted above expected"], tb_ae: ["Tie-breaks acima do esperado", "Tie-breaks above expected"],
+      dec_ae: ["Sets decisivos acima do esperado", "Deciding sets above expected"] };
     const nomeI = k => T(IND[k][0], IND[k][1]);
     const FASE_EN = { "> 50": "> 50", "11–50": "11–50", "4–10": "4–10", "2–3": "2–3", "nº 1": "No. 1" };
     const nomeF = f => EM_INGLES ? FASE_EN[f] : f;
@@ -530,13 +532,19 @@ document.getElementById("quadra").innerHTML = svgQuadra();
           xaxis: { title: "z", zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 200, r: 20, t: 70, b: 50 } });
       document.getElementById("n1-t-assin").innerHTML = `<tr><th>${T("Nº 1", "No. 1")}</th><th>${T("Mais forte em", "Strongest at")}</th><th>${T("Depois", "Then")}</th></tr>` +
         NOMES.map(n => { const z = Object.entries(J[n].z); return `<tr><td>${n}</td>${z.slice(0, 2).map(([k, v]) => `<td>${nomeI(k)} <span class="nota">+${br(v, 1)}</span></td>`).join("")}</tr>`; }).join("");
+      const PR = k => { const v = NOMES.map(n => J[n].pressao?.[k]).filter(x => x != null); return { acima: v.filter(x => x > 0).length, n: v.length, media: v.reduce((a, x) => a + x, 0) / v.length }; };
+      const dec = PR("dec_ae"), tb = PR("tb_ae"), bps = PR("bp_salvos_ae"), bpc = PR("bp_conv_ae");
+      const sp = x => `${x >= 0 ? "+" : "−"}${br(100 * Math.abs(x), 1)} ${T("p.p.", "pp")}`;
       document.getElementById("n1-nota-comum").innerHTML = T(`<b>Leitura:</b> o que une os nº 1 é ganhar os pontos em que o saque não dá vantagem (2º saque e
-        devolução) e decidir bem; saque grande (aces, 1º saque dentro) quase não os separa do circuito. <b>Cuidado:</b> sets decisivos, tie-breaks e
-        break points são em parte consequência de ser melhor; para falar em "frieza" seria preciso comparar com o esperado pelo nível de cada um
-        (item do roadmap). Ficam de fora vitórias e títulos, que já definem quem é nº 1.`, `<b>Reading:</b> what unites the No. 1s is winning the points
-        where the serve gives no edge (2nd serve and return) and closing out well; a big serve (aces, 1st serve in) barely sets them apart from the tour.
-        <b>Caution:</b> deciding sets, tie-breaks and break points partly follow from being better; to talk about "clutch" we would need to compare with
-        what each player's level predicts (a roadmap item). Wins and titles are left out, since they already define who is No. 1.`);
+        devolução) e decidir bem; saque grande (aces, 1º saque dentro) quase não os separa do circuito. <b>Frieza de verdade?</b> Sets decisivos, tie-breaks
+        e break points crus são em parte consequência de ser melhor. Descontando o que os pontos de cada partida previam ("acima do esperado"), os nº 1
+        seguem bem acima em <b>sets decisivos</b> (${dec.acima} de ${dec.n}, ${sp(dec.media)} em média), um pouco em tie-breaks (${sp(tb.media)}) e quase nada
+        em break points (salvos ${sp(bps.media)}, convertidos ${sp(bpc.media)}). Ficam de fora vitórias e títulos, que já definem quem é nº 1.`,
+        `<b>Reading:</b> what unites the No. 1s is winning the points where the serve gives no edge (2nd serve and return) and closing out well; a big serve
+        (aces, 1st serve in) barely sets them apart from the tour. <b>Real clutch?</b> Raw deciding sets, tie-breaks and break points partly follow from being
+        better. Discounting what each match's points predicted ("above expected"), the No. 1s stay well ahead in <b>deciding sets</b> (${dec.acima} of
+        ${dec.n}, ${sp(dec.media)} on average), slightly in tie-breaks (${sp(tb.media)}) and barely on break points (saved ${sp(bps.media)}, converted
+        ${sp(bpc.media)}). Wins and titles are left out, since they already define who is No. 1.`);
     }
 
     function queda() {

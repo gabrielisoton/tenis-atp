@@ -73,7 +73,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const A = await carregar("achados");
   const sobre = n => n.split(" ").slice(-1)[0];
   const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
-  const P = A.pico, AU = A.auge, VP = A.venceu_perdendo, R = A.rivalidade, EL = A.elite, EA = A.elo_acerta, AC = A.aces, N1 = A.numero1, GN = A.ganhar;
+  const P = A.pico, AU = A.auge, VP = A.venceu_perdendo, R = A.rivalidade, EL = A.elite, EA = A.elo_acerta, N1 = A.numero1, GN = A.ganhar, PRS = A.pressao;
   const eps = Object.entries(AU.por_epoca);
   const card = (cor, tema, grande, texto, link, mini) => ({ cor, tema, grande, texto, link, mini });
   const cards = [
@@ -101,10 +101,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       T(`Numa partida parelha, ganhar 1 ponto de saque a mais em cada 100 aumenta a chance de vencer em ${br(100 * GN.por_ponto, 0)} pontos, venha do 1º saque, do 2º ou de acertar mais 1º saques. Aces e duplas faltas quase não pesam além do ponto. Por isso o Top 10, que ganha só ${br(100 * (EL.tpw_top10 - EL.tpw_demais), 1)} pontos a mais em 100, vence ${pct(EL.vitorias_top10, 0)} contra o resto.`,
         `In an even match, winning 1 more service point in every 100 raises the chance of winning by ${br(100 * GN.por_ponto, 0)} points, whether it comes from the 1st serve, the 2nd or landing more 1st serves. Aces and double faults barely matter beyond the point. That's why the Top 10, winning only ${br(100 * (EL.tpw_top10 - EL.tpw_demais), 1)} more points in 100, beat the rest ${pct(EL.vitorias_top10, 0)} of the time.`),
       "jogo.html#ganhar", "ganhar"),
-    card("var(--pop)", T("Como o jogo mudou", "How the game changed"), `+${br(100 * (AC.media[AC.media.length - 1] / AC.media[0] - 1), 0)}%<small>aces</small>`,
-      T(`Aces por partida: ${br(AC.media[0], 1)} em ${AC.anos[0]}, ${br(AC.media[AC.media.length - 1], 1)} em ${AC.anos[AC.anos.length - 1]}. As partidas também ficaram mais longas.`,
-        `Aces per match: ${br(AC.media[0], 1)} in ${AC.anos[0]}, ${br(AC.media[AC.media.length - 1], 1)} in ${AC.anos[AC.anos.length - 1]}. Matches also got longer.`),
-      "jogo.html#tempo", "aces"),
+    card("var(--pop)", T("Frieza existe?", "Is clutch real?"), `${PRS.n1_dec_acima} ${T("de", "of")} ${PRS.n1}<small>${T("nº 1", "No. 1s")}</small>`,
+      T(`Descontando o que os pontos de cada partida previam, "frieza" em break point e tie-break é quase sorte: muda de um ano para outro. No set decisivo é diferente: se repete (barras: quanto se repete, de 0 a 1), e ${PRS.n1_dec_acima} dos ${PRS.n1} nº 1 vencem mais do que o esperado (+${br(100 * PRS.n1_dec_media, 1)} p.p. em média).`,
+        `Discounting what each match's points predicted, "clutch" on break points and tie-breaks is mostly luck: it changes from year to year. The deciding set is different: it repeats (bars: how much it repeats, 0 to 1), and ${PRS.n1_dec_acima} of the ${PRS.n1} No. 1s win more than expected (+${br(100 * PRS.n1_dec_media, 1)} pp on average).`),
+      "jogadores.html#rank", "pressao"),
     card("var(--top)", T("Números conferidos", "Numbers that check out"), pct(EA.elo),
       T(`O Elo acerta o vencedor em ${pct(EA.elo)} das ${br(EA.n, 0)} partidas, contra ${pct(EA.ranking)} do ranking da ATP. Títulos e confrontos batem com os oficiais.`,
         `Elo picks the winner in ${pct(EA.elo)} of ${br(EA.n, 0)} matches, against ${pct(EA.ranking)} for the ATP ranking. Titles and head-to-heads match the official figures.`),
@@ -135,8 +135,9 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const gr = { ganhos_1: T("1º saque", "1st serve"), ganhos_2: T("2º saque", "2nd serve"), primeiro_dentro: T("1º dentro", "1st in"), aces_game: "aces", df_game: T("duplas f.", "double f.") };
   Plotly.newPlot("mini-ganhar", [{ type: "bar", x: gk.map(k => gr[k]), y: gk.map(k => GN.z[k]), marker: { color: gk.map((_, i) => i < 3 ? CORES.pop : CORES.demais) },
     text: gk.map(k => br(GN.z[k], 1)), textposition: "inside", constraintext: "none" }], base({ bargap: .3, xaxis: { showgrid: false } }), mini);
-  Plotly.newPlot("mini-aces", [{ x: AC.anos, y: AC.media, mode: "lines", line: { color: CORES.pop, width: 2 }, fill: "tozeroy", fillcolor: "rgba(98,80,214,.12)" }],
-    base({ xaxis: { showgrid: false, dtick: 10 } }), mini);
+  const pk = ["bp_salvos", "tie_breaks", "decisivos"], prt = { bp_salvos: T("break point", "break point"), tie_breaks: "tie-break", decisivos: T("set decisivo", "deciding set") };
+  Plotly.newPlot("mini-pressao", [{ type: "bar", x: pk.map(k => prt[k]), y: pk.map(k => PRS.conf[k]), marker: { color: pk.map(k => k === "decisivos" ? CORES.pop : CORES.demais) },
+    text: pk.map(k => br(PRS.conf[k], 2)), textposition: "inside" }], base({ bargap: .3, xaxis: { showgrid: false }, yaxis: { visible: false, range: [0, 0.6] } }), mini);
   const n1k = ["ganhos_2", "devolucao", "ganhos_1", "aces_game", "primeiro_dentro"];
   const n1r = { ganhos_2: T("2º saque", "2nd serve"), devolucao: T("devolução", "return"), ganhos_1: T("1º saque", "1st serve"), aces_game: "aces", primeiro_dentro: T("1º dentro", "1st in") };
   Plotly.newPlot("mini-n1", [{ type: "bar", x: n1k.map(k => n1r[k]), y: n1k.map(k => N1.acima[k]), marker: { color: n1k.map((_, i) => i < 2 ? CORES.pop : CORES.demais) },

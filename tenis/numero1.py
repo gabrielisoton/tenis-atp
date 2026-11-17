@@ -26,7 +26,7 @@ IND = {  # indicador: (numerador, denominador), somas dos componentes de analise
     "ganhos_2": ("second_won", "second_pts"), "bp_salvos": ("bp_sav", "bp_fac"), "bp_convertidos": ("bp_conv", "bp_opp"),
 }
 CRIT_JOGO = ["primeiro_dentro", "ganhos_1", "ganhos_2", "aces_game", "df_game", "devolucao", "bp_convertidos",
-             "bp_salvos", "tie_breaks", "decisivos"]
+             "bp_salvos", "tie_breaks", "decisivos", "bp_salvos_ae", "bp_conv_ae", "tb_ae", "dec_ae"]
 
 
 def _val(s: pd.Series, num: str, den: str) -> float | None:
@@ -114,6 +114,9 @@ def exportar(pop: pd.DataFrame, titulos: pd.DataFrame) -> dict:
         assin = z.loc[nome].sort_values(ascending=False) if nome in z.index else pd.Series(dtype=float)
         jogadores[nome] = {"cobertura": cobertura, "fases": fases, "temporadas": temporadas, "virada": virada, "marcos": marcos,
                            "idade_elo": idade_elo, "z": {k: round(float(v), 2) for k, v in assin.items()},
+                           # pressão acima do esperado, em p.p. (0 = como o circuito)
+                           "pressao": {k: None if nome not in tab.index or pd.isna(tab.loc[nome, k]) else round(float(tab.loc[nome, k]), 4)
+                                       for k in ("bp_salvos_ae", "bp_conv_ae", "tb_ae", "dec_ae")},
                            "auge": None if nome not in auges else {k: auges[nome][k] for k in ("auge", "auge_ini", "auge_fim", "auge_idade")},
                            "ativo": bool(d["dt"].max() > corte - pd.Timedelta(days=365))}
         # depois do topo: quem já parou, do ano do auge às duas últimas temporadas com ≥ 15 partidas

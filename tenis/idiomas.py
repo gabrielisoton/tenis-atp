@@ -46,6 +46,16 @@ EN: dict[str, str] = {
     "chances de quebra aproveitadas": "break chances taken",
     "pressão defendida no próprio saque": "pressure defended on own serve",
     "sets decididos no tie-break": "sets decided in a tie-break",
+    "Break points salvos acima do esperado": "Break points saved above expected",
+    "Break points convertidos acima do esperado": "Break points converted above expected",
+    "Tie-breaks acima do esperado": "Tie-breaks above expected",
+    "Sets decisivos acima do esperado": "Deciding sets above expected",
+    "p.p. acima do que o próprio saque na mesma partida previa (fora dos break points); 0 = como o circuito":
+        "pp above what the player's own serve in the same match predicted (outside break points); 0 = like the tour",
+    "p.p. acima do que a própria devolução na mesma partida previa (fora dos break points); 0 = como o circuito":
+        "pp above what the player's own return in the same match predicted (outside break points); 0 = like the tour",
+    "p.p. acima da chance dada pelos pontos que cada um ganhou sacando na mesma partida":
+        "pp above the chance given by the points each player won on serve in the same match",
     "partidas que foram ao 3º set (melhor de 3) ou ao 5º (melhor de 5)":
         "matches that went to a 3rd set (best of 3) or a 5th set (best of 5)",
     "finais vencidas": "finals won",

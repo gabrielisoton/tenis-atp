@@ -117,7 +117,7 @@
   - **Cobertura:** com a base 1991+, 15 dos 21 têm a jornada completa; Sampras, Agassi e Courier já estavam no
     topo em 1991 e Becker, Edberg e Muster tinham carreira antes (a página avisa em cada caso).
   - **Começo da carreira:** sem Challengers nem qualifying na TML, o começo tem poucas partidas.
-  - **Clutch:** momentos decisivos só viram "clutch" comparados ao esperado (#19).
+  - **Clutch:** momentos decisivos só viram "clutch" comparados ao esperado (#19, feito: ver "Pressão acima do esperado").
   - **Não é causa:** "o que mudou" na subida não é receita.
 - **Limites para o amador:**
   - **Não é causa:** é correlação em profissionais.
@@ -135,6 +135,19 @@
   - **Por quadra:** o saibro devolve mais (32% contra o 1º saque × 26% na grama) e tem metade dos aces, mas a ordem
     do que pesa é a mesma.
 
+**Pressão acima do esperado** (feito: `tenis/pressao.py`, 4 critérios novos no ranking e no perfil, conferido por
+`scripts/validar_pressao.py`)
+- **Método:** cada momento de pressão comparado com o que os pontos do próprio jogador **na mesma partida** previam.
+  Break points: o saque (ou a devolução) nos outros pontos. Tie-breaks e sets decisivos: a chance dada pela % de pontos
+  que cada um ganhou sacando (modelo ponto → game → tie-break → set). 0 = como o circuito.
+- **Descola do saque:** a % crua de BP salvos tem correlação 0,89 com o saque; acima do esperado, 0,15.
+- **No break point, quem saca ganha 1,3 p.p. a mais** que nos outros pontos de saque (no circuito inteiro).
+- **Frieza é quase sorte, menos no set decisivo:** comparando anos pares e ímpares, o "acima do esperado" se repete
+  pouco em break points (0,23) e tie-breaks (0,19) e bem mais em sets decisivos (0,51).
+- **Os nº 1:** acima do esperado em sets decisivos 21 de 21 (+7,7 p.p.; nos outros sets, só +1,8), tie-breaks +3,5,
+  break points quase 0. Maiores em sets decisivos: Nishikori, Sampras, Alcaraz, Del Potro, Djokovic.
+- **Limite:** o dado não separa frieza de preparo físico (o set decisivo é o fim da partida).
+
 **Desde 1968:** descartado. Ganharíamos Borg, McEnroe e Connors, mas com buracos grandes nos dados. 1991+ cobre
 Sampras, Agassi, Big 3 e a nova geração com tudo medido.
 
@@ -145,7 +158,7 @@ abas dessas páginas, não como páginas novas:
 | Página | Itens do backlog que entram nela |
 |---|---|
 | Achados (início) | um card novo para cada achado forte de qualquer item |
-| Jogadores | 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado |
+| Jogadores | 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado (feito) |
 | Épocas | 21 Os nº 1 (feito) |
 | Torneios (nova, quando o item 7 for feito) | 7 páginas de torneio · 16 velocidade da quadra |
 | O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar (feito) · 22 guia para quem treina (feito) |

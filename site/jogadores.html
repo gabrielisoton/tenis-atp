@@ -11,7 +11,7 @@
 <script src="assets/site.js?v=8"></script>
 <script src="assets/comum.js?v=9"></script>
 <script src="assets/descritiva.js?v=7"></script>
-<script src="assets/jogadores.js?v=9"></script>
+<script src="assets/jogadores.js?v=10"></script>
 <style>
   .barra-pct { position: relative; height: 10px; background: #ecebe5; border-radius: 6px; min-width: 90px; }
   .barra-pct i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
@@ -181,7 +181,18 @@ abrirAbaDoHash("#abas-j");
     if (comMinimo) document.getElementById(pre + "-min").value = minimoSugerido(E.a0, E.a1);
   };
   const titulo = t => ({ text: t, x: 0, font: { size: 16, family: "Barlow Condensed" } });
-  const eixoC = c => ({ tickformat: c.tipo === "%" ? ".0%" : null });
+  const eixoC = c => ({ tickformat: c.tipo === "%" ? ".0%" : c.tipo === "acima" ? "+.0%" : null, ticksuffix: c.tipo === "acima" ? " " : "" });
+  const comoLerAcima = T(`<br><br><b>Como ler "acima do esperado":</b> a % crua de break points salvos premia quem saca bem, e a de
+      tie-breaks premia quem é melhor. Aqui cada momento de pressão é comparado com o que <b>os pontos do próprio jogador na mesma
+      partida</b> previam: nos break points, o seu saque (ou a sua devolução) nos outros pontos; nos tie-breaks e sets decisivos,
+      a chance dada pela % de pontos que cada um ganhou sacando. <b>+3 p.p.</b> = venceu 3 em cada 100 a mais do que o esperado;
+      0 = como o circuito. Cuidado: em break points e tie-breaks a diferença entre jogadores muda pouco de um ano para o outro
+      (é em boa parte sorte); em sets decisivos ela se repete mais.`, `<br><br><b>How to read "above expected":</b> the raw % of break
+      points saved rewards good servers, and tie-breaks won rewards better players. Here each pressure moment is compared with what
+      <b>the player's own points in the same match</b> predicted: on break points, their serve (or return) on the other points; in
+      tie-breaks and deciding sets, the chance given by the % of points each one won on serve. <b>+3 pp</b> = won 3 in every 100 more
+      than expected; 0 = like the tour. Caution: on break points and tie-breaks the gaps between players change a lot from one year
+      to the next (largely luck); in deciding sets they repeat more.`);
 
   /* ================= líderes ================= */
   const LD = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]), niv: new Set([0, 1, 2, 3, 4]) };
@@ -203,7 +214,7 @@ abrirAbaDoHash("#abas-j");
     play. If they overlap, it is a <i>statistical tie</i>: with this data we cannot say who is better. It is a conservative rule
     (intervals that overlap slightly can still show a difference in a formal test), but it captures the idea of sampling
     variability.`));
-  const fmtVant = (c, v) => v === undefined || v === null ? "—" : c.tipo === "%" ? `+${br(100 * v, 1)} ${PP}`
+  const fmtVant = (c, v) => v === undefined || v === null ? "—" : temIC(c) ? `+${br(100 * v, 1)} ${PP}`
     : "+" + (c.tipo === "taxa" ? br(v, 3) : c.tipo === "razao" ? br(v, 2) : br(v, 0));
 
   function desenharLideres() {
@@ -311,29 +322,30 @@ abrirAbaDoHash("#abas-j");
     ]);
     const top = rk.slice(0, 20).reverse();
     const hover = top.map(r => `<b>${r.nome}</b><br>${c.nome}: ${fmtC(c, r[c.chave])}` +
-      (c.tipo === "%" ? `<br>${T("IC 95%", "95% CI")}: ${fmtIC(c, r[c.chave + "_ic_inf"], r[c.chave + "_ic_sup"])}` : "") + `<br>${br(r.partidas, 0)} ${PART}`);
+      (temIC(c) ? `<br>${T("IC 95%", "95% CI")}: ${fmtIC(c, r[c.chave + "_ic_inf"], r[c.chave + "_ic_sup"])}` : "") + `<br>${br(r.partidas, 0)} ${PART}`);
     const tr = c.tipo === "n"
       ? [{ type: "bar", orientation: "h", x: top.map(r => r[c.chave]), y: top.map(r => r.nome), marker: { color: CORES.pop },
            text: top.map(r => fmtC(c, r[c.chave])), textposition: "outside", cliponaxis: false, hovertext: hover, hoverinfo: "text" }]
       : [{ x: top.map(r => r[c.chave]), y: top.map(r => r.nome), mode: "markers", hovertext: hover, hoverinfo: "text",
            marker: { color: CORES.pop, size: 12, line: { color: "#fff", width: 1.5 } },
-           error_x: c.tipo === "%" ? { type: "data", symmetric: false, array: top.map(r => r[c.chave + "_ic_sup"] - r[c.chave]),
+           error_x: temIC(c) ? { type: "data", symmetric: false, array: top.map(r => r[c.chave + "_ic_sup"] - r[c.chave]),
              arrayminus: top.map(r => r[c.chave] - r[c.chave + "_ic_inf"]), color: CORES.pop, thickness: 2, width: 4 } : undefined }];
     plot(document.getElementById("r-g"), tr, { height: 640, showlegend: false,
       title: titulo(`Top 20 · ${c.nome}` + (c.tipo === "%" ? T("<br><sup>ponto = valor do jogador · traço = IC 95% de Wilson</sup>", "<br><sup>dot = player's value · bar = 95% Wilson CI</sup>")
+        : c.tipo === "acima" ? T("<br><sup>ponto = p.p. acima do esperado · traço = IC 95%</sup>", "<br><sup>dot = pp above expected · bar = 95% CI</sup>")
         : !c.maior_melhor ? T("<br><sup>menor é melhor</sup>", "<br><sup>lower is better</sup>") : "")),
       shapes: [{ type: "line", xref: "x", yref: "paper", x0: media, x1: media, y0: 0, y1: 1, line: { color: CORES.neutra, dash: "dash", width: 2 } }],
       annotations: [{ x: media, y: 1, yref: "paper", yanchor: "bottom", text: `${T("média do circuito", "tour average")}: ${c.tipo === "n" ? br(media, 1) : fmtC(c, media)}`, showarrow: false, font: { color: "#4b5650" } }],
       xaxis: { ...eixoC(c), title: c.nome, showgrid: true, gridcolor: "rgba(137,135,129,.22)" }, yaxis: { showgrid: false, automargin: true },
       margin: { l: 150, r: 40, t: 90, b: 50 } });
-    document.getElementById("r-desc").innerHTML = c.desc ? `<b>${c.nome}:</b> ${c.desc}.` : "";
+    document.getElementById("r-desc").innerHTML = (c.desc ? `<b>${c.nome}:</b> ${c.desc}.` : "") + (c.tipo === "acima" ? comoLerAcima : "");
     document.getElementById("r-t").innerHTML = `<tr><th>${T("Posição", "Rank")}</th><th>${T("Jogador", "Player")}</th><th>${T("Partidas", "Matches")}</th>
       <th>${T("V–D", "W–L")}</th><th>${c.nome}</th>` +
-      (c.tipo === "%" ? `<th>${T("IC 95% (Wilson)", "95% CI (Wilson)")}</th><th>${T("Base (n)", "Base (n)")}</th>` : "") +
+      (temIC(c) ? `<th>${c.tipo === "%" ? T("IC 95% (Wilson)", "95% CI (Wilson)") : T("IC 95%", "95% CI")}</th><th>${T("Base (n)", "Base (n)")}</th>` : "") +
       `<th>${T("Percentil", "Percentile")}</th><th>${T("Melhor ranking", "Best ranking")}</th></tr>` +
       rk.map(r => `<tr><td>${ordinal(r.posicao)}</td><td>${r.nome}</td><td class="n">${br(r.partidas, 0)}</td><td class="n">${r.V}–${r.D}</td>
         <td class="n"><b>${fmtC(c, r[c.chave])}</b></td>` +
-        (c.tipo === "%" ? `<td class="n">${fmtIC(c, r[c.chave + "_ic_inf"], r[c.chave + "_ic_sup"])}</td><td class="n">${br(r[c.chave + "_n"], 0)}</td>` : "") +
+        (temIC(c) ? `<td class="n">${fmtIC(c, r[c.chave + "_ic_inf"], r[c.chave + "_ic_sup"])}</td><td class="n">${br(r[c.chave + "_n"], 0)}</td>` : "") +
         `<td><div class="barra-pct" title="${br(r.percentil, 0)}"><i style="width:${r.percentil}%;background:${CORES.pop}"></i></div></td>
         <td class="n">${r.melhor_rank ? ordinal(r.melhor_rank) : "—"}</td></tr>`).join("");
   }
@@ -447,7 +459,7 @@ abrirAbaDoHash("#abas-j");
       plot(document.getElementById("p-anual"), [{ x: a.map(r => r.ano), y: a.map(r => r[c.chave]), mode: "lines+markers",
         line: { color: CORES.pop, width: 3 }, marker: { size: 8 }, customdata: a.map(r => r.partidas), hovertext: a.map(r => fmtC(c, r[c.chave])),
         hovertemplate: `%{x}: %{hovertext} (%{customdata} ${PART})<extra></extra>`,
-        error_y: c.tipo === "%" ? { type: "data", symmetric: false, array: a.map(r => r[c.chave + "_ic_sup"] - r[c.chave]),
+        error_y: temIC(c) ? { type: "data", symmetric: false, array: a.map(r => r[c.chave + "_ic_sup"] - r[c.chave]),
           arrayminus: a.map(r => r[c.chave] - r[c.chave + "_ic_inf"]), color: CORES.pop, thickness: 1.2, width: 3 } : undefined }],
         { height: 400, showlegend: false, title: titulo(T(`${nome} · ${c.nome} por temporada`, `${nome} · ${c.nome} by season`) + (c.tipo === "%"
             ? T("<br><sup>traço = IC 95% de Wilson; anos com poucas partidas têm IC largo</sup>", "<br><sup>bar = 95% Wilson CI; years with few matches have a wide CI</sup>") : "")),

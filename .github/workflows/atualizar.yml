@@ -61,6 +61,7 @@ jobs:
           python scripts/validar_elo.py
           python scripts/validar_numero1.py
           python scripts/validar_ganhar.py
+          python scripts/validar_pressao.py
 
       - name: Commit e publicação
         if: steps.fonte.outputs.mudou == 'true'

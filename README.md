@@ -17,7 +17,7 @@ links diretos e compartilhamento.
 | Página | Pergunta | Abas |
 |---|---|---|
 | **Achados** (`index.html`) | O que há de mais interessante? | 9 achados com o número, um mini gráfico e o link para a análise (números tirados de `data/achados.json`) |
-| **Jogadores** | Quão bom é o meu jogador? | Líderes de cada critério (pódio e quadro de medalhas) · Ranking por critério com IC de Wilson · Perfil do jogador · Rivalidades (H2H com a regra oficial) |
+| **Jogadores** | Quão bom é o meu jogador? | Líderes de cada critério (pódio e quadro de medalhas) · Ranking por critério com IC de Wilson · Perfil do jogador · Rivalidades (H2H com a regra oficial). Inclui a pressão **acima do esperado** (break points, tie-breaks e sets decisivos comparados com o que os pontos da própria partida previam) |
 | **Épocas** | Quem foi o melhor de cada época? | Elo (carreiras, picos, Elo atual, nº 1 por temporada) · O auge (pico, melhor média de 12 meses, idade, curva de envelhecimento pelo método delta) · Corrida por idade (títulos e Slams, Slams desde 1968) · Pico × Pico · Os nº 1 (a jornada por fase de ranking, ano da virada, comparar jornadas, o que todos têm em comum, depois do topo) |
 | **O jogo** | O que faz ganhar no tênis? | Top N × demais · Ranking e zebras · Linha do tempo · Venceu perdendo nos pontos · O que faz ganhar (leitura simples e modelo logístico por superfície, nível e época; quanto vale um ponto) · Para quem treina (6 prioridades com o dado e a tradução para a quadra, por superfície, e o que os dados não dizem) |
 | **Sobre os dados** | Dá para confiar? | A base e a população · O circuito (descritiva com filtros) · Métodos e validação (checagens, Elo × ranking, regras de cada contagem) |
@@ -31,7 +31,7 @@ O Python é o motor: baixa a base, monta a população e exporta JSON. O site s�
 dados/      baixar.py (CSVs da TML, 1991+) → preparar_populacao.py (base/populacao.parquet, com data, ids e ordem)
 tenis/      estatistica.py, analises.py (critérios, líderes, perfis), elo.py, exportacao.py, idiomas.py (rótulos em inglês)
 scripts/    exportar_site.py (gera site/data/*.json) · validar_estatistica.py (confere contra o scipy)
-tenis/      … achados.py (números da página inicial), corrida.py, h2h.py, numero1.py (os nº 1), ganhar.py (o que faz ganhar)
+tenis/      … achados.py (números da página inicial), corrida.py, h2h.py, numero1.py (os nº 1), ganhar.py (o que faz ganhar), pressao.py (acima do esperado)
 site/       index (achados), jogadores, epocas, jogo, sobre + assets/ + data/  → publicado no GitHub Pages pelo Actions
 ```
 Os cálculos da página Jogadores são refeitos em JavaScript e **conferidos com o Python** a cada carga
@@ -49,6 +49,7 @@ python scripts/validar_estatistica.py
 python scripts/validar_elo.py              # Elo: previsão, calibração e picos coerentes
 python scripts/validar_numero1.py          # nº 1: anos da virada, cobertura, marcos e o que todos têm em comum
 python scripts/validar_ganhar.py           # o que faz ganhar: logística × scipy, ordem estável, um ponto é um ponto
+python scripts/validar_pressao.py          # pressão: modelos de game/tie-break/set, circuito = 0, estabilidade, nº 1
 python -m http.server 8600 -d site     # http://localhost:8600
 ```
 
@@ -56,7 +57,7 @@ python -m http.server 8600 -d site     # http://localhost:8600
 A Action [`atualizar.yml`](.github/workflows/atualizar.yml) roda no dia 3 de cada mês (ou à mão, em *Actions*):
 1. `dados/baixar.py` baixa de novo as duas últimas temporadas e grava `dados/base/fonte.json`, o sha256 de cada CSV;
 2. se esse arquivo não mudou, a TML não tem partidas novas e a Action para aí;
-3. se mudou, refaz a base, exporta o site e roda as quatro validações; passando, faz o commit e publica.
+3. se mudou, refaz a base, exporta o site e roda as cinco validações; passando, faz o commit e publica.
 
 **Temporada em andamento:** entra parcial. Elo, títulos, confrontos e perfis usam todas as partidas; as contas
 **por temporada** (linha do tempo, nº 1 de cada ano, temporadas dos nº 1) usam só temporadas completas, e a

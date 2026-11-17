@@ -9,7 +9,10 @@ const NIVS = ["Grand Slam", "ATP Finals", "Masters 1000", "ATP 500", "ATP 250"];
 const COMP = ["partida", "venceu", "vitoria_top10", "vs_top10", "sv_pts", "sv_won", "first_in", "first_won",
   "second_pts", "second_won", "ret_pts", "ret_won", "bp_fac", "bp_sav", "bp_opp", "bp_conv",
   "aces", "dfs", "sv_games", "tb_jogados", "tb_vencidos", "decisivo_jogado", "decisivo_vencido",
-  "final", "titulo", "titulo_gs", "com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais"];
+  "final", "titulo", "titulo_gs", "com_pontos", "v_com_pontos", "venceu_menos", "perdeu_mais",
+  "bp_sav_esp", "bp_conv_esp", "tb_j_s", "tb_v_s", "tb_esp", "dec_j_s", "dec_v_s", "dec_esp"];  // *_esp em centésimos
+/* critérios com intervalo de confiança: proporções (Wilson) e "acima do esperado" (normal) */
+const temIC = c => c.tipo === "%" || c.tipo === "acima";
 
 function wilson(s, n, z = Z975) {
   if (!n) return [null, null];
@@ -44,6 +47,13 @@ function valores(s, CRIT) {
       v[c.chave] = ret !== null && perd ? ret / perd : null; v[c.chave + "_n"] = s.sv_pts + s.ret_pts; continue;
     }
     const den = s[c.den];
+    if (c.tipo === "acima") {  // (observado − esperado) ÷ oportunidades — igual a analises.valores
+      const esp = s[c.esp] / 100, val = den ? (s[c.num] - esp) / den : null;
+      const meia = den ? Z975 * Math.sqrt(Math.max(esp * (1 - esp / den), 0)) / den : null;
+      v[c.chave] = val; v[c.chave + "_n"] = den;
+      [v[c.chave + "_ic_inf"], v[c.chave + "_ic_sup"]] = val === null ? [null, null] : [val - meia, val + meia];
+      continue;
+    }
     v[c.chave] = den ? s[c.num] / den : null; v[c.chave + "_n"] = den;
     if (c.tipo === "%") [v[c.chave + "_ic_inf"], v[c.chave + "_ic_sup"]] = wilson(s[c.num], den);
   }
@@ -51,9 +61,11 @@ function valores(s, CRIT) {
 }
 function fmtC(c, v) {
   if (v === null || v === undefined || Number.isNaN(v)) return "—";
+  if (c.tipo === "acima") return `${Math.abs(v) < 5e-4 ? "" : v > 0 ? "+" : "−"}${br(100 * Math.abs(v), 1)} ${T("p.p.", "pp")}`;
   return c.tipo === "%" ? pct(v) : c.tipo === "taxa" ? br(v, 3) : c.tipo === "razao" ? br(v, 2) : br(v, 0);
 }
-const fmtIC = (c, li, ls) => c.tipo !== "%" || li === null || li === undefined ? "—" : `${pct(li)} ${T("a", "to")} ${pct(ls)}`;
+const fmtIC = (c, li, ls) => !temIC(c) || li === null || li === undefined ? "—"
+  : c.tipo === "acima" ? `${fmtC(c, li)} ${T("a", "to")} ${fmtC(c, ls)}` : `${pct(li)} ${T("a", "to")} ${pct(ls)}`;
 const fmtPctl = p => br(p, (p > 99 && p < 100) || (p > 0 && p < 1) ? 1 : 0) + "%";
 
 /* posição e percentil — idênticos a analises.posicao */
@@ -159,7 +171,7 @@ function lideres(tab, CR, top = 10) {
     if (rk.length > 1) {
       const a = rk[0], b = rk[1];
       p.vantagem = c.maior_melhor ? a[c.chave] - b[c.chave] : b[c.chave] - a[c.chave];
-      if (c.tipo === "%") {
+      if (temIC(c)) {
         const iso = c.maior_melhor ? a[c.chave + "_ic_inf"] > b[c.chave + "_ic_sup"] : a[c.chave + "_ic_sup"] < b[c.chave + "_ic_inf"];
         p.lideranca = iso ? "isolada" : "empate técnico";
       }

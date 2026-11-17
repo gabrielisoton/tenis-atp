@@ -30,6 +30,7 @@ from tenis import h2h  # noqa: E402
 from tenis import idiomas  # noqa: E402
 from tenis import numero1  # noqa: E402
 from tenis import ganhar  # noqa: E402
+from tenis import pressao  # noqa: E402
 
 SAIDA = AQUI / "site" / "data"
 CONF = 0.95
@@ -65,8 +66,8 @@ def jogadores(pop: pd.DataFrame) -> dict:
     col = {"j": s["jogador"].map(idx).tolist(), "ano": s["ano"].astype(int).tolist(),
            "sup": ex.codigo(s["superficie"], ex.SUP), "niv": ex.codigo(s["nivel"], ex.NIV),
            "mr": ex.inteiros(s["melhor_rank"])}
-    for c in an.COMPONENTES:
-        col[c] = s[c].round().astype(int).tolist()
+    for c in an.COMPONENTES:  # esperados de pressão em centésimos (o site divide por 100)
+        col[c] = ((s[c] * 100) if c in an.ESPERADOS else s[c]).round().astype(int).tolist()
     finais = pop[pop["rodada"] == "Final"][["ano", "torneio", "nivel", "superficie", "vencedor", "perdedor", "placar"]]
     # checagem: ranking padrão (≥100 partidas, tudo) e o perfil do Federer
     tab = an.tabela_jogadores(lg)
@@ -78,7 +79,7 @@ def jogadores(pop: pd.DataFrame) -> dict:
         "nomes": nomes,
         "anos": [int(pop["ano"].min()), int(pop["ano"].max())],
         "criterios": [{"chave": c.chave, "nome": c.nome, "num": c.num, "den": c.den, "maior_melhor": c.maior_melhor,
-                       "tipo": c.tipo, "grupo": c.grupo, "desc": c.desc} for c in an.CRITERIOS],
+                       "tipo": c.tipo, "grupo": c.grupo, "desc": c.desc, "esp": c.esp} for c in an.CRITERIOS],
         "linhas": col,
         "finais": finais.to_dict("list"),
         "checagem": {"top3": cheq, "federer": fed.to_dict("records"),
@@ -118,7 +119,7 @@ def main() -> None:
     ex.salvar(SAIDA, "ganhar.json", G)
     H = h2h.exportar(pd.read_parquet(ex.BASE / "h2h.parquet"), SAIDA)
     ex.salvar(SAIDA / "h2h", "indice.json", H)
-    ex.salvar(SAIDA, "achados.json", achados.montar(resumo, X, VP, E, C, H, N1, G))
+    ex.salvar(SAIDA, "achados.json", achados.montar(resumo, X, VP, E, C, H, N1, G, pressao.confiabilidade(an.longo(pop))))
 
 
 if __name__ == "__main__":

@@ -6,8 +6,10 @@ O texto (PT/EN) fica no site, montado a partir destes números.
 """
 from __future__ import annotations
 
+import numpy as np
 
-def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict, ganhar: dict) -> dict:
+
+def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict, ganhar: dict, conf: dict) -> dict:
     # 1. maior pico de Elo e a carreira de quem o atingiu
     pico = E["picos"]["geral"][0]
     serie = E["series"][pico["jogador"]]
@@ -53,4 +55,9 @@ def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: di
         # 10. o que faz ganhar: quanto vale +1 ponto de saque a cada 100 numa partida parelha, e o peso (z) de cada aspecto
         "ganhar": (lambda c: {"por_ponto": round(sum(x["por_ponto"] for x in c if x["por_ponto"]) / 3, 4),
                               "z": {x["crit"]: x["z"] for x in c}})(ganhar["recortes"]["Todas|Todos|Todas"]["modelo"]["coef"]),
+        # 11. frieza existe? quanto o "acima do esperado" se repete, e os nº 1 nos sets decisivos
+        "pressao": {"conf": {k: v["confiabilidade"] for k, v in conf["criterios"].items()},
+                    "n1_dec_acima": sum(1 for j in n1["jogadores"].values() if (j["pressao"]["dec_ae"] or 0) > 0),
+                    "n1": len(n1["jogadores"]),
+                    "n1_dec_media": round(float(np.mean([j["pressao"]["dec_ae"] for j in n1["jogadores"].values() if j["pressao"]["dec_ae"] is not None])), 4)},
     }

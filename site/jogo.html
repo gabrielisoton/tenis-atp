@@ -403,6 +403,8 @@ function desenharGuia(G, N, chips) {
   const PP = T("p.p.", "pp"), CI = G.circuito, zN = Object.fromEntries(N.em_comum.map(r => [r.crit, r])), nN = Object.keys(N.jogadores).length;
   const Q = Object.fromEntries((N.depois_do_topo?.media || []).map(r => [r.ind, r])), nQ = N.depois_do_topo?.n;
   const de = (r) => Math.round(r.pct_acima_1 * nN);
+  const PR = k => { const v = Object.values(N.jogadores).map(j => j.pressao?.[k]).filter(x => x != null); return { acima: v.filter(x => x > 0).length, n: v.length, media: v.reduce((a, x) => a + x, 0) / v.length }; };
+  const sp = x => `${x >= 0 ? "+" : "−"}${br(100 * Math.abs(x), 1)} ${PP}`;
   let S = "Todas";
   document.getElementById("gu-nao-diz").innerHTML = T(`<b>O que os dados não dizem</b><ul>
     <li><b>São profissionais.</b> No nível amador quem decide a maioria dos pontos são os erros não forçados, e a base não os mede.</li>
@@ -450,13 +452,18 @@ function desenharGuia(G, N, chips) {
           the tour (only ${de(zN.primeiro_dentro)} and ${de(zN.aces_game)} of ${nN} well above). ${ondeQ[0].toUpperCase() + ondeQ.slice(1)}: ${br(c.aces_game, 2)} aces per service game.`),
         quadra: T(`Treine colocação e variação mais que velocidade, e sempre com a bola seguinte: o "saque + 1", o primeiro golpe depois do saque.`,
           `Practise placement and variety more than pace, always together with the next ball: the "serve + 1", the first shot after the serve.`), link: irPara(null, "ganhar") },
-      { cor: "var(--pop)", t: T("Os momentos de pressão", "The pressure moments"), g: `${de(zN.decisivos)} ${T("de", "of")} ${nN}<small>${T("nº 1", "No. 1s")}</small>`,
-        dado: T(`${de(zN.decisivos)} dos ${nN} nº 1 vencem muito mais sets decisivos que o circuito, e ${de(zN.tie_breaks)} mais tie-breaks. Em parte é
-          consequência de serem melhores; medir a pressão "acima do esperado" ainda está no roadmap.`,
-          `${de(zN.decisivos)} of the ${nN} No. 1s win far more deciding sets than the tour, and ${de(zN.tie_breaks)} more tie-breaks. Partly that follows
-          from being better; measuring pressure "above expected" is still on the roadmap.`),
-        quadra: T(`Treine com placar: tie-breaks, games começando em 30–40, set que vale o jogo. A pressão também se treina.`,
-          `Practise with a score: tie-breaks, games starting at 30–40, one set for the match. Pressure can be trained too.`), link: irPara("epocas.html", "n1") },
+      { cor: "var(--pop)", t: T("Os momentos de pressão", "The pressure moments"), g: `${PR("dec_ae").acima} ${T("de", "of")} ${PR("dec_ae").n}<small>${T("nº 1", "No. 1s")}</small>`,
+        dado: T(`Mesmo descontando que são melhores (o esperado pelos pontos que ganharam na partida), ${PR("dec_ae").acima} dos ${PR("dec_ae").n} nº 1 vencem
+          mais sets decisivos do que o esperado: ${sp(PR("dec_ae").media)} em média. Nos tie-breaks a vantagem é menor (${sp(PR("tb_ae").media)}) e nos break points
+          quase some (${sp(PR("bp_salvos_ae").media)}). No circuito, "frieza" em break point e tie-break muda muito de um ano para outro (é quase sorte); em set
+          decisivo ela se repete.`,
+          `Even after discounting that they are better (what the points they won in the match predicted), ${PR("dec_ae").acima} of the ${PR("dec_ae").n} No. 1s
+          win more deciding sets than expected: ${sp(PR("dec_ae").media)} on average. In tie-breaks the edge is smaller (${sp(PR("tb_ae").media)}) and on break
+          points it nearly vanishes (${sp(PR("bp_salvos_ae").media)}). On tour, "clutch" on break points and tie-breaks changes a lot from year to year (mostly
+          luck); in deciding sets it repeats.`),
+        quadra: T(`Treine com placar (tie-breaks, games começando em 30–40, set que vale o jogo) e o físico para chegar inteiro ao set decisivo: o dado não separa frieza de preparo.`,
+          `Practise with a score (tie-breaks, games starting at 30–40, one set for the match) and the fitness to reach the deciding set fresh: the data can't tell composure from conditioning.`),
+        link: irPara("jogadores.html", "rank") },
       { cor: "var(--top)", t: T("Com os anos, cuide das pernas", "As the years go by, look after your legs"), g: Q.devolucao ? `${Q.devolucao.caiu_em} ${T("de", "of")} ${nQ}` : "—",
         dado: Q.devolucao ? T(`Do auge ao fim da carreira, a devolução caiu para ${Q.devolucao.caiu_em} dos ${nQ} nº 1 que já pararam, e os pontos com o 1º saque
           para ${Q.ganhos_1.caiu_em}. O 1º saque dentro quase não muda: a consistência fica, o que vai embora é deslocamento e potência.`,
