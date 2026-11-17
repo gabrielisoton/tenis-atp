@@ -3,5 +3,6 @@ __pycache__/
 .venv/
 # CSVs brutos: baixados de novo por dados/baixar.py
 dados/base/raw/
+dados/base/raw_antigo/
 # configuração local do Claude Code
 .claude/

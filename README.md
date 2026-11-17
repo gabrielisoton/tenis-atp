@@ -16,7 +16,7 @@ com saque, devolução, break points, tie-breaks e títulos de cada jogador. Sit
 | O circuito | Descritiva da população inteira com filtros: superfícies, duração, aces, ranking |
 | Explorar | Top N × demais, ranking × zebras (chance de o favorito vencer), linha do tempo, "venceu perdendo nos pontos" |
 | Jogadores | Líderes de todos os critérios (pódio e quadro de medalhas), ranking por critério com IC 95% de Wilson e perfil completo de cada jogador |
-| Elo | Elo geral e por superfície partida a partida: carreira de cada jogador, maiores picos, o auge (pico e melhor média de 12 meses, com a idade e a idade no auge por época), nº 1 por temporada, Elo atual e a validação (acerto e calibração contra o ranking) |
+| Elo | Elo geral e por superfície partida a partida: carreira de cada jogador, maiores picos, o auge (pico e melhor média de 12 meses, com a idade e a idade no auge por época), a corrida de títulos e Slams por idade (Slams desde 1968), nº 1 por temporada, Elo atual e a validação (acerto e calibração contra o ranking) |
 
 ## Como funciona
 O Python é o motor: baixa a base, monta a população e exporta JSON. O site só desenha e filtra no navegador.
@@ -34,6 +34,7 @@ Os cálculos da página Jogadores são refeitos em JavaScript e **conferidos com
 pip install -r requirements.txt
 python dados/baixar.py
 python dados/preparar_populacao.py
+python dados/preparar_titulos.py          # finais vencidas (+ Slams desde 1968) para a corrida por idade
 python scripts/exportar_site.py
 python scripts/validar_estatistica.py
 python scripts/validar_elo.py              # Elo: previsão, calibração e picos coerentes

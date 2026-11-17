@@ -41,10 +41,14 @@
     opponent's strength. Beating a No. 1 is worth far more than beating the No. 200. Unlike the ATP ranking, it does not depend on
     tournament points or rules that changed over the years, only on who beat whom.</p>
 </div></header>
-<main class="conteudo">
+<main class="conteudo" id="area-e">
   <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
   <div id="placar" style="margin-top:22px"></div>
+  <div class="abas" id="abas-e" style="margin-top:22px"><button class="on" data-a="elo">📈 Elo</button>
+    <button data-a="auge">⭐ <span data-l="pt">O auge</span><span data-l="en">The peak</span></button>
+    <button data-a="corrida">🏁 <span data-l="pt">Corrida por idade</span><span data-l="en">Race by age</span></button></div>
 
+  <section class="painel-aba" data-p="elo">
   <h2><span data-l="pt">A carreira em Elo</span><span data-l="en">Careers in Elo</span></h2>
   <div class="filtros" style="position:relative;top:0;z-index:30">
     <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="f-sup"></span></div>
@@ -60,16 +64,6 @@
     <div class="cartao rolagem"><h3 style="margin-top:0" id="tit-atual"></h3><table class="t" id="t-atual"></table></div>
   </div>
 
-  <h2><span data-l="pt">O auge: quando e com que idade</span><span data-l="en">The peak: when and at what age</span></h2>
-  <div id="auge-comoler"></div>
-  <div id="auge-placar"></div>
-  <div class="grade g2" style="margin-top:14px">
-    <div class="cartao"><div id="g-auge" class="grafico" style="min-height:440px"></div></div>
-    <div class="cartao"><div id="g-epoca" class="grafico" style="min-height:440px"></div></div>
-  </div>
-  <div class="cartao rolagem" style="max-height:520px;overflow:auto;margin-top:14px"><table class="t" id="t-auges"></table></div>
-  <p class="nota" id="auge-nota"></p>
-
   <h2><span data-l="pt">Nº 1 pelo Elo no fim de cada temporada</span><span data-l="en">No. 1 by Elo at the end of each season</span></h2>
   <div class="n1" id="n1"></div>
   <p class="nota"><span data-l="pt">Entre quem jogou nos 12 meses anteriores. Pode diferir do nº 1 da ATP, que soma pontos de torneio.</span>
@@ -81,6 +75,39 @@
     <div class="cartao"><div id="g-cal" class="grafico" style="min-height:340px"></div></div>
   </div>
   <p class="nota" id="nota-metodo"></p>
+  </section>
+
+  <section class="painel-aba" data-p="auge" hidden>
+  <h2><span data-l="pt">O auge: quando e com que idade</span><span data-l="en">The peak: when and at what age</span></h2>
+  <div id="auge-comoler"></div>
+  <div id="auge-placar"></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-auge" class="grafico" style="min-height:440px"></div></div>
+    <div class="cartao"><div id="g-epoca" class="grafico" style="min-height:440px"></div></div>
+  </div>
+  <div class="cartao rolagem" style="max-height:520px;overflow:auto;margin-top:14px"><table class="t" id="t-auges"></table></div>
+  <p class="nota" id="auge-nota"></p>
+  </section>
+
+  <section class="painel-aba" data-p="corrida" hidden>
+  <h2><span data-l="pt">Quem tinha mais títulos na mesma idade?</span><span data-l="en">Who had more titles at the same age?</span></h2>
+  <div id="c-comoler"></div>
+  <div class="filtros" style="position:relative;top:0;z-index:30">
+    <div class="grupo"><span class="rot"><span data-l="pt">Contar</span><span data-l="en">Count</span></span><span id="c-tipo"></span></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Adicionar jogador</span><span data-l="en">Add player</span></span>
+      <input class="sel busca" id="c-add" placeholder="Digite ou escolha" data-en-placeholder="Type or pick"></div>
+    <div class="grupo escolhidos" id="c-escolhidos"></div>
+  </div>
+  <div class="cartao"><div id="g-corrida" class="grafico" style="min-height:480px"></div><p class="nota" id="c-nota"></p></div>
+  <h2><span data-l="pt">Na mesma idade</span><span data-l="en">At the same age</span></h2>
+  <div class="filtros" style="position:static"><div class="grupo"><span class="rot"><span data-l="pt">Até os</span><span data-l="en">By age</span></span>
+    <select class="sel" id="c-idade"></select><span data-l="pt">anos</span></div></div>
+  <div class="grade g2">
+    <div class="cartao rolagem" style="max-height:520px;overflow:auto"><h3 style="margin-top:0" id="c-tit-slams"></h3><table class="t" id="c-t-slams"></table></div>
+    <div class="cartao rolagem" style="max-height:520px;overflow:auto"><h3 style="margin-top:0" id="c-tit-tit"></h3><table class="t" id="c-t-tit"></table></div>
+  </div>
+  <p class="nota" id="c-nota2"></p>
+  </section>
 </main>
 <script>
 document.getElementById("quadra").innerHTML = svgQuadra();
@@ -137,7 +164,8 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     plot(document.getElementById("g-serie"), tr0, { height: 460, title: titulo(T(`Elo ${sup === "geral" ? "geral" : naSup(sup)} ao longo da carreira`, `${sup === "geral" ? "Overall Elo" : "Elo " + naSup(sup)} over each career`)),
       shapes: [{ type: "rect", xref: "x", yref: "paper", x0: `${a0}-01-01`, x1: `${a1}-12-31`, y0: 0, y1: 1, fillcolor: "rgba(137,135,129,.15)", line: { width: 0 } }],
       annotations: [{ x: `${a0}-06-01`, y: 1, yref: "paper", yanchor: "bottom", xanchor: "left", text: T("aquecimento", "warm-up"), showarrow: false, font: { color: "#4b5650", size: 12 } }],
-      xaxis: { type: "date" }, yaxis: { title: "Elo", gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 60, r: 20, t: 80, b: 40 } });
+      xaxis: { type: "date" }, yaxis: { title: "Elo", gridcolor: "rgba(137,135,129,.22)" },
+      legend: { orientation: "h", y: -0.12, yanchor: "top", x: 0 }, margin: { l: 60, r: 20, t: 60, b: 90 } });
     document.getElementById("nota-serie").innerHTML = T(`Último Elo de cada mês. Até 8 jogadores (clique num nome para tirar). A faixa cinza (${a0}–${a1}) é o
       aquecimento: a base começa em ${a0} com todos em 1500, e quem já estava no circuito leva alguns meses para chegar à nota real.`,
       `Last Elo of each month. Up to 8 players (click a name to remove it). The grey band (${a0}–${a1}) is the warm-up: the data
@@ -158,7 +186,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       `<tr><td colspan="3" class="nota">${T(`Jogou nos 12 meses até ${mesAno(M.ultima_data)}.`, `Played in the 12 months to ${mesAno(M.ultima_data)}.`)}</td></tr>`;
   }
   desenharPicos();
-  desenharAuge();
+  ligarAbas(document.getElementById("area-e"), "#abas-e");
+  const prontas = new Set(["elo"]), abrir = { auge: desenharAuge, corrida: () => carregar("corrida").then(desenharCorrida) };
+  document.querySelectorAll("#abas-e button").forEach(b => b.addEventListener("click", () => {
+    if (!prontas.has(b.dataset.a)) { prontas.add(b.dataset.a); abrir[b.dataset.a](); } }));
   document.getElementById("n1").innerHTML = E.n1_por_ano.map(r => `<div><small>${r.ano}</small><b>${r.jogador}</b><small>Elo ${br(r.elo, 0)}</small></div>`).join("");
 
   // ---------- validação
@@ -250,6 +281,79 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       últimas épocas não é conclusiva.`, `<b>Reading:</b> in the 1990s players reached their peak earlier (median ${br(e0.mediana, 1)});
       after 2003 the peak moved to around ${br(e2.mediana, 0)}. That fits longer careers, better fitness and the Big 3's long dominance.
       The intervals are wide (${e0.n} to ${e2.n} players per era), so the difference between the last two eras is not conclusive.`);
+  }
+
+  function desenharCorrida(C) {
+    const J = C.jogadores, NOMES = Object.keys(J);
+    const slams = (n, ate = 99) => J[n].t.filter(x => x[1] === "G" && x[0] < ate).length;
+    const tits = (n, ate = 99) => J[n].t.filter(x => x[0] < ate).length;
+    const nivel = { G: "Grand Slam", F: "ATP Finals", M: "Masters 1000", "5": "ATP 500", "2": "ATP 250" };
+    let tipo = "G", esc = ["Novak Djokovic", "Roger Federer", "Rafael Nadal", "Pete Sampras", "Carlos Alcaraz", "Jannik Sinner"].filter(n => J[n]);
+    const cores = ["#6250d6", "#d55181", "#eb6834", "#1baf7a", "#c98500", "#2a78d6", "#4b5650", "#8c5a3c"];
+    document.getElementById("c-comoler").innerHTML = comoLer(T(`Cada degrau é um título, colocado na <b>idade</b> do jogador naquele
+      torneio. Comparar por idade é a forma mais justa de comparar épocas: "quantos Slams cada um tinha aos 22" não depende de Elo,
+      raquete ou nível do circuito. Os Slams contam desde ${C.slams_desde}, então lendas como Borg, McEnroe e Lendl entram na corrida de
+      Slams. Os demais títulos só contam a partir de 1991: quem jogou antes disso aparece com a corrida de títulos incompleta (marcado com
+      ¹). Sem Olimpíadas e Copa Davis.`, `Each step is a title, placed at the player's <b>age</b> at that tournament. Comparing by age is
+      the fairest way to compare eras: "how many Slams each had at 22" does not depend on Elo, rackets or the level of the tour. Slams count
+      from ${C.slams_desde}, so legends like Borg, McEnroe and Lendl join the Slam race. Other titles only count from 1991: players active
+      before then have an incomplete titles race (marked ¹). No Olympics or Davis Cup.`));
+    const tipoEl = document.getElementById("c-tipo");
+    tipoEl.innerHTML = [["G", "Grand Slams"], ["T", T("Todos os títulos", "All titles")]].map(([v, r]) => `<button class="chip ${v === tipo ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
+    tipoEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+      tipo = b.dataset.v; tipoEl.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); grafico(); }));
+    const marca = n => J[n].antes_1991 ? "¹" : "";
+    const desenharEsc = () => {
+      const el = document.getElementById("c-escolhidos");
+      el.innerHTML = esc.map((n, i) => `<button class="chip on" data-n="${n}" title="${T("Remover", "Remove")}"><span class="pt" style="background:${cores[i % cores.length]}"></span>${n}${marca(n)}<i>×</i></button>`).join("");
+      el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { esc = esc.filter(n => n !== b.dataset.n); desenharEsc(); grafico(); }));
+    };
+    const ordem = NOMES.slice().sort((a, b) => slams(b) - slams(a) || tits(b) - tits(a));
+    const cb = combobox(document.getElementById("c-add"), ordem, i => `${slams(ordem[i])} Slams · ${tits(ordem[i])} ${T("títulos", "titles")}`, nome => {
+      if (!esc.includes(nome) && esc.length < 8) esc.push(nome); cb.definir(""); desenharEsc(); grafico(); });
+    cb.definir("");
+    function grafico() {
+      const fora = tipo === "T" ? esc.filter(n => J[n].so_slams) : [];
+      const tr0 = esc.filter(n => !fora.includes(n)).map(n => {
+        const i = esc.indexOf(n);
+        const lista = J[n].t.filter(x => tipo === "T" || x[1] === "G");
+        const x = [lista.length ? lista[0][0] : 18], y = [0], txt = [""];
+        lista.forEach((r, k) => { x.push(r[0]); y.push(k + 1); txt.push(`${r[2]} ${r[3]} · ${tr(nivel[r[1]])}`); });
+        return { x, y, text: txt, mode: "lines+markers", line: { shape: "hv", color: cores[i % cores.length], width: 2.5 },
+                 marker: { size: tipo === "G" ? 6 : 3 }, name: n + marca(n),
+                 hovertemplate: `<b>${n}</b><br>${T("idade", "age")} %{x:.1f}: %{y} · %{text}<extra></extra>` };
+      });
+      plot(document.getElementById("g-corrida"), tr0, { height: 480,
+        title: { text: tipo === "G" ? T("Grand Slams acumulados por idade", "Grand Slams won by age") : T("Títulos acumulados por idade", "Titles won by age"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        xaxis: { title: T("idade (anos)", "age (years)"), dtick: 2, gridcolor: "rgba(137,135,129,.22)", showgrid: true },
+        yaxis: { title: tipo === "G" ? "Grand Slams" : T("títulos", "titles"), gridcolor: "rgba(137,135,129,.22)", rangemode: "tozero" },
+        legend: { orientation: "h", y: -0.24, yanchor: "top", x: 0 }, margin: { l: 60, r: 20, t: 50, b: 130 } });
+      document.getElementById("c-nota").innerHTML = T(`Até 8 jogadores (clique num nome para tirar). Passe o mouse sobre cada degrau para ver o torneio. ¹ jogou antes
+        de 1991: na contagem de todos os títulos faltam os de antes de 1991 (os Slams estão completos).` +
+        (fora.length ? ` Fora deste gráfico (só os Slams estão na base): ${fora.join(", ")}.` : ""), `Up to 8 players (click a name to
+        remove it). Hover over each step to see the tournament. ¹ played before 1991: the all-titles count misses titles before 1991 (Slams
+        are complete).` + (fora.length ? ` Not in this chart (only their Slams are in the data): ${fora.join(", ")}.` : ""));
+    }
+    desenharEsc(); grafico();
+    // ranking na mesma idade
+    const selI = document.getElementById("c-idade");
+    selI.innerHTML = Array.from({ length: 21 }, (_, k) => 18 + k).map(a => `<option ${a === 22 ? "selected" : ""}>${a}</option>`).join("");
+    const tabelaIdade = () => {
+      const a = +selI.value, ate = a + 1;
+      const rs = NOMES.map(n => [n, slams(n, ate)]).filter(r => r[1] > 0).sort((x, y) => y[1] - x[1]).slice(0, 15);
+      const rt = NOMES.filter(n => !J[n].so_slams).map(n => [n, tits(n, ate)]).filter(r => r[1] > 0).sort((x, y) => y[1] - x[1]).slice(0, 15);
+      document.getElementById("c-tit-slams").textContent = T(`Mais Grand Slams até os ${a} anos`, `Most Grand Slams by age ${a}`);
+      document.getElementById("c-tit-tit").textContent = T(`Mais títulos até os ${a} anos`, `Most titles by age ${a}`);
+      const linhas = (lista, total) => `<tr><th>#</th><th>${T("Jogador", "Player")}</th><th>${T(`Até os ${a}`, `By ${a}`)}</th><th>${T("Na carreira", "Career")}</th></tr>` +
+        lista.map(([n, v], i) => `<tr><td>${ordinal(i + 1)}</td><td>${n}${marca(n)}</td><td class="n"><b>${v}</b></td><td class="n">${total(n)}</td></tr>`).join("");
+      document.getElementById("c-t-slams").innerHTML = linhas(rs, n => slams(n));
+      document.getElementById("c-t-tit").innerHTML = linhas(rt, n => tits(n));
+    };
+    selI.addEventListener("change", tabelaIdade); tabelaIdade();
+    document.getElementById("c-nota2").innerHTML = T(`"Até os N anos" = títulos conquistados antes de completar N + 1 anos. Quem ainda joga pode
+      aumentar a coluna "Na carreira". ¹ jogou antes de 1991 (todos os títulos incompletos; Slams completos). Dados até ${C.ano_fim}.`,
+      `"By age N" = titles won before turning N + 1. Players still active can add to the "Career" column. ¹ played before 1991 (all
+      titles incomplete; Slams complete). Data up to ${C.ano_fim}.`);
   }
 })();
 </script>
