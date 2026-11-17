@@ -45,12 +45,7 @@ Seletor **PT / EN** na barra (a escolha fica salva e vai na URL, `?lang=en`).
 - **Rótulos que vêm dos dados:** `tr(rótulo)`, com o dicionário de `tenis/idiomas.py`, exportado para
   `site/data/en.json`.
 
-## Origem
-Nasceu do trabalho final da disciplina IA003 · Probabilidade e Estatística para IA (Especialização em IA, UFRGS):
-[site do trabalho](https://gabrielisoton.github.io/ia003-tenis-estatistica/) ·
-[repositório](https://github.com/gabrielisoton/ia003-tenis-estatistica). Este repositório é independente. Outras
-disciplinas que usarem os mesmos dados abrem projetos próprios.
-
-**Dados:** [TML-Database (Tennismylife)](https://github.com/Tennismylife/TML-Database). Uso pessoal, educacional e de
+## Dados
+Fonte: [TML-Database (Tennismylife)](https://github.com/Tennismylife/TML-Database). Uso pessoal, educacional e de
 pesquisa não comercial, com citação da fonte; uso comercial (inclusive treinar modelos de previsão para serviços
 comerciais) exige autorização ([termos](https://stats.tennismylife.org/tennis-match-database#usage-terms)).

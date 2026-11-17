@@ -15,8 +15,8 @@ const CORES = {
 const SITE = window.SITE || { marca: "Estatística no Tênis", paginas: [], extras: null, rodape: "" };
 
 /* ---------------- idioma ----------------
-   Só um site que declara SITE.idiomas troca de idioma (o trabalho da IA003, no mesmo domínio github.io, não declara
-   e fica sempre em português, mesmo que o visitante tenha escolhido inglês aqui).
+   Só um site que declara SITE.idiomas troca de idioma: outros sites no mesmo domínio github.io que não declaram
+   continuam em português, mesmo que o visitante tenha escolhido inglês aqui (a escolha fica no localStorage).
    - texto fixo no HTML: <span data-l="pt">…</span><span data-l="en">…</span> (o CSS esconde o outro idioma);
      atributos: data-en-title, data-en-placeholder, data-en-aria-label; <title data-en="…">
    - texto montado no JS: T("português", "English")

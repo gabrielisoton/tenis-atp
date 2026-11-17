@@ -125,9 +125,8 @@ Esforço: **P** = um dia ou menos · **M** = alguns dias · **G** = uma semana o
 
 | # | Item | Fase | Esforço | Depende de |
 |---|---|---|---|---|
-| [0](https://github.com/gabrielisoton/tenis-atp/issues/1) | **Só depois da nota da IA003:** limpar o repositório da disciplina (tirar `projeto/`, redirecionar para este site) | 0 | P | nota |
 | [1](https://github.com/gabrielisoton/tenis-atp/issues/2) | Base 1991+ com data do torneio, ids dos jogadores e níveis; o site passa a mostrar 1991–hoje | 0 | M | — |
-| [2](https://github.com/gabrielisoton/tenis-atp/issues/3) | JSON por jogador e torneio carregado sob demanda | 0 | M | 1 |
+| [2](https://github.com/gabrielisoton/tenis-atp/issues/3) | Página Jogadores mais rápida: cada aba desenhada ao abrir, checagem Python × JS adiada (arquivos por jogador/torneio ficam para os itens que tiverem detalhe próprio) | 0 | P | 1 |
 | [3](https://github.com/gabrielisoton/tenis-atp/issues/4) | Atualização automática da TML (Action mensal) + selo "dados até" | 0 | P | 1 |
 | [4](https://github.com/gabrielisoton/tenis-atp/issues/5) | TPW% (pontos ganhos totais) como critério, com IC de Wilson | 1 | P | — |
 | [5](https://github.com/gabrielisoton/tenis-atp/issues/6) | "Venceu perdendo nos pontos": lista e por jogador | 1 | P | — |

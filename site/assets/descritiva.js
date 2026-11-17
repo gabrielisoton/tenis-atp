@@ -1,5 +1,5 @@
-/* Painel descritivo da página "O circuito" (veio do trabalho da IA003, onde também sobrepunha a amostra: o
-   parâmetro `ref` de painelDescritivo continua aceitando uma segunda série).
+/* Painel descritivo da página "O circuito" (o parâmetro `ref` de painelDescritivo aceita uma segunda série para
+   sobrepor duas distribuições).
    Os dados chegam em colunas compactas (data/populacao.json) e os filtros são aplicados no navegador.
    As medidas seguem as mesmas definições do pandas. Textos com T("pt", "en"). */
 

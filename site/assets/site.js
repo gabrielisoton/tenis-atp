@@ -9,9 +9,7 @@ window.SITE = {
     ["explorar.html", "Tie-break", ["Explorar", "Explore"]],
     ["jogadores.html", ["Vestiário", "Locker room"], ["Jogadores", "Players"]],
   ],
-  extras: { rotulo: ["Origem", "Origin"],
-            dica: ["O projeto nasceu deste trabalho de disciplina", "The project grew out of this course assignment"],
-            itens: [["https://gabrielisoton.github.io/ia003-tenis-estatistica/", "IA003 · UFRGS", ["Trabalho da disciplina", "Course assignment (in Portuguese)"]]] },
-  rodape: ["Projeto pessoal de analytics de tênis · nasceu do trabalho final da IA003 (Especialização em IA, UFRGS)",
-           "Personal tennis analytics project · grew out of the IA003 final assignment (AI specialization, UFRGS, Brazil)"],
+  extras: null,
+  rodape: ["Projeto pessoal de analytics de tênis · <a href=\"https://github.com/gabrielisoton/tenis-atp\">código no GitHub</a>",
+           "Personal tennis analytics project · <a href=\"https://github.com/gabrielisoton/tenis-atp\">code on GitHub</a>"],
 };
