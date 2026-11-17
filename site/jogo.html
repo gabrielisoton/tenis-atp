@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-en="Explore · Tennis by numbers">Explorar · Tênis em números</title>
+<title data-en="The game · Tennis by numbers">O jogo · Tênis em números</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=7"></script>
-<script src="assets/comum.js?v=7"></script>
-<script src="assets/descritiva.js?v=6"></script>
+<script src="assets/site.js?v=8"></script>
+<script src="assets/comum.js?v=8"></script>
+<script src="assets/descritiva.js?v=7"></script>
 </head>
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
-  <span class="etiqueta">Tie-break · <span data-l="pt">Explorar</span><span data-l="en">Explore</span></span>
+  <span class="etiqueta">Tie-break · <span data-l="pt">O jogo</span><span data-l="en">The game</span></span>
   <h1><span data-l="pt">O que separa os melhores do resto?</span><span data-l="en">What sets the best apart from the rest?</span></h1>
   <p data-l="pt">Análises descritivas com a <b>população inteira</b> (<span data-meta="N"></span> partidas do circuito principal, <span data-meta="periodo"></span>). Ajudam a
     entender o jogo e conversam com IA.</p>
@@ -117,7 +117,7 @@
 </main>
 <script>
 document.getElementById("quadra").innerHTML = svgQuadra();
-ligarAbas(document.getElementById("area"), "#abas-x");
+ligarAbas(document.getElementById("area"), "#abas-x", true);
 (async () => {
   const ex = await carregar("extras");
   const M = ex.top_n.metricas, PN = ex.top_n.por_n;
@@ -230,7 +230,7 @@ ligarAbas(document.getElementById("area"), "#abas-x");
     desenharVP(await carregar("venceu_perdendo"));
   };
   document.querySelector('#abas-x button[data-a="pontos"]').addEventListener("click", abrirVP);
-  if (location.hash === "#venceu-perdendo") document.querySelector('#abas-x button[data-a="pontos"]').click();
+  abrirAbaDoHash("#abas-x");
 })();
 
 function desenharVP(V) {

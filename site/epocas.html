@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-en="Elo · Tennis by numbers">Elo · Tênis em números</title>
+<title data-en="Eras · Tennis by numbers">Épocas · Tênis em números</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=7"></script>
-<script src="assets/comum.js?v=7"></script>
-<script src="assets/descritiva.js?v=6"></script>
+<script src="assets/site.js?v=8"></script>
+<script src="assets/comum.js?v=8"></script>
+<script src="assets/descritiva.js?v=7"></script>
 <script src="assets/jogadores.js?v=9"></script>
 <style>
   .combo { position: relative; display: inline-block; }
@@ -70,12 +70,10 @@
   <p class="nota"><span data-l="pt">Entre quem jogou nos 12 meses anteriores. Pode diferir do nº 1 da ATP, que soma pontos de torneio.</span>
     <span data-l="en">Among players active in the previous 12 months. It can differ from the ATP No. 1, which adds up tournament points.</span></p>
 
-  <h2><span data-l="pt">O Elo funciona?</span><span data-l="en">Does Elo work?</span></h2>
-  <div class="grade g2">
-    <div class="cartao"><div id="g-acerto" class="grafico" style="min-height:340px"></div></div>
-    <div class="cartao"><div id="g-cal" class="grafico" style="min-height:340px"></div></div>
-  </div>
-  <p class="nota" id="nota-metodo"></p>
+  <p class="nota"><span data-l="pt">O Elo funciona? Ele acerta o vencedor mais do que o ranking da ATP, em todas as décadas:
+    veja a validação e o método em <a href="sobre.html#metodos">Sobre os dados</a>.</span><span data-l="en">Does Elo work? It picks
+    the winner more often than the ATP ranking, in every decade: see the validation and the method in
+    <a href="sobre.html#metodos">About the data</a>.</span></p>
   </section>
 
   <section class="painel-aba" data-p="auge" hidden>
@@ -217,47 +215,20 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       `<tr><td colspan="3" class="nota">${T(`Jogou nos 12 meses até ${mesAno(M.ultima_data)}.`, `Played in the 12 months to ${mesAno(M.ultima_data)}.`)}</td></tr>`;
   }
   desenharPicos();
-  ligarAbas(document.getElementById("area-e"), "#abas-e");
+  ligarAbas(document.getElementById("area-e"), "#abas-e", true);
   const prontas = new Set(["elo"]), abrir = { auge: desenharAuge, corrida: () => carregar("corrida").then(desenharCorrida), pxp: desenharPxP };
   document.querySelectorAll("#abas-e button").forEach(b => b.addEventListener("click", () => {
     if (!prontas.has(b.dataset.a)) { prontas.add(b.dataset.a); abrir[b.dataset.a](); } }));
+  abrirAbaDoHash("#abas-e");
   document.getElementById("n1").innerHTML = E.n1_por_ano.map(r => `<div><small>${r.ano}</small><b>${r.jogador}</b><small>Elo ${br(r.elo, 0)}</small></div>`).join("");
-
-  // ---------- validação
-  const dec = Object.entries(V.por_decada);
-  plot(document.getElementById("g-acerto"), [
-    { type: "bar", x: dec.map(([k]) => k), y: dec.map(([, v]) => v.elo), name: "Elo", marker: { color: CORES.pop }, text: dec.map(([, v]) => pct(v.elo)), textposition: "outside", cliponaxis: false },
-    { type: "bar", x: dec.map(([k]) => k), y: dec.map(([, v]) => v.ranking), name: T("Ranking da ATP", "ATP ranking"), marker: { color: CORES.demais }, text: dec.map(([, v]) => pct(v.ranking)), textposition: "outside", cliponaxis: false },
-  ], { height: 340, barmode: "group", title: titulo(T("Quem acerta mais o vencedor, antes da partida", "Who picks the winner more often, before the match")),
-       yaxis: { tickformat: ".0%", range: [0.55, 0.72], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 56, r: 10, t: 80, b: 40 } });
-  const C = V.calibracao;
-  plot(document.getElementById("g-cal"), [
-    { x: [0, 1], y: [0, 1], mode: "lines", line: { color: CORES.neutra, dash: "dash" }, name: T("perfeito", "perfect"), hoverinfo: "skip" },
-    { x: C.previsto, y: C.real, mode: "lines+markers", name: "Elo", line: { color: CORES.pop, width: 3 }, marker: { size: 9 }, customdata: C.n,
-      hovertemplate: `${T("previsto", "forecast")} %{x:.0%} → ${T("real", "actual")} %{y:.0%} (n = %{customdata:,})<extra></extra>` },
-  ], { height: 340, title: titulo(T("Quando o Elo diz 70%, o favorito vence 70%?", "When Elo says 70%, does the favourite win 70%?")),
-       xaxis: { tickformat: ".0%", title: T("chance prevista", "forecast probability"), range: [0, 1] },
-       yaxis: { tickformat: ".0%", title: T("vitórias de fato", "actual wins"), range: [0, 1], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 60, r: 10, t: 80, b: 50 } });
 
   document.getElementById("comoler").innerHTML = comoLer(T(`Uma diferença de <b>100 pontos</b> de Elo dá cerca de 64% de chance ao mais
     bem avaliado; 200 pontos, cerca de 76%. O Elo mede <b>o domínio sobre os jogadores da mesma época</b>, não um nível absoluto:
     raquetes, cordas, preparo físico e quadras mudaram. Por isso um 2.200 dos anos 90 e um 2.200 de hoje significam "tão acima do seu
-    circuito", não "igualmente bons". Comparar épocas é com cuidado, e é o tema das próximas análises (auge e idade).`,
+    circuito", não "igualmente bons". Comparar épocas é com cuidado: veja as abas O auge e Corrida por idade.`,
     `A gap of <b>100 Elo points</b> gives the higher-rated player about a 64% chance; 200 points, about 76%. Elo measures <b>dominance
     over players of the same era</b>, not an absolute level: rackets, strings, fitness and courts changed. So a 2,200 in the 1990s and a
-    2,200 today mean "this far above their tour", not "equally good". Comparing eras needs care, and that is the topic of the next
-    analyses (peak and age).`));
-  document.getElementById("nota-metodo").innerHTML = T(`<b>Método:</b> todos começam com ${M.inicial}; depois de cada partida, a nota muda
-    K × (resultado − chance prevista), com K = ${M.k} (quem tem poucas partidas muda rápido). Elo por superfície usa só as partidas
-    daquela superfície (carpete conta como dura); a previsão usa a média do Elo geral com o da superfície. Só partidas concluídas do
-    circuito principal, sem Challengers, qualifying ou Copa Davis, então os valores ficam abaixo dos de sites que usam essas partidas.
-    O Elo puro sai confiante demais nos extremos; as chances usam a diferença × ${br(M.escala_prob, 2)}, ajustada em 1993–2015 e
-    conferida em 2016–2025. Validação: ${br(V.n, 0)} partidas fora do aquecimento.`,
-    `<b>Method:</b> everyone starts at ${M.inicial}; after each match the rating changes by K × (result − forecast probability), with
-    K = 250 / (matches + 5)^0.4 (players with few matches move fast). Surface Elo uses only that surface's matches (carpet counts as
-    hard); the forecast averages overall and surface Elo. Only completed main-tour matches, without Challengers, qualifying or Davis Cup,
-    so values sit below those of sites that use them. Raw Elo is overconfident at the extremes; probabilities use the gap ×
-    ${br(M.escala_prob, 2)}, fitted on 1993–2015 and checked on 2016–2025. Validation: ${br(V.n, 0)} matches outside the warm-up.`);
+    2,200 today mean "this far above their tour", not "equally good". Comparing eras needs care: see the Peak and Race by age tabs.`));
 
   function desenharAuge() {
     const A = E.auges, EP = E.idade_auge_por_epoca;
