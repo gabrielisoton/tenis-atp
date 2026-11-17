@@ -116,5 +116,13 @@ def exportar(pop: pd.DataFrame) -> dict:
                 frac = {"ganhos_1": float(pd_["primeiro_dentro"].mean()), "ganhos_2": float(1 - pd_["primeiro_dentro"].mean()),
                         "primeiro_dentro": float((pd_["ganhos_1"] - pd_["ganhos_2"]).mean())}
                 recortes[f"{s}|{nv}|{ep}"] = {"n": int(m.sum()), "leitura": leitura(v, p), "modelo": modelo(v, p, sorteio[m], frac)}
-    return {"recortes": recortes, "superficies": SUPERFICIES, "niveis": NIVEIS, "epocas": list(EPOCAS),
+    # o circuito em cada superfície (somas de pontos dos dois jogadores), para o guia de quem treina
+    circuito = {}
+    for s in SUPERFICIES:
+        g = x if s == "Todas" else x[sup == s]
+        S = lambda c: float(g[f"v_{c}"].sum() + g[f"p_{c}"].sum())  # noqa: E731
+        circuito[s] = {"n": int(len(g)), "dev_1": round(1 - S("1won") / S("1in"), 4), "dev_2": round(1 - S("2won") / (S("svpt") - S("1in")), 4),
+                       "primeiro_dentro": round(S("1in") / S("svpt"), 4), "aces_game": round(S("ace") / S("svgms"), 3),
+                       "df_game": round(S("df") / S("svgms"), 3), "saque": round((S("1won") + S("2won")) / S("svpt"), 4)}
+    return {"recortes": recortes, "circuito": circuito, "superficies": SUPERFICIES, "niveis": NIVEIS, "epocas": list(EPOCAS),
             "min_partidas": MIN_PARTIDAS, "n_total": int(len(x))}

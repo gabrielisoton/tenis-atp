@@ -124,6 +124,16 @@
   - **Sem erros e winners:** a base não tem erros não forçados, winners, troca de bola nem subida à rede. No nível
     amador os erros dominam.
   - **Hipóteses:** o guia traduz os números em prioridades de treino, deixando isso claro.
+- **Feito** (aba "Para quem treina" da página O jogo): seis prioridades, cada uma com **o dado** e **na quadra
+  (hipótese)** separados, filtro de quadra e o quadro "o que os dados não dizem" no topo.
+  1. Todo ponto conta igual (+1 ponto de saque em 100 ≈ +11 p.p. de chance).
+  2. 2º saque: o ponto mais disputado (o devolvedor ganha ~50% no 2º saque, ~29% no 1º, em toda quadra).
+  3. Devolução: atacar o 2º saque (14 dos 21 nº 1 bem acima do circuito).
+  4. 1º saque: vale o ponto, não o ace (só 4 dos 21 nº 1 se destacam em aces ou 1º saque dentro).
+  5. Momentos de pressão (sets decisivos e tie-breaks; "acima do esperado" fica para o item 18).
+  6. Com os anos, cuidar das pernas (a devolução cai primeiro em 15 dos 17 nº 1 que pararam).
+  - **Por quadra:** o saibro devolve mais (32% contra o 1º saque × 26% na grama) e tem metade dos aces, mas a ordem
+    do que pesa é a mesma.
 
 **Desde 1968:** descartado. Ganharíamos Borg, McEnroe e Connors, mas com buracos grandes nos dados. 1991+ cobre
 Sampras, Agassi, Big 3 e a nova geração com tudo medido.
@@ -138,7 +148,7 @@ abas dessas páginas, não como páginas novas:
 | Jogadores | 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado |
 | Épocas | 21 Os nº 1 (feito) |
 | Torneios (nova, quando o item 7 for feito) | 7 páginas de torneio · 16 velocidade da quadra |
-| O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar (feito) · 22 guia para quem treina |
+| O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar (feito) · 22 guia para quem treina (feito) |
 | Sobre os dados | 3 atualização automática (selo "dados até", feito: o selo fica no rodapé de todas as páginas) · 19 previsão de partidas e calibração |
 
 ## Fases

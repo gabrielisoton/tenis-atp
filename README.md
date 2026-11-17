@@ -19,7 +19,7 @@ links diretos e compartilhamento.
 | **Achados** (`index.html`) | O que há de mais interessante? | 9 achados com o número, um mini gráfico e o link para a análise (números tirados de `data/achados.json`) |
 | **Jogadores** | Quão bom é o meu jogador? | Líderes de cada critério (pódio e quadro de medalhas) · Ranking por critério com IC de Wilson · Perfil do jogador · Rivalidades (H2H com a regra oficial) |
 | **Épocas** | Quem foi o melhor de cada época? | Elo (carreiras, picos, Elo atual, nº 1 por temporada) · O auge (pico, melhor média de 12 meses, idade, curva de envelhecimento pelo método delta) · Corrida por idade (títulos e Slams, Slams desde 1968) · Pico × Pico · Os nº 1 (a jornada por fase de ranking, ano da virada, comparar jornadas, o que todos têm em comum, depois do topo) |
-| **O jogo** | O que faz ganhar no tênis? | Top N × demais · Ranking e zebras · Linha do tempo · Venceu perdendo nos pontos · O que faz ganhar (leitura simples e modelo logístico por superfície, nível e época; quanto vale um ponto) |
+| **O jogo** | O que faz ganhar no tênis? | Top N × demais · Ranking e zebras · Linha do tempo · Venceu perdendo nos pontos · O que faz ganhar (leitura simples e modelo logístico por superfície, nível e época; quanto vale um ponto) · Para quem treina (6 prioridades com o dado e a tradução para a quadra, por superfície, e o que os dados não dizem) |
 | **Sobre os dados** | Dá para confiar? | A base e a população · O circuito (descritiva com filtros) · Métodos e validação (checagens, Elo × ranking, regras de cada contagem) |
 
 Endereços antigos (`explorar.html`, `circuito.html`, `elo.html`, `rivalidades.html`) redirecionam para o lugar novo.

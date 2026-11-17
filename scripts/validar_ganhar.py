@@ -58,5 +58,12 @@ checar(abs((1 - L["tpw"]["pct"]) * (1 - L["tpw"]["empates"]) - vp) < 0.01,
 checar(L["ganhos_1"]["pct"] > L["ganhos_2"]["pct"] > L["primeiro_dentro"]["pct"] > 0.5,
        f"leitura simples: 1º saque {L['ganhos_1']['pct']:.0%} > 2º saque {L['ganhos_2']['pct']:.0%} > 1º dentro {L['primeiro_dentro']['pct']:.0%} > 50%")
 
+# 6. o circuito por superfície (base do guia para quem treina)
+C = G["circuito"]
+checar(all(0.45 < C[s]["dev_2"] < 0.55 and C[s]["dev_1"] < C[s]["dev_2"] for s in C),
+       "2º saque é cara ou coroa em toda quadra: devolvedor " + ", ".join(f"{s} {C[s]['dev_2']:.1%}" for s in C))
+checar(C["Saibro"]["dev_1"] > C["Dura"]["dev_1"] > C["Grama"]["dev_1"] and C["Saibro"]["aces_game"] < C["Dura"]["aces_game"] < C["Grama"]["aces_game"],
+       f"saibro devolve mais e tem menos aces que a grama (vs 1º saque {C['Saibro']['dev_1']:.1%} × {C['Grama']['dev_1']:.1%})")
+
 print("\nTUDO OK" if not falhas else f"\n{len(falhas)} FALHA(S): " + " | ".join(falhas))
 sys.exit(1 if falhas else 0)

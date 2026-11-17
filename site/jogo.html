@@ -11,6 +11,20 @@
 <script src="assets/site.js?v=8"></script>
 <script src="assets/comum.js?v=9"></script>
 <script src="assets/descritiva.js?v=7"></script>
+<style>
+  .guia { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-top: 14px; }
+  .guia .cartao { display: flex; flex-direction: column; position: relative; padding-top: 18px; }
+  .guia .faixa { position: absolute; left: 0; right: 0; top: 0; height: 5px; border-radius: 12px 12px 0 0; }
+  .guia .num { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--tinta-3); font-weight: 600; }
+  .guia h3 { margin: 4px 0 2px; }
+  .guia .grande { font-family: "Barlow Condensed", sans-serif; font-size: 2.3rem; font-weight: 700; line-height: 1.05; color: var(--quadra); margin: 4px 0; }
+  .guia .grande small { font-size: 1rem; font-weight: 600; color: var(--tinta-2); margin-left: 4px; }
+  .guia p { margin: 6px 0; font-size: .95rem; color: var(--tinta-2); }
+  .guia .quadra { background: rgba(15,61,46,.06); border-radius: 10px; padding: 8px 12px; color: var(--tinta); }
+  .guia .ver { font-size: .85rem; font-weight: 600; color: var(--pop); margin-top: auto; padding-top: 6px; cursor: pointer; text-decoration: none; }
+  .nao-diz { border-left: 5px solid #e0a43a; }
+  .nao-diz ul { margin: 6px 0 0; padding-left: 20px; }
+</style>
 </head>
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
@@ -26,7 +40,8 @@
     <button data-a="rank">🎯 <span data-l="pt">Ranking e zebras</span><span data-l="en">Ranking and upsets</span></button>
     <button data-a="tempo">📈 <span data-l="pt">Linha do tempo</span><span data-l="en">Timeline</span></button>
     <button data-a="pontos" id="venceu-perdendo">🎭 <span data-l="pt">Venceu perdendo</span><span data-l="en">Won while losing</span></button>
-    <button data-a="ganhar">🧩 <span data-l="pt">O que faz ganhar</span><span data-l="en">What wins a match</span></button></div>
+    <button data-a="ganhar">🧩 <span data-l="pt">O que faz ganhar</span><span data-l="en">What wins a match</span></button>
+    <button data-a="guia">🎾 <span data-l="pt">Para quem treina</span><span data-l="en">For players who train</span></button></div>
 
   <section class="painel-aba" data-p="top">
     <div class="filtros" style="position:static">
@@ -136,6 +151,24 @@
       <div class="cartao"><div id="g-gn-estavel" class="grafico" style="min-height:400px"></div></div>
     </div>
     <p class="nota" id="gn-nota"></p>
+  </section>
+  <section class="painel-aba" data-p="guia" hidden>
+    <h2 style="margin-top:6px"><span data-l="pt">Para quem treina: onde investir o tempo de quadra</span>
+      <span data-l="en">For players who train: where to spend your court time</span></h2>
+    <p data-l="pt">Seis prioridades tiradas das partidas do circuito e da carreira dos nº 1. Em cada uma, <b>o dado</b> é o que a base mostra;
+      <b>na quadra</b> é a nossa tradução para o treino, uma hipótese que os números apoiam, mas não provam.</p>
+    <p data-l="en">Six priorities drawn from tour matches and the careers of the No. 1s. In each one, <b>the data</b> is what the numbers show;
+      <b>on court</b> is our translation into training, a hypothesis the numbers support but don't prove.</p>
+    <div class="aviso nao-diz" id="gu-nao-diz"></div>
+    <div class="filtros" style="position:static;margin-top:14px">
+      <div class="grupo"><span class="rot"><span data-l="pt">Quadra</span><span data-l="en">Court</span></span><span id="gu-sup"></span></div>
+    </div>
+    <div class="guia" id="gu-cards"></div>
+    <h2><span data-l="pt">O que muda de quadra para quadra</span><span data-l="en">What changes from court to court</span></h2>
+    <div class="grade g2">
+      <div class="cartao rolagem"><table class="t" id="gu-t"></table></div>
+      <div class="cartao"><p class="nota" id="gu-nota-sup" style="margin-top:0"></p></div>
+    </div>
   </section>
 </main>
 <script>
@@ -259,6 +292,13 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
     if (gnPronto) return; gnPronto = true;
     desenharGanhar(await carregar("ganhar"), chips);
   });
+  // guia para quem treina: usa os números do "o que faz ganhar" e dos nº 1
+  let guPronto = false;
+  document.querySelector('#abas-x button[data-a="guia"]').addEventListener("click", async () => {
+    if (guPronto) return; guPronto = true;
+    const [G, N] = await Promise.all([carregar("ganhar"), carregar("numero1")]);
+    desenharGuia(G, N, chips);
+  });
   abrirAbaDoHash("#abas-x");
 })();
 
@@ -356,6 +396,101 @@ function desenharGanhar(G, chips) {
     also wins more points on serve, and a good forehand shows up here as "1st serve points won"); the data has no errors,
     winners or rallies; break points are only in the simple reading, because measuring pressure needs a comparison with what
     was expected (a roadmap item). ${br(G.n_total, 0)} matches with consistent stats.`);
+  desenhar();
+}
+
+function desenharGuia(G, N, chips) {
+  const PP = T("p.p.", "pp"), CI = G.circuito, zN = Object.fromEntries(N.em_comum.map(r => [r.crit, r])), nN = Object.keys(N.jogadores).length;
+  const Q = Object.fromEntries((N.depois_do_topo?.media || []).map(r => [r.ind, r])), nQ = N.depois_do_topo?.n;
+  const de = (r) => Math.round(r.pct_acima_1 * nN);
+  let S = "Todas";
+  document.getElementById("gu-nao-diz").innerHTML = T(`<b>O que os dados não dizem</b><ul>
+    <li><b>São profissionais.</b> No nível amador quem decide a maioria dos pontos são os erros não forçados, e a base não os mede.</li>
+    <li><b>Não há erros, winners, troca de bola nem subida à rede:</b> só o total de cada partida (saque, devolução, break points).</li>
+    <li><b>É correlação, não causa:</b> quem joga melhor em tudo também ganha mais pontos com o saque.</li>
+    <li><b>Não ensina técnica:</b> diz onde estão os pontos, não como bater na bola. Para isso, um professor.</li></ul>`,
+    `<b>What the data doesn't say</b><ul>
+    <li><b>These are professionals.</b> At amateur level most points are decided by unforced errors, which the data doesn't measure.</li>
+    <li><b>No errors, winners, rallies or net play:</b> only each match's totals (serve, return, break points).</li>
+    <li><b>It's correlation, not cause:</b> whoever plays better overall also wins more points on serve.</li>
+    <li><b>It doesn't teach technique:</b> it shows where the points are, not how to hit the ball. For that, a coach.</li></ul>`);
+  const irPara = (pag, aba) => pag ? `<a class="ver" href="${pag}#${aba}">${T("Ver a análise →", "See the analysis →")}</a>`
+    : `<a class="ver" data-aba="${aba}">${T("Ver a análise →", "See the analysis →")}</a>`;
+
+  function desenhar() {
+    const c = CI[S], r = G.recortes[`${S}|Todos|Todas`], z = Object.fromEntries(r.modelo.coef.map(x => [x.crit, x]));
+    const ponto = r.modelo.coef.filter(x => x.por_ponto != null).reduce((a, x) => a + x.por_ponto, 0) / 3;
+    const ondeQ = { Todas: T("no circuito", "on tour"), Dura: T("na quadra dura", "on hard courts"), Saibro: T("no saibro", "on clay"), Grama: T("na grama", "on grass") }[S];
+    const cards = [
+      { cor: "var(--pop)", t: T("Todo ponto conta igual", "Every point counts the same"), g: `+${br(100 * ponto, 0)}<small>${PP} ${T("de chance", "win chance")}</small>`,
+        dado: T(`Numa partida parelha, ganhar 1 ponto de saque a mais em cada 100 aumenta a chance de vencer em ${br(100 * ponto, 0)} pontos,
+          venha do 1º saque, do 2º ou de acertar mais 1º saques. Aces e duplas faltas quase não pesam além do ponto que dão ou tiram.`,
+          `In an even match, winning 1 more service point in every 100 raises the chance of winning by ${br(100 * ponto, 0)} points, whether
+          it comes from the 1st serve, the 2nd or landing more 1st serves. Aces and double faults barely matter beyond the point they give or cost.`),
+        quadra: T(`Treine para ganhar pontos, não para ter números bonitos: um ponto feio vale o mesmo que um ace. Some pequenas vantagens.`,
+          `Train to win points, not to look good: an ugly point is worth as much as an ace. Small edges add up.`), link: irPara(null, "ganhar") },
+      { cor: "var(--top)", t: T("2º saque: o ponto mais disputado", "2nd serve: the most contested point"), g: `${pct(c.dev_2, 0)}<small>${T("para quem devolve", "to the returner")}</small>`,
+        dado: T(`${ondeQ[0].toUpperCase() + ondeQ.slice(1)}, quem devolve ganha ${pct(c.dev_2, 0)} dos pontos no 2º saque, contra ${pct(c.dev_1, 0)} no 1º: é cara ou coroa.
+          É o 2º aspecto que mais pesa (z ${br(z.ganhos_2.z, 1)}) e um dos aspectos em que os nº 1 mais se destacam: ${de(zN.ganhos_2)} de ${nN} estão bem acima do circuito.`,
+          `${ondeQ[0].toUpperCase() + ondeQ.slice(1)}, the returner wins ${pct(c.dev_2, 0)} of 2nd-serve points, against ${pct(c.dev_1, 0)} on the 1st: a coin flip.
+          It is the 2nd most important aspect (z ${br(z.ganhos_2.z, 1)}) and one of the aspects where the No. 1s stand out most: ${de(zN.ganhos_2)} of ${nN} are well above the tour.`),
+        quadra: T(`Trate o 2º saque como um golpe: segurança com efeito, profundidade e colocação antes de velocidade. Treine-o cansado e sob placar apertado.`,
+          `Treat the 2nd serve as a shot of its own: safety with spin, depth and placement before pace. Practise it tired and under scoreboard pressure.`), link: irPara(null, "ganhar") },
+      { cor: "var(--pop)", t: T("Devolução: ataque o 2º saque", "Return: attack the 2nd serve"), g: `${de(zN.devolucao)} ${T("de", "of")} ${nN}<small>${T("nº 1", "No. 1s")}</small>`,
+        dado: T(`${de(zN.devolucao)} dos ${nN} nº 1 desde 1991 ganham muito mais pontos devolvendo que o circuito (z ${br(zN.devolucao.z, 1)}). Contra o 1º saque
+          o devolvedor ganha ${pct(c.dev_1, 0)}; contra o 2º, ${pct(c.dev_2, 0)}: a chance está no 2º saque.`,
+          `${de(zN.devolucao)} of the ${nN} No. 1s since 1991 win far more return points than the tour (z ${br(zN.devolucao.z, 1)}). Against the 1st serve
+          the returner wins ${pct(c.dev_1, 0)}; against the 2nd, ${pct(c.dev_2, 0)}: the chance is on the 2nd serve.`),
+        quadra: T(`No 1º saque, devolva para dentro e fundo, no meio. No 2º, suba na quadra e tome a iniciativa logo na primeira bola.`,
+          `Against the 1st serve, get it back deep and central. Against the 2nd, step in and take charge from the first ball.`), link: irPara("epocas.html", "n1") },
+      { cor: "var(--top)", t: T("1º saque: vale o ponto, não o ace", "1st serve: it's the point, not the ace"), g: `z ${br(z.ganhos_1.z, 1)}`,
+        dado: T(`Pontos ganhos com o 1º saque são o que mais pesa na vitória. Mas acertar mais 1º saques e fazer mais aces quase não separa os nº 1 do
+          circuito (só ${de(zN.primeiro_dentro)} e ${de(zN.aces_game)} de ${nN} bem acima). ${ondeQ[0].toUpperCase() + ondeQ.slice(1)}: ${br(c.aces_game, 2)} aces por game de saque.`,
+          `Points won behind the 1st serve weigh most on winning. But landing more 1st serves and hitting more aces barely sets the No. 1s apart from
+          the tour (only ${de(zN.primeiro_dentro)} and ${de(zN.aces_game)} of ${nN} well above). ${ondeQ[0].toUpperCase() + ondeQ.slice(1)}: ${br(c.aces_game, 2)} aces per service game.`),
+        quadra: T(`Treine colocação e variação mais que velocidade, e sempre com a bola seguinte: o "saque + 1", o primeiro golpe depois do saque.`,
+          `Practise placement and variety more than pace, always together with the next ball: the "serve + 1", the first shot after the serve.`), link: irPara(null, "ganhar") },
+      { cor: "var(--pop)", t: T("Os momentos de pressão", "The pressure moments"), g: `${de(zN.decisivos)} ${T("de", "of")} ${nN}<small>${T("nº 1", "No. 1s")}</small>`,
+        dado: T(`${de(zN.decisivos)} dos ${nN} nº 1 vencem muito mais sets decisivos que o circuito, e ${de(zN.tie_breaks)} mais tie-breaks. Em parte é
+          consequência de serem melhores; medir a pressão "acima do esperado" ainda está no roadmap.`,
+          `${de(zN.decisivos)} of the ${nN} No. 1s win far more deciding sets than the tour, and ${de(zN.tie_breaks)} more tie-breaks. Partly that follows
+          from being better; measuring pressure "above expected" is still on the roadmap.`),
+        quadra: T(`Treine com placar: tie-breaks, games começando em 30–40, set que vale o jogo. A pressão também se treina.`,
+          `Practise with a score: tie-breaks, games starting at 30–40, one set for the match. Pressure can be trained too.`), link: irPara("epocas.html", "n1") },
+      { cor: "var(--top)", t: T("Com os anos, cuide das pernas", "As the years go by, look after your legs"), g: Q.devolucao ? `${Q.devolucao.caiu_em} ${T("de", "of")} ${nQ}` : "—",
+        dado: Q.devolucao ? T(`Do auge ao fim da carreira, a devolução caiu para ${Q.devolucao.caiu_em} dos ${nQ} nº 1 que já pararam, e os pontos com o 1º saque
+          para ${Q.ganhos_1.caiu_em}. O 1º saque dentro quase não muda: a consistência fica, o que vai embora é deslocamento e potência.`,
+          `From peak to the end of their careers, the return fell for ${Q.devolucao.caiu_em} of the ${nQ} retired No. 1s, and 1st serve points for
+          ${Q.ganhos_1.caiu_em}. 1st serves in barely change: consistency stays, what goes is movement and power.`) : "",
+        quadra: T(`Para quem joga há muitos anos: preparo físico e trabalho de pernas protegem a devolução, que é o primeiro a cair.`,
+          `For long-time players: fitness and footwork protect the return, which is the first thing to go.`), link: irPara("epocas.html", "n1") },
+    ];
+    document.getElementById("gu-cards").innerHTML = cards.map((k, i) => `<div class="cartao"><span class="faixa" style="background:${k.cor}"></span>
+      <span class="num">${T("Prioridade", "Priority")} ${i + 1}</span><h3>${k.t}</h3><div class="grande">${k.g}</div>
+      <p><b>${T("O dado", "The data")}:</b> ${k.dado}</p><p class="quadra"><b>${T("Na quadra (hipótese)", "On court (hypothesis)")}:</b> ${k.quadra}</p>${k.link}</div>`).join("");
+    document.querySelectorAll("#gu-cards [data-aba]").forEach(a => a.addEventListener("click", () => {
+      document.querySelector(`#abas-x button[data-a="${a.dataset.aba}"]`).click(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+  }
+
+  const sups = ["Dura", "Saibro", "Grama"], zs = k => sups.map(x => G.recortes[`${x}|Todos|Todas`].modelo.coef.find(c => c.crit === k).z);
+  const linha = (rot, vals, f) => `<tr><td>${rot}</td>${vals.map(v => `<td class="n">${f(v)}</td>`).join("")}</tr>`;
+  document.getElementById("gu-t").innerHTML = `<tr><th></th>${sups.map(x => `<th class="n">${tr(x)}</th>`).join("")}</tr>` +
+    linha(T("Devolvedor ganha contra o 1º saque", "Returner wins vs the 1st serve"), sups.map(x => CI[x].dev_1), v => pct(v, 1)) +
+    linha(T("Devolvedor ganha contra o 2º saque", "Returner wins vs the 2nd serve"), sups.map(x => CI[x].dev_2), v => pct(v, 1)) +
+    linha(T("1º saque dentro", "1st serves in"), sups.map(x => CI[x].primeiro_dentro), v => pct(v, 1)) +
+    linha(T("Aces por game de saque", "Aces per service game"), sups.map(x => CI[x].aces_game), v => br(v, 2)) +
+    linha(T("Peso dos pontos com o 1º saque (z)", "Weight of 1st serve points (z)"), zs("ganhos_1"), v => br(v, 1)) +
+    linha(T("Peso dos pontos com o 2º saque (z)", "Weight of 2nd serve points (z)"), zs("ganhos_2"), v => br(v, 1)) +
+    linha(T("Partidas", "Matches"), sups.map(x => CI[x].n), v => br(v, 0));
+  document.getElementById("gu-nota-sup").innerHTML = T(`<b>Leitura:</b> no saibro o devolvedor ganha ${pct(CI.Saibro.dev_1, 0)} contra o 1º saque, contra
+    ${pct(CI.Grama.dev_1, 0)} na grama, e os aces caem quase pela metade (${br(CI.Saibro.aces_game, 2)} × ${br(CI.Grama.aces_game, 2)} por game): no saibro
+    a devolução rende mais e o saque protege menos. Mas o 2º saque é cara ou coroa em todas (${pct(CI.Dura.dev_2, 0)}–${pct(CI.Saibro.dev_2, 0)}) e a
+    <b>ordem do que pesa não muda</b>: 1º saque, 2º saque, 1º saque dentro. Muda o tamanho, não a prioridade. Carpete conta como quadra dura.`,
+    `<b>Reading:</b> on clay the returner wins ${pct(CI.Saibro.dev_1, 0)} against the 1st serve, against ${pct(CI.Grama.dev_1, 0)} on grass, and aces
+    almost halve (${br(CI.Saibro.aces_game, 2)} vs ${br(CI.Grama.aces_game, 2)} per game): on clay the return pays more and the serve protects less. But
+    the 2nd serve is a coin flip everywhere (${pct(CI.Dura.dev_2, 0)}–${pct(CI.Saibro.dev_2, 0)}) and the <b>order of what matters doesn't change</b>: 1st
+    serve, 2nd serve, 1st serves in. The size changes, not the priority. Carpet counts as hard court.`);
+  chips(document.getElementById("gu-sup"), G.superficies.map(v => [v, tr(v)]), S, v => { S = v; desenhar(); });
   desenhar();
 }
 
