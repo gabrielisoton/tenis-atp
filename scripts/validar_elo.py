@@ -59,7 +59,15 @@ cv = elo.curva_idade(elo.depois(d))
 checar(25 <= cv["delta"]["pico"] <= 30, f"curva de envelhecimento (método delta): pico aos {cv['delta']['pico']} anos")
 ing = dict(zip(cv["ingenua"]["idades"], cv["ingenua"]["elo"]))
 checar(ing[33] > ing[24], f"média ingênua sobe por sobrevivência: {ing[24]:.0f} aos 24 → {ing[33]:.0f} aos 33")
-# 6. contas: soma de Elo se conserva (o que um ganha o outro perde) — com K diferente para cada um, não é
+# 6. simulador: converter a chance por set prevê os jogos melhor de 5 melhor que usar a chance do melhor de 3
+x = d[~d["ano"].between(*elo.AQUECIMENTO)]
+dif = ((x["elo_v"] + x["elo_sup_v"]) - (x["elo_p"] + x["elo_sup_p"])) / 2
+b5 = x["melhor_de"] == "Melhor de 5"
+p3 = elo.chance(dif[b5], 0, elo.ESCALA_MD3)
+p5 = np.array([elo.chance_md5(q) for q in p3])
+checar(-np.log(p5).mean() < -np.log(p3).mean(), f"melhor de 5 por sets: log-loss {-np.log(p3).mean():.4f} → {-np.log(p5).mean():.4f}")
+checar(abs(elo.chance_md5(0.5) - 0.5) < 1e-6 and elo.chance_md5(0.7) > 0.7, "conversão MD5: 50% continua 50% e o favorito ganha mais no MD5")
+# 7. contas: soma de Elo se conserva (o que um ganha o outro perde) — com K diferente para cada um, não é
 #    exato; checamos só que nenhuma nota é absurda
 checar(dep["elo"].between(1000, 2800).all(), f"todas as notas entre 1000 e 2800 (min {dep['elo'].min():.0f}, max {dep['elo'].max():.0f})")
 

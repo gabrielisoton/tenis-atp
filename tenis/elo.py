@@ -22,6 +22,9 @@ INICIAL = 1500.0
 # Elo puro sai confiante demais nos extremos (só circuito principal). As PROBABILIDADES usam a diferença
 # multiplicada por ESCALA_PROB, ajustada em 1993–2015 e conferida em 2016–2025 (scripts/validar_elo.py).
 ESCALA_PROB = 0.84
+# Simulador "Pico × Pico": escala ajustada só em partidas melhor de 3; o melhor de 5 sai convertendo a chance
+# por set (validado em scripts/validar_elo.py: prevê os jogos de Slam melhor que usar a mesma chance).
+ESCALA_MD3 = 0.75
 AQUECIMENTO = (1991, 1992)  # anos calculados mas fora de picos e rankings históricos
 SUPERFICIE_ELO = {"Dura": "Dura", "Carpete": "Dura", "Saibro": "Saibro", "Grama": "Grama"}
 ORDEM_RODADA = {"1ª rodada (R128)": 0, "R64": 1, "R32": 2, "Oitavas (R16)": 3, "Fase de grupos": 3.5,
@@ -171,6 +174,7 @@ def exportar(pop: pd.DataFrame, min_pico_serie: float = 2050.0) -> dict:
         "auges": (lista := auges(dep, min_pico_serie)),
         "idade_auge_por_epoca": idade_auge_por_epoca(lista),
         "envelhecimento": curva_idade(dep),
+        "simulador": simulador(dep, [r["jogador"] for r in lista]),
     }
 
 
@@ -288,3 +292,39 @@ def curva_idade(dep: pd.DataFrame, min_partidas: int = 10, reamostras: int = 300
         "pares_por_idade": p.groupby("a").size().astype(int).to_dict(),
         "min_partidas": min_partidas,
     }
+
+
+# ------------------------------------------------------------------ simulador Pico × Pico
+def chance_set(p_md3: float) -> float:
+    """Chance de vencer um set que, num melhor de 3, dá chance p_md3 de vencer a partida (p = s²(3 − 2s))."""
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        m = (lo + hi) / 2
+        lo, hi = (m, hi) if m * m * (3 - 2 * m) < p_md3 else (lo, m)
+    return (lo + hi) / 2
+
+
+def chance_md5(p_md3: float) -> float:
+    s = chance_set(p_md3)
+    return s ** 3 * (10 - 15 * s + 6 * s * s)
+
+
+def simulador(dep: pd.DataFrame, nomes: list[str], min_partidas_sup: int = 20) -> dict:
+    """Auge sustentado (melhor média de 12 meses) e pico de cada jogador, no geral e em cada superfície."""
+    dep = dep[~dep["ano"].between(*AQUECIMENTO)].assign(dt=lambda x: pd.to_datetime(x["data"]))
+    saida = {}
+    for nome, g in dep[dep["jogador"].isin(nomes)].groupby("jogador"):
+        item = {}
+        for chave, h, col in [("geral", g, "elo")] + [(s_, g[g["superficie"] == s_], "elo_sup") for s_ in SUPS]:
+            if len(h) < (1 if chave == "geral" else min_partidas_sup):
+                continue
+            mes = h.set_index("dt")[col].resample("ME").last().ffill()
+            rol = mes.rolling(12, min_periods=12).mean().dropna()
+            if rol.empty:
+                continue
+            fim = rol.idxmax()
+            item[chave] = {"auge": round(float(rol.max()), 1), "ini": (fim - pd.DateOffset(months=11)).strftime("%Y-%m"),
+                           "fim": fim.strftime("%Y-%m"), "pico": round(float(h[col].max()), 1),
+                           "pico_data": h.loc[h[col].idxmax(), "data"][:7], "partidas": int(len(h))}
+        saida[nome] = item
+    return {"jogadores": saida, "escala_md3": ESCALA_MD3, "min_partidas_sup": min_partidas_sup}

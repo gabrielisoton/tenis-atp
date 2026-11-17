@@ -46,7 +46,8 @@
   <div id="placar" style="margin-top:22px"></div>
   <div class="abas" id="abas-e" style="margin-top:22px"><button class="on" data-a="elo">📈 Elo</button>
     <button data-a="auge">⭐ <span data-l="pt">O auge</span><span data-l="en">The peak</span></button>
-    <button data-a="corrida">🏁 <span data-l="pt">Corrida por idade</span><span data-l="en">Race by age</span></button></div>
+    <button data-a="corrida">🏁 <span data-l="pt">Corrida por idade</span><span data-l="en">Race by age</span></button>
+    <button data-a="pxp">🥊 <span data-l="pt">Pico × Pico</span><span data-l="en">Peak vs Peak</span></button></div>
 
   <section class="painel-aba" data-p="elo">
   <h2><span data-l="pt">A carreira em Elo</span><span data-l="en">Careers in Elo</span></h2>
@@ -116,6 +117,27 @@
     <div class="cartao rolagem" style="max-height:520px;overflow:auto"><h3 style="margin-top:0" id="c-tit-tit"></h3><table class="t" id="c-t-tit"></table></div>
   </div>
   <p class="nota" id="c-nota2"></p>
+  </section>
+  <section class="painel-aba" data-p="pxp" hidden>
+  <h2><span data-l="pt">Quem ganharia, cada um no seu auge?</span><span data-l="en">Who would win, each at their peak?</span></h2>
+  <div class="aviso"><span data-l="pt"><b>É uma brincadeira, com método.</b> O Elo mede o quanto cada jogador estava acima do circuito
+    <b>da sua época</b>. Entre rivais da mesma geração (Federer × Nadal, Sinner × Alcaraz) a comparação faz sentido; entre épocas
+    diferentes, raquetes, cordas, preparo físico e quadras mudaram, e ninguém sabe de verdade quem ganharia.</span><span data-l="en">
+    <b>It is a game, with a method.</b> Elo measures how far above <b>their own era's</b> tour each player was. Between rivals of the
+    same generation (Federer vs Nadal, Sinner vs Alcaraz) the comparison makes sense; across eras, rackets, strings, fitness and courts
+    changed, and nobody really knows who would win.</span></div>
+  <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:14px">
+    <div class="grupo"><span class="rot"><span data-l="pt">Jogador A</span><span data-l="en">Player A</span></span><input class="sel busca" id="x-a"></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Jogador B</span><span data-l="en">Player B</span></span><input class="sel busca" id="x-b"></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Auge</span><span data-l="en">Peak</span></span><span id="x-modo"></span></div>
+  </div>
+  <div id="x-placar"></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-pxp" class="grafico" style="min-height:360px"></div></div>
+    <div class="cartao rolagem"><h3 style="margin-top:0"><span data-l="pt">O auge de cada um</span><span data-l="en">Each player's peak</span></h3>
+      <table class="t" id="x-t"></table></div>
+  </div>
+  <p class="nota" id="x-nota"></p>
   </section>
 </main>
 <script>
@@ -196,7 +218,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   }
   desenharPicos();
   ligarAbas(document.getElementById("area-e"), "#abas-e");
-  const prontas = new Set(["elo"]), abrir = { auge: desenharAuge, corrida: () => carregar("corrida").then(desenharCorrida) };
+  const prontas = new Set(["elo"]), abrir = { auge: desenharAuge, corrida: () => carregar("corrida").then(desenharCorrida), pxp: desenharPxP };
   document.querySelectorAll("#abas-e button").forEach(b => b.addEventListener("click", () => {
     if (!prontas.has(b.dataset.a)) { prontas.add(b.dataset.a); abrir[b.dataset.a](); } }));
   document.getElementById("n1").innerHTML = E.n1_por_ano.map(r => `<div><small>${r.ano}</small><b>${r.jogador}</b><small>Elo ${br(r.elo, 0)}</small></div>`).join("");
@@ -344,6 +366,59 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       below it; in the most recent era the peak comes at ${eb.pico} and the drop by 30 is only ${br(-eb.aos_30, 0)}. Careers got longer.
       <b>Limits:</b> the delta method also misses players who decline sharply and stop before completing the next year, so the decline
       after 30 is, if anything, slightly steeper than the curve shows; and Elo measures strength relative to each era's tour.`);
+  }
+
+  function desenharPxP() {
+    const S = E.simulador, J = S.jogadores, esc = S.escala_md3;
+    const nomes = Object.keys(J).sort((a, b) => J[b].geral.auge - J[a].geral.auge);
+    let A = "Novak Djokovic", B = "Roger Federer", modo = "auge";
+    const SUP3 = ["Dura", "Saibro", "Grama"];
+    const chance3 = (ra, rb) => 1 / (1 + Math.pow(10, -esc * (ra - rb) / 400));
+    const set = p => { let lo = 0, hi = 1; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (m * m * (3 - 2 * m) < p) lo = m; else hi = m; } return (lo + hi) / 2; };
+    const md5 = p => { const q = set(p); return q ** 3 * (10 - 15 * q + 6 * q * q); };
+    // nota usada: média do Elo geral com o da superfície (como na validação); sem dados na superfície, só o geral
+    const nota = (n, sup) => { const g = J[n].geral[modo], x = J[n][sup]; return x ? (g + x[modo]) / 2 : g; };
+    const periodo = x => modo === "auge" ? `${mesAno(x.ini + "-01")}–${mesAno(x.fim + "-01")}` : mesAno(x.pico_data + "-01");
+    const cbA = combobox(document.getElementById("x-a"), nomes, i => br(J[nomes[i]].geral.auge, 0), n => { A = n; desenhar(); });
+    const cbB = combobox(document.getElementById("x-b"), nomes, i => br(J[nomes[i]].geral.auge, 0), n => { B = n; desenhar(); });
+    cbA.definir(A); cbB.definir(B);
+    const modoEl = document.getElementById("x-modo");
+    modoEl.innerHTML = [["auge", T("Melhor temporada (12 meses)", "Best season (12 months)")], ["pico", T("Melhor semana", "Best week")]]
+      .map(([v, r]) => `<button class="chip ${v === modo ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
+    modoEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+      modo = b.dataset.v; modoEl.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); desenhar(); }));
+    function desenhar() {
+      const res = SUP3.map(sup => { const p3 = chance3(nota(A, sup), nota(B, sup)); return { sup, p3, p5: md5(p3) }; });
+      const dura = res[0], favorito = dura.p5 >= .5 ? A : B, pf = Math.max(dura.p5, 1 - dura.p5);
+      placar(document.getElementById("x-placar"), [
+        { rot: T("Final de Slam em quadra dura", "Hard-court Slam final"), num: `${favorito.split(" ").slice(-1)[0]} ${pct(pf, 0)}`, sub: T("melhor de 5", "best of 5") },
+        ...res.map(r => ({ rot: `${tr(r.sup)} · ${T("melhor de 3", "best of 3")}`, num: `${pct(r.p3, 0)} × ${pct(1 - r.p3, 0)}`, sub: `${A.split(" ").slice(-1)[0]} × ${B.split(" ").slice(-1)[0]}` })),
+      ]);
+      const y = res.flatMap(r => [`${tr(r.sup)} · ${T("MD3", "Bo3")}`, `${tr(r.sup)} · ${T("MD5", "Bo5")}`]);
+      const pa = res.flatMap(r => [r.p3, r.p5]);
+      plot(document.getElementById("g-pxp"), [
+        { type: "bar", orientation: "h", y, x: pa, name: A, marker: { color: CORES.pop }, text: pa.map(v => pct(v, 0)), textposition: "inside", insidetextanchor: "start", hovertemplate: `${A}: %{x:.0%}<extra></extra>` },
+        { type: "bar", orientation: "h", y, x: pa.map(v => 1 - v), name: B, marker: { color: CORES.top }, text: pa.map(v => pct(1 - v, 0)), textposition: "inside", insidetextanchor: "end", hovertemplate: `${B}: %{x:.0%}<extra></extra>` },
+      ], { height: 360, barmode: "stack", title: { text: T("Chance de vitória, por superfície e formato", "Win probability, by surface and format"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        xaxis: { tickformat: ".0%", range: [0, 1], showgrid: false }, yaxis: { autorange: "reversed" },
+        shapes: [{ type: "line", x0: .5, x1: .5, yref: "paper", y0: 0, y1: 1, line: { color: "#fff", width: 2, dash: "dot" } }],
+        legend: { orientation: "h", y: -0.12, yanchor: "top", x: 0 }, margin: { l: 120, r: 10, t: 50, b: 70 } });
+      const linha = (n, chave, rot) => { const x = J[n][chave]; return x ? `<tr><td>${rot}</td><td class="n"><b>${br(x[modo], 0)}</b></td><td>${periodo(x)}</td></tr>`
+        : `<tr><td>${rot}</td><td class="n">—</td><td class="nota">${T(`menos de ${S.min_partidas_sup} partidas`, `fewer than ${S.min_partidas_sup} matches`)}</td></tr>`; };
+      document.getElementById("x-t").innerHTML = [A, B].map((n, k) => `<tr><th colspan="3" style="color:${k ? CORES.top : CORES.pop}">${n}</th></tr>` +
+        linha(n, "geral", T("Geral", "Overall")) + SUP3.map(s => linha(n, s, tr(s))).join("")).join("");
+      document.getElementById("x-nota").innerHTML = T(`<b>Como é calculado:</b> para cada superfície, a nota de cada jogador é a média do Elo geral com o
+        Elo daquela superfície, cada um no ${modo === "auge" ? "auge sustentado (melhor média de 12 meses)" : "pico (maior valor)"}. A chance num melhor de 3
+        usa a diferença × ${br(esc, 2)}, calibrada nos jogos melhor de 3 de 1993–2025; no melhor de 5 ela é convertida set a set, o que prevê os
+        jogos de Slam melhor do que usar a mesma chance (o favorito ganha mais em jogos longos). O Elo por superfície sobe devagar onde há
+        poucas partidas por ano (grama), então o auge na grama às vezes aparece mais tarde do que o fã lembra.`,
+        `<b>How it is calculated:</b> for each surface, each player's rating is the average of overall Elo and that surface's Elo, both at the
+        ${modo === "auge" ? "sustained peak (best 12-month average)" : "peak (highest value)"}. The best-of-3 probability uses the gap × ${br(esc, 2)},
+        calibrated on 1993–2025 best-of-3 matches; for best of 5 it is converted set by set, which predicts Slam matches better than using the
+        same probability (favourites win more in long matches). Surface Elo rises slowly where there are few matches a year (grass), so the
+        grass peak sometimes shows up later than fans remember.`);
+    }
+    desenhar();
   }
 
   function desenharCorrida(C) {
