@@ -20,6 +20,7 @@ FAIXAS = [(1, 5), (6, 10), (11, 25), (26, 50), (51, 100), (101, 200), (201, 100_
 METRICAS = [
     # chave, nome, unidade, descrição curta
     ("vitorias", "Vitórias", "%", "partidas vencidas"),
+    ("tpw", "Pontos ganhos (total)", "%", "todos os pontos vencidos, sacando e devolvendo"),
     ("saque_ganhos", "Pontos ganhos no saque", "%", "pontos vencidos quando o jogador saca"),
     ("primeiro_dentro", "1º saque dentro", "%", "primeiros saques que entram"),
     ("ganhos_1", "Pontos ganhos com o 1º saque", "%", "quando o 1º saque entra"),
@@ -131,6 +132,8 @@ CRITERIOS = [
              "partidas vencidas contra quem estava no Top 10 do ranking"),
     Criterio("dominance", "Dominance ratio", "ret_won", "sv_pts", True, "razao", "Resultado",
              "% de pontos ganhos na devolução ÷ % de pontos perdidos no saque (acima de 1 = domina)"),
+    Criterio("tpw", "Pontos ganhos (total)", "pts_ganhos", "pts_jogados", True, "%", "Resultado",
+             "todos os pontos vencidos ÷ todos os pontos jogados, sacando e devolvendo (50% = jogador médio)"),
     Criterio("saque_ganhos", "Pontos ganhos no saque", "sv_won", "sv_pts", True, "%", "Saque",
              "pontos vencidos quando o jogador saca"),
     Criterio("primeiro_dentro", "1º saque dentro", "first_in", "sv_pts", True, "%", "Saque",
@@ -162,6 +165,8 @@ COMPONENTES = ["partida", "venceu", "vitoria_top10", "vs_top10", "sv_pts", "sv_w
                "second_pts", "second_won", "ret_pts", "ret_won", "bp_fac", "bp_sav", "bp_opp", "bp_conv",
                "aces", "dfs", "sv_games", "tb_jogados", "tb_vencidos", "decisivo_jogado", "decisivo_vencido",
                "final", "titulo", "titulo_gs"]
+# somas derivadas de outras somas (não vão para o JSON; o site calcula igual em jogadores.js → valores)
+DERIVADOS = {"pts_ganhos": ("sv_won", "ret_won"), "pts_jogados": ("sv_pts", "ret_pts")}
 NIVEIS = ["Grand Slam", "ATP Finals", "Masters 1000", "ATP 500", "ATP 250"]
 SUPERFICIES = ["Dura", "Saibro", "Grama", "Carpete"]
 
@@ -180,6 +185,8 @@ def recortar(lg: pd.DataFrame, anos=None, superficies=None, niveis=None) -> pd.D
 def somas(lg: pd.DataFrame, por) -> pd.DataFrame:
     """Soma numeradores e denominadores por grupo (jogador, superfície, ano…)."""
     s = lg.groupby(por, observed=True)[COMPONENTES].sum()
+    for novo, (a, b) in DERIVADOS.items():
+        s[novo] = s[a] + s[b]
     s["melhor_rank"] = lg.groupby(por, observed=True)["rank"].min()
     return s
 
@@ -383,6 +390,8 @@ def metricas(g: pd.DataFrame) -> dict:
     return {
         "n": len(g), "n_jogadores": int(g["jogador"].nunique()), "n_com_stats": len(s),
         "vitorias": float(g["venceu"].mean()) if len(g) else None,
+        "tpw": div((s["1won"] + s["2won"]).sum() + s["o_svpt"].sum() - (s["o_1won"] + s["o_2won"]).sum(),
+                   (s["svpt"] + s["o_svpt"]).sum()),
         "saque_ganhos": div((s["1won"] + s["2won"]).sum(), s["svpt"].sum()),
         "primeiro_dentro": div(s["1in"].sum(), s["svpt"].sum()),
         "ganhos_1": div(s["1won"].sum(), s["1in"].sum()),

@@ -32,6 +32,8 @@ function somar(L, filtro, chaveDe) {
   return g;
 }
 function valores(s, CRIT) {
+  // somas derivadas — iguais a DERIVADOS em tenis/analises.py
+  s.pts_ganhos = s.sv_won + s.ret_won; s.pts_jogados = s.sv_pts + s.ret_pts;
   const v = { partidas: s.partida, V: s.venceu, D: s.partida - s.venceu, melhor_rank: s.mr };
   for (const c of CRIT) {
     if (c.tipo === "n") { v[c.chave] = s[c.num]; continue; }

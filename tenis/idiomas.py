@@ -19,7 +19,7 @@ EN: dict[str, str] = {
     "Resultado": "Results", "Saque": "Serve", "Devolução": "Return", "Pressão": "Under pressure",
     "Conquistas": "Trophies",
     # critérios (tenis/analises.CRITERIOS) e métricas do Top N (METRICAS)
-    "Vitórias": "Wins", "Vitórias contra Top 10": "Wins vs Top 10", "Dominance ratio": "Dominance ratio",
+    "Vitórias": "Wins", "Pontos ganhos (total)": "Total points won", "Vitórias contra Top 10": "Wins vs Top 10", "Dominance ratio": "Dominance ratio",
     "Pontos ganhos no saque": "Service points won", "1º saque dentro": "1st serve in",
     "Pontos ganhos com o 1º saque": "1st serve points won", "Pontos ganhos com o 2º saque": "2nd serve points won",
     "Aces por game de saque": "Aces per service game", "Duplas faltas por game de saque": "Double faults per service game",
@@ -30,10 +30,13 @@ EN: dict[str, str] = {
     "Canhotos": "Left-handers",
     # descrições dos critérios e das métricas
     "partidas vencidas": "matches won",
+    "todos os pontos vencidos ÷ todos os pontos jogados, sacando e devolvendo (50% = jogador médio)":
+        "all points won ÷ all points played, serving and returning (50% = average player)",
     "partidas vencidas contra quem estava no Top 10 do ranking": "matches won against players ranked in the Top 10",
     "% de pontos ganhos na devolução ÷ % de pontos perdidos no saque (acima de 1 = domina)":
         "% of return points won ÷ % of service points lost (above 1 = dominant)",
     "pontos vencidos quando o jogador saca": "points won when the player serves",
+    "todos os pontos vencidos, sacando e devolvendo": "all points won, serving and returning",
     "primeiros saques que entram": "first serves that go in",
     "quando o 1º saque entra": "when the first serve goes in",
     "quando precisa do 2º saque": "when a second serve is needed",

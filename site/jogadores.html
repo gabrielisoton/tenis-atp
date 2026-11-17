@@ -11,7 +11,7 @@
 <script src="assets/site.js?v=5"></script>
 <script src="assets/comum.js?v=7"></script>
 <script src="assets/descritiva.js?v=6"></script>
-<script src="assets/jogadores.js?v=7"></script>
+<script src="assets/jogadores.js?v=8"></script>
 <style>
   .barra-pct { position: relative; height: 10px; background: #ecebe5; border-radius: 6px; min-width: 90px; }
   .barra-pct i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
@@ -115,7 +115,9 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   document.getElementById("carregando").remove();
   const CR = J.criterios, CRIT = Object.fromEntries(CR.map(c => [c.chave, c]));
   // a checagem Python × JS (~0,3 s) roda depois da primeira tela, quando o navegador está ocioso
-  (window.requestIdleCallback || (f => setTimeout(f, 300)))(() => {
+  // (com prazo: numa aba em segundo plano o navegador pode nunca ficar "ocioso")
+  const quandoOcioso = window.requestIdleCallback ? f => requestIdleCallback(f, { timeout: 2000 }) : f => setTimeout(f, 300);
+  quandoOcioso(() => {
     const erros = conferir(J);
     console[erros.length ? "error" : "info"](erros.length ? `Divergências com o Python: ${erros.join(" | ")}` : "Jogadores: cálculos conferidos com o Python (OK)");
     window.__checagemJogadores = erros;
@@ -240,7 +242,9 @@ ligarAbas(document.getElementById("area"), "#abas-j");
     desconhecidos, com intervalos enormes. É a ideia de variabilidade amostral: cada temporada é uma "amostra" do nível de um jogador. Usamos o IC de <b>Wilson</b> em
     vez do de Wald (p̂ ± z·EP) porque ele continua válido perto de 0% ou 100% e com n pequeno, e nunca sai do intervalo [0, 1].
     <br><br>Quando dois intervalos se sobrepõem bastante, os dados não permitem dizer com segurança quem é melhor. Taxas por game,
-    o dominance ratio e as contagens não têm IC de proporção.`, `Each row is a player with at least the minimum number of matches
+    o dominance ratio e as contagens não têm IC de proporção.<br><br><b>Nos critérios de pontos</b> (saque, devolução, pontos ganhos
+    no total), o IC trata cada ponto como independente. Pontos da mesma partida não são (dia bom, adversário forte), então a incerteza
+    real é um pouco maior do que o traço mostra.`, `Each row is a player with at least the minimum number of matches
     in the selection. Values are <b>ratios of sums</b>: for "service points won", we add up every point the player won on serve
     and divide by every point they served.<br><br><b>Why does the minimum number of matches matter?</b> Each player's value is
     an estimate based on the matches they played, and the <b>bar</b> is the <b>95% Wilson confidence interval</b>. With few
@@ -248,7 +252,9 @@ ligarAbas(document.getElementById("area"), "#abas-j");
     with huge intervals. This is the idea of sampling variability: each season is a "sample" of a player's level. We use the
     <b>Wilson</b> CI instead of the Wald one (p̂ ± z·SE) because it stays valid near 0% or 100% and with small n, and never leaves
     the [0, 1] range.<br><br>When two intervals overlap a lot, the data cannot say with confidence who is better. Per-game rates,
-    the dominance ratio and the counts have no proportion CI.`));
+    the dominance ratio and the counts have no proportion CI.<br><br><b>For point-based categories</b> (serve, return, total points
+    won), the CI treats each point as independent. Points in the same match are not (a good day, a strong opponent), so the real
+    uncertainty is somewhat larger than the bar shows.`));
 
   function desenharRanking() {
     const c = CRIT[rc.value], minimo = Math.max(1, +document.getElementById("r-min").value || 1);
