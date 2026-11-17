@@ -68,8 +68,16 @@
 
 - **Cuidado com o desenho do modelo.** A devolução de um jogador é o espelho do saque do adversário. Pôr as duas
   coisas juntas faz a devolução "explicar tudo" (+6,7 contra ~0 dos componentes de saque).
+- **Feito** (aba "O que faz ganhar" da página O jogo, `tenis/ganhar.py`, conferido por `scripts/validar_ganhar.py`), com a
+  base 1991+ (95.462 partidas com estatísticas consistentes):
+  - **leitura simples:** quem ganhou mais pontos com o 1º saque venceu 83%; com o 2º, 79%; break points salvos 71%;
+    aces 63%; menos duplas faltas 63%; 1º saque dentro 57% (sem empates);
+  - **modelo** (por desvio-padrão): 1º saque +4,1 · 2º saque +3,1 · 1º saque dentro +1,1 · aces e duplas faltas
+    +0,1; acerta o vencedor em 92%; a mesma ordem em toda superfície, nível e época;
+  - **um ponto é um ponto:** convertido em pontos, os três valem quase o mesmo: +1 ponto de saque a cada 100 vale
+    ≈ +11 p.p. de chance de vencer numa partida parelha (1º saque 10,9 · 2º 10,7 · 1º dentro 11,6).
 - **O modelo correto** usa os componentes do saque de cada jogador; o lado do adversário é a devolução.
-  - Por desvio-padrão, pesam: pontos ganhos com o 1º saque ≈ +2,7, com o 2º ≈ +1,9 e 1º saque dentro ≈ +0,75.
+  - Na prévia (2000–2025, outra padronização) pesavam ≈ +2,7, +1,9 e +0,75: a mesma ordem do resultado final acima.
     Simetricamente, a devolução contra cada um desses.
   - Aces e duplas faltas ficam ≈ 0 depois disso: valem pelo ponto que dão ou tiram, não por si.
 - **Ganhar partida ≠ ser campeão.** Campeão é bom em muitos aspectos, constante e decide sob pressão. Isso é uma
@@ -130,7 +138,7 @@ abas dessas páginas, não como páginas novas:
 | Jogadores | 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado |
 | Épocas | 21 Os nº 1 (feito) |
 | Torneios (nova, quando o item 7 for feito) | 7 páginas de torneio · 16 velocidade da quadra |
-| O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar · 22 guia para quem treina |
+| O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar (feito) · 22 guia para quem treina |
 | Sobre os dados | 3 atualização automática (selo "dados até", feito: o selo fica no rodapé de todas as páginas) · 19 previsão de partidas e calibração |
 
 ## Fases

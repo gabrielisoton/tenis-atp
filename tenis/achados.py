@@ -7,7 +7,7 @@ O texto (PT/EN) fica no site, montado a partir destes números.
 from __future__ import annotations
 
 
-def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict) -> dict:
+def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict, ganhar: dict) -> dict:
     # 1. maior pico de Elo e a carreira de quem o atingiu
     pico = E["picos"]["geral"][0]
     serie = E["series"][pico["jogador"]]
@@ -50,4 +50,7 @@ def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: di
         "elo_acerta": {"elo": V["acerto_elo"], "ranking": V["acerto_ranking"], "n": V["n"]},
         "aces": {"anos": [r["ano"] for r in lt], "media": [round(r["aces_media"], 2) for r in lt]},
         "numero1": {"n": nn, "acima": acima},
+        # 10. o que faz ganhar: quanto vale +1 ponto de saque a cada 100 numa partida parelha, e o peso (z) de cada aspecto
+        "ganhar": (lambda c: {"por_ponto": round(sum(x["por_ponto"] for x in c if x["por_ponto"]) / 3, 4),
+                              "z": {x["crit"]: x["z"] for x in c}})(ganhar["recortes"]["Todas|Todos|Todas"]["modelo"]["coef"]),
     }

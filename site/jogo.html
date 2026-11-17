@@ -25,7 +25,8 @@
   <div class="abas" id="abas-x" style="margin-top:22px"><button class="on" data-a="top">🏆 <span data-l="pt">Top N × demais</span><span data-l="en">Top N vs the rest</span></button>
     <button data-a="rank">🎯 <span data-l="pt">Ranking e zebras</span><span data-l="en">Ranking and upsets</span></button>
     <button data-a="tempo">📈 <span data-l="pt">Linha do tempo</span><span data-l="en">Timeline</span></button>
-    <button data-a="pontos" id="venceu-perdendo">🎭 <span data-l="pt">Venceu perdendo</span><span data-l="en">Won while losing</span></button></div>
+    <button data-a="pontos" id="venceu-perdendo">🎭 <span data-l="pt">Venceu perdendo</span><span data-l="en">Won while losing</span></button>
+    <button data-a="ganhar">🧩 <span data-l="pt">O que faz ganhar</span><span data-l="en">What wins a match</span></button></div>
 
   <section class="painel-aba" data-p="top">
     <div class="filtros" style="position:static">
@@ -113,6 +114,28 @@
     </div>
     <div class="cartao rolagem" style="max-height:520px;overflow:auto"><table class="t" id="vp-t"></table></div>
     <p class="nota" id="vp-nota"></p>
+  </section>
+  <section class="painel-aba" data-p="ganhar" hidden>
+    <h2 style="margin-top:6px"><span data-l="pt">O que mais pesa para ganhar uma partida?</span>
+      <span data-l="en">What matters most to win a match?</span></h2>
+    <div id="gn-comoler"></div>
+    <div class="filtros" style="position:static">
+      <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="gn-sup"></span></div>
+      <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><span id="gn-niv"></span></div>
+      <div class="grupo"><span class="rot"><span data-l="pt">Época</span><span data-l="en">Era</span></span><span id="gn-ep"></span></div>
+    </div>
+    <div class="aviso" id="gn-aviso" hidden></div>
+    <div id="gn-placar"></div>
+    <div class="grade g2" style="margin-top:14px">
+      <div class="cartao"><div id="g-gn-leitura" class="grafico" style="min-height:430px"></div></div>
+      <div class="cartao"><div id="g-gn-modelo" class="grafico" style="min-height:430px"></div></div>
+    </div>
+    <h2><span data-l="pt">Para quem treina: quanto vale um ponto</span><span data-l="en">For players who train: what a point is worth</span></h2>
+    <div class="grade g2">
+      <div class="cartao rolagem"><table class="t" id="gn-t"></table><p class="nota" id="gn-nota-t"></p></div>
+      <div class="cartao"><div id="g-gn-estavel" class="grafico" style="min-height:400px"></div></div>
+    </div>
+    <p class="nota" id="gn-nota"></p>
   </section>
 </main>
 <script>
@@ -230,8 +253,111 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
     desenharVP(await carregar("venceu_perdendo"));
   };
   document.querySelector('#abas-x button[data-a="pontos"]').addEventListener("click", abrirVP);
+  // o que faz ganhar: modelos por recorte (~100 KB), carregados só quando a aba é aberta
+  let gnPronto = false;
+  document.querySelector('#abas-x button[data-a="ganhar"]').addEventListener("click", async () => {
+    if (gnPronto) return; gnPronto = true;
+    desenharGanhar(await carregar("ganhar"), chips);
+  });
   abrirAbaDoHash("#abas-x");
 })();
+
+function desenharGanhar(G, chips) {
+  const NOME = { ganhos_1: ["Pontos com o 1º saque", "1st serve points won"], ganhos_2: ["Pontos com o 2º saque", "2nd serve points won"],
+    primeiro_dentro: ["1º saque dentro", "1st serves in"], aces_game: ["Aces por game de saque", "Aces per service game"],
+    df_game: ["Menos duplas faltas por game", "Fewer double faults per game"], bp_salvos: ["Break points salvos", "Break points saved"],
+    tpw: ["Pontos ganhos (total)", "Total points won"], saque: ["Pontos no saque (total)", "Service points won"] };
+  const nomeI = k => T(NOME[k][0], NOME[k][1]);
+  const REF = new Set(["tpw", "saque"]), PP = T("p.p.", "pp");
+  const EP_EN = { "Todas": "All", "1991–2002": "1991–2002", "2003–2012": "2003–2012", "2013+": "2013+" };
+  let S = "Todas", NV = "Todos", EP = "Todas";
+  const titulo = (pt, en) => ({ text: T(pt, en), x: 0, font: { size: 16, family: "Barlow Condensed" } });
+  document.getElementById("gn-comoler").innerHTML = comoLer(T(`Duas leituras com as partidas que têm estatísticas.
+    <b>Leitura simples:</b> em quantas partidas o vencedor foi melhor que o perdedor em cada aspecto (empates não contam).
+    <b>Modelo:</b> uma regressão logística que olha os aspectos <b>juntos</b> e mede quanto cada um pesa na chance de vencer
+    quando os outros ficam iguais, em desvios-padrão (z), para comparar coisas de escalas diferentes.<br><b>Por que só o
+    saque?</b> Numa partida, a devolução de um é o espelho do saque do outro: os pontos que você ganha devolvendo o 1º saque
+    dele são os pontos que ele perde com o 1º saque. Por isso cada barra mede as duas coisas ao mesmo tempo: "pontos com o
+    1º saque" = o seu 1º saque <b>e</b> a sua devolução contra o 1º saque dele.`, `Two readings of the matches that have
+    stats. <b>Simple reading:</b> in how many matches the winner was better than the loser at each aspect (ties don't count).
+    <b>Model:</b> a logistic regression that looks at the aspects <b>together</b> and measures how much each one weighs on the
+    chance of winning with the others held equal, in standard deviations (z), to compare things on different scales.<br>
+    <b>Why serve only?</b> In a match, one player's return is the mirror of the other's serve: the points you win returning
+    his 1st serve are the points he loses on his 1st serve. So each bar measures both at once: "1st serve points won" = your
+    1st serve <b>and</b> your return against his 1st serve.`));
+  chips(document.getElementById("gn-sup"), G.superficies.map(v => [v, tr(v)]), S, v => { S = v; desenhar(); });
+  chips(document.getElementById("gn-niv"), G.niveis.map(v => [v, v === "Todos" ? T("Todos", "All") : tr(v)]), NV, v => { NV = v; desenhar(); });
+  chips(document.getElementById("gn-ep"), G.epocas.map(v => [v, EM_INGLES ? EP_EN[v] : v]), EP, v => { EP = v; desenhar(); });
+
+  function desenhar() {
+    const r = G.recortes[`${S}|${NV}|${EP}`], av = document.getElementById("gn-aviso");
+    av.hidden = !!r;
+    av.textContent = T(`Poucas partidas nesse recorte (menos de ${G.min_partidas}). Escolha um recorte mais amplo.`,
+      `Too few matches in this selection (fewer than ${G.min_partidas}). Pick a broader one.`);
+    if (!r) { ["g-gn-leitura", "g-gn-modelo"].forEach(id => Plotly.purge(id)); document.getElementById("gn-placar").innerHTML = ""; return; }
+    const L = r.leitura, C = r.modelo.coef, lg = k => L.find(x => x.crit === k);
+    const tres = C.filter(c => c.por_ponto != null), ponto = tres.reduce((a, c) => a + c.por_ponto, 0) / tres.length;
+    placar(document.getElementById("gn-placar"), [
+      { rot: T("Quem ganha mais pontos vence", "Who wins more points wins"), num: pct(lg("tpw").pct, 0), sub: T(`das ${br(r.n, 0)} partidas`, `of ${br(r.n, 0)} matches`) },
+      { rot: T("O que mais pesa", "What weighs most"), num: `z ${br(C[0].z, 1)}`, sub: nomeI(C[0].crit) },
+      { rot: T("+1 ponto a cada 100 no saque", "+1 point per 100 on serve"), num: `+${br(100 * ponto, 0)} ${PP}`, sub: T("de chance de vencer, numa partida parelha", "chance of winning, in an even match") },
+      { rot: T("O modelo acerta o vencedor", "The model picks the winner"), num: pct(r.modelo.acerto, 0), sub: T("só com 5 números de saque de cada lado", "with only 5 serve numbers per side") },
+    ]);
+    const Lr = [...L].reverse();
+    plot("g-gn-leitura", [{ type: "bar", orientation: "h", y: Lr.map(x => nomeI(x.crit)), x: Lr.map(x => x.pct),
+      error_x: { type: "data", symmetric: false, array: Lr.map(x => x.ic[1] - x.pct), arrayminus: Lr.map(x => x.pct - x.ic[0]), color: CORES.neutra, thickness: 1.5 },
+      marker: { color: Lr.map(x => REF.has(x.crit) ? CORES.demais : CORES.pop) }, text: Lr.map(x => pct(x.pct, 0)), textposition: "inside",
+      customdata: Lr.map(x => [x.empates, x.n]), hovertemplate: `%{y}: ${T("o vencedor foi melhor em", "the winner was better in")} %{x:.1%}<br>${T("empates (fora da conta)", "ties (left out)")}: %{customdata[0]:.1%}<extra></extra>` }],
+      { height: 430, title: titulo(`Leitura simples: o vencedor foi melhor em…<br><sup>% das partidas, sem empates · cinza = referência · traço = IC 95%</sup>`,
+          `Simple reading: the winner was better at…<br><sup>% of matches, ties left out · grey = reference · bar = 95% CI</sup>`),
+        xaxis: { tickformat: ".0%", range: [0.45, 1], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 210, r: 16, t: 70, b: 40 },
+        shapes: [{ type: "line", x0: 0.5, x1: 0.5, yref: "paper", y0: 0, y1: 1, line: { color: CORES.neutra, dash: "dot" } }] });
+    const Cr = [...C].reverse();
+    plot("g-gn-modelo", [{ type: "bar", orientation: "h", y: Cr.map(c => nomeI(c.crit)), x: Cr.map(c => c.z),
+      error_x: { type: "data", array: Cr.map(c => c.ic), color: CORES.neutra, thickness: 1.5 }, marker: { color: Cr.map(c => c.por_ponto != null ? CORES.top : CORES.demais) },
+      text: Cr.map(c => `${c.z >= 0 ? "+" : ""}${br(c.z, 1)}`), textposition: "auto", insidetextanchor: "start",
+      hovertemplate: `%{y}: z %{x:.2f}<extra></extra>` }],
+      { height: 430, title: titulo(`Modelo: peso de cada aspecto, com os outros iguais<br><sup>efeito de +1 desvio-padrão (z) na chance de vencer · traço = IC 95%</sup>`,
+          `Model: weight of each aspect, with the others held equal<br><sup>effect of +1 standard deviation (z) on the chance of winning · bar = 95% CI</sup>`),
+        xaxis: { title: "z", zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 210, r: 40, t: 70, b: 50 } });
+    document.getElementById("gn-t").innerHTML = `<tr><th>${T("Aspecto", "Aspect")}</th><th class="n">${T("+1 p.p. no aspecto", "+1 pp in the aspect")}</th>
+      <th class="n">${T("pontos a mais em 100 saques", "extra points per 100 serves")}</th><th class="n">${T("+1 ponto a cada 100", "+1 point per 100")}</th></tr>` +
+      tres.map(c => `<tr><td>${nomeI(c.crit)}</td><td class="n">+${br(100 * c.por_pp, 1)} ${PP}</td><td class="n">+${br(c.por_pp / c.por_ponto, 2)}</td>
+        <td class="n"><b>+${br(100 * c.por_ponto, 1)} ${PP}</b></td></tr>`).join("");
+    document.getElementById("gn-nota-t").innerHTML = T(`Efeito na chance de vencer numa partida parelha (50%), onde ele é maior. O 1º saque vale mais
+      por ponto percentual só porque cobre mais pontos (cerca de 6 em cada 10 saques); o 1º saque dentro move pouco: cada ponto
+      percentual a mais troca um ponto de 2º saque por um de 1º, que rende uns 20 pontos a mais em 100. <b>Convertido em pontos,
+      os três valem quase o mesmo:</b> o que ganha partida é ponto, venha de onde vier.`, `Effect on the chance of winning in an
+      even (50%) match, where it is largest. The 1st serve is worth more per percentage point only because it covers more points
+      (about 6 serves in 10); 1st serves in move little: each extra point swaps a 2nd-serve point for a 1st-serve one, which wins
+      about 20 more in 100. <b>Converted into points, all three are worth almost the same:</b> what wins matches is points,
+      wherever they come from.`);
+  }
+
+  // estabilidade: o mesmo peso em toda superfície, nível e época
+  const cats = [...G.superficies.slice(1).map(v => [v, "Todos", "Todas", tr(v)]), ...G.niveis.slice(1).map(v => ["Todas", v, "Todas", tr(v)]),
+    ...G.epocas.slice(1).map(v => ["Todas", "Todos", v, EM_INGLES ? EP_EN[v] : v])].filter(([a, b, c]) => G.recortes[`${a}|${b}|${c}`]);
+  const cor = { ganhos_1: CORES.top, ganhos_2: CORES.pop, primeiro_dentro: CORES.sup.Grama };
+  plot("g-gn-estavel", ["ganhos_1", "ganhos_2", "primeiro_dentro"].map(k => ({ type: "bar", name: nomeI(k), x: cats.map(c => c[3]),
+    y: cats.map(([a, b, c]) => G.recortes[`${a}|${b}|${c}`].modelo.coef.find(x => x.crit === k).z), marker: { color: cor[k] },
+    hovertemplate: `${nomeI(k)} · %{x}: z %{y:.2f}<extra></extra>` })),
+    { height: 400, barmode: "group", title: titulo(`A mesma ordem em toda superfície, nível e época<br><sup>peso no modelo (z)</sup>`,
+        `The same order on every surface, level and era<br><sup>weight in the model (z)</sup>`),
+      yaxis: { title: "z", gridcolor: "rgba(137,135,129,.22)" }, legend: { orientation: "h", y: -0.25, yanchor: "top", x: 0 }, margin: { l: 50, r: 10, t: 70, b: 110 } });
+  document.getElementById("gn-nota").innerHTML = T(`<b>Leitura:</b> ganhar pontos com o 1º e com o 2º saque (sacando e devolvendo) é o que decide; o 1º saque
+    dentro ajuda bem menos, e aces e duplas faltas quase somem depois disso, porque valem pelo ponto que dão ou tiram, não por si.
+    A ordem não muda de quadra, de nível nem de época. <b>Cuidados:</b> é correlação em profissionais, não causa (quem joga melhor
+    em tudo também ganha mais pontos com o saque, e um bom forehand aparece aqui como "pontos com o 1º saque"); a base não tem
+    erros, winners nem troca de bola; break points ficam só na leitura simples, porque medir a pressão pede comparar com o
+    esperado (item do roadmap). ${br(G.n_total, 0)} partidas com estatísticas consistentes.`, `<b>Reading:</b> winning points behind the
+    1st and the 2nd serve (serving and returning) is what decides; 1st serves in help far less, and aces and double faults almost
+    vanish after that, because they count for the point they give or take, not in themselves. The order doesn't change with the
+    court, the level or the era. <b>Caveats:</b> this is correlation among professionals, not cause (whoever plays better overall
+    also wins more points on serve, and a good forehand shows up here as "1st serve points won"); the data has no errors,
+    winners or rallies; break points are only in the simple reading, because measuring pressure needs a comparison with what
+    was expected (a roadmap item). ${br(G.n_total, 0)} matches with consistent stats.`);
+  desenhar();
+}
 
 function desenharVP(V) {
   const R = V.resumo, PT = T("pts", "pts");

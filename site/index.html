@@ -58,8 +58,8 @@
         <span data-l="en">Who dominated each era, peak and age, race by age, Peak vs Peak and the No. 1s' journey.</span></div></a>
     <a class="cartao set" href="jogo.html"><span class="faixa" style="background:var(--top)"></span>
       <div class="n">Tie-break</div><h3><span data-l="pt">O jogo</span><span data-l="en">The game</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Elite × resto, ranking e zebras, como o jogo mudou e quem vence perdendo nos pontos.</span>
-        <span data-l="en">Elite vs the rest, ranking and upsets, how the game changed and who wins while losing on points.</span></div></a>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Elite × resto, ranking e zebras, como o jogo mudou, quem vence perdendo nos pontos e o que faz ganhar.</span>
+        <span data-l="en">Elite vs the rest, ranking and upsets, how the game changed, who wins while losing on points and what wins a match.</span></div></a>
     <a class="cartao set" href="sobre.html"><span class="faixa" style="background:var(--pop)"></span>
       <div class="n"><span data-l="pt">Bastidores</span><span data-l="en">Behind the scenes</span></div><h3><span data-l="pt">Sobre os dados</span><span data-l="en">About the data</span></h3>
       <div style="color:var(--tinta-2)"><span data-l="pt">A base, a visão geral do circuito e como cada número é conferido.</span>
@@ -73,7 +73,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const A = await carregar("achados");
   const sobre = n => n.split(" ").slice(-1)[0];
   const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
-  const P = A.pico, AU = A.auge, VP = A.venceu_perdendo, R = A.rivalidade, EL = A.elite, EA = A.elo_acerta, AC = A.aces, N1 = A.numero1;
+  const P = A.pico, AU = A.auge, VP = A.venceu_perdendo, R = A.rivalidade, EL = A.elite, EA = A.elo_acerta, AC = A.aces, N1 = A.numero1, GN = A.ganhar;
   const eps = Object.entries(AU.por_epoca);
   const card = (cor, tema, grande, texto, link, mini) => ({ cor, tema, grande, texto, link, mini });
   const cards = [
@@ -97,10 +97,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       T(`${R.a} × ${R.b}: ${R.n} jogos, a rivalidade com mais partidas desde 1991. Veja o saldo ao longo do tempo e por superfície.`,
         `${R.a} vs ${R.b}: ${R.n} matches, the most-played rivalry since 1991. See the balance over time and by surface.`),
       "jogadores.html#rivalidades", null),
-    card("var(--pop)", T("O que separa a elite", "What sets the elite apart"), `+${br(100 * (EL.tpw_top10 - EL.tpw_demais), 1)}<small>${T("pontos em 100", "points per 100")}</small>`,
-      T(`O Top 10 ganha ${pct(EL.tpw_top10)} dos pontos; os demais, ${pct(EL.tpw_demais)}. Uma diferença pequena por ponto vira ${pct(EL.vitorias_top10, 0)} de vitórias sobre quem está fora.`,
-        `The Top 10 win ${pct(EL.tpw_top10)} of points; the rest, ${pct(EL.tpw_demais)}. A small edge per point turns into ${pct(EL.vitorias_top10, 0)} wins over players outside it.`),
-      "jogo.html#top", "elite"),
+    card("var(--pop)", T("Um ponto vale muito", "A point is worth a lot"), `+${br(100 * GN.por_ponto, 0)}<small>${T("p.p. de chance", "pp of win chance")}</small>`,
+      T(`Numa partida parelha, ganhar 1 ponto de saque a mais em cada 100 aumenta a chance de vencer em ${br(100 * GN.por_ponto, 0)} pontos, venha do 1º saque, do 2º ou de acertar mais 1º saques. Aces e duplas faltas quase não pesam além do ponto. Por isso o Top 10, que ganha só ${br(100 * (EL.tpw_top10 - EL.tpw_demais), 1)} pontos a mais em 100, vence ${pct(EL.vitorias_top10, 0)} contra o resto.`,
+        `In an even match, winning 1 more service point in every 100 raises the chance of winning by ${br(100 * GN.por_ponto, 0)} points, whether it comes from the 1st serve, the 2nd or landing more 1st serves. Aces and double faults barely matter beyond the point. That's why the Top 10, winning only ${br(100 * (EL.tpw_top10 - EL.tpw_demais), 1)} more points in 100, beat the rest ${pct(EL.vitorias_top10, 0)} of the time.`),
+      "jogo.html#ganhar", "ganhar"),
     card("var(--pop)", T("Como o jogo mudou", "How the game changed"), `+${br(100 * (AC.media[AC.media.length - 1] / AC.media[0] - 1), 0)}%<small>aces</small>`,
       T(`Aces por partida: ${br(AC.media[0], 1)} em ${AC.anos[0]}, ${br(AC.media[AC.media.length - 1], 1)} em ${AC.anos[AC.anos.length - 1]}. As partidas também ficaram mais longas.`,
         `Aces per match: ${br(AC.media[0], 1)} in ${AC.anos[0]}, ${br(AC.media[AC.media.length - 1], 1)} in ${AC.anos[AC.anos.length - 1]}. Matches also got longer.`),
@@ -131,9 +131,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   Plotly.newPlot("mini-aos22", [{ type: "bar", x: A.aos22.slice(0, 5).map(([n]) => sobre(n)), y: A.aos22.slice(0, 5).map(([, v]) => v),
     marker: { color: A.aos22.slice(0, 5).map((_, i) => i < 3 ? CORES.top : CORES.demais) }, text: A.aos22.slice(0, 5).map(([, v]) => v), textposition: "inside" }],
     base({ bargap: .3, xaxis: { showgrid: false } }), mini);
-  Plotly.newPlot("mini-elite", [{ type: "bar", orientation: "h", y: [T("demais", "rest"), "Top 10"], x: [EL.tpw_demais, EL.tpw_top10],
-    marker: { color: [CORES.demais, CORES.pop] }, text: [pct(EL.tpw_demais), pct(EL.tpw_top10)], textposition: "inside" }],
-    base({ xaxis: { range: [0.45, 0.545], visible: false }, yaxis: { visible: true, showgrid: false }, margin: { l: 52, r: 4, t: 4, b: 4 } }), mini);
+  const gk = ["ganhos_1", "ganhos_2", "primeiro_dentro", "aces_game", "df_game"];
+  const gr = { ganhos_1: T("1º saque", "1st serve"), ganhos_2: T("2º saque", "2nd serve"), primeiro_dentro: T("1º dentro", "1st in"), aces_game: "aces", df_game: T("duplas f.", "double f.") };
+  Plotly.newPlot("mini-ganhar", [{ type: "bar", x: gk.map(k => gr[k]), y: gk.map(k => GN.z[k]), marker: { color: gk.map((_, i) => i < 3 ? CORES.pop : CORES.demais) },
+    text: gk.map(k => br(GN.z[k], 1)), textposition: "inside", constraintext: "none" }], base({ bargap: .3, xaxis: { showgrid: false } }), mini);
   Plotly.newPlot("mini-aces", [{ x: AC.anos, y: AC.media, mode: "lines", line: { color: CORES.pop, width: 2 }, fill: "tozeroy", fillcolor: "rgba(98,80,214,.12)" }],
     base({ xaxis: { showgrid: false, dtick: 10 } }), mini);
   const n1k = ["ganhos_2", "devolucao", "ganhos_1", "aces_game", "primeiro_dentro"];
