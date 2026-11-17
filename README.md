@@ -16,12 +16,13 @@ com saque, devolução, break points, tie-breaks e títulos de cada jogador. Sit
 | O circuito | Descritiva da população inteira com filtros: superfícies, duração, aces, ranking |
 | Explorar | Top N × demais, ranking × zebras (chance de o favorito vencer), linha do tempo, "venceu perdendo nos pontos" |
 | Jogadores | Líderes de todos os critérios (pódio e quadro de medalhas), ranking por critério com IC 95% de Wilson e perfil completo de cada jogador |
+| Elo | Elo geral e por superfície partida a partida: carreira de cada jogador, maiores picos, nº 1 por temporada, Elo atual e a validação (acerto e calibração contra o ranking) |
 
 ## Como funciona
 O Python é o motor: baixa a base, monta a população e exporta JSON. O site só desenha e filtra no navegador.
 ```
 dados/      baixar.py (CSVs da TML, 1991+) → preparar_populacao.py (base/populacao.parquet, com data, ids e ordem)
-tenis/      estatistica.py, analises.py (critérios, líderes, perfis), exportacao.py, idiomas.py (rótulos em inglês)
+tenis/      estatistica.py, analises.py (critérios, líderes, perfis), elo.py, exportacao.py, idiomas.py (rótulos em inglês)
 scripts/    exportar_site.py (gera site/data/*.json) · validar_estatistica.py (confere contra o scipy)
 site/       index, circuito, explorar, jogadores + assets/ + data/  → publicado no GitHub Pages pelo Actions
 ```
@@ -35,6 +36,7 @@ python dados/baixar.py
 python dados/preparar_populacao.py
 python scripts/exportar_site.py
 python scripts/validar_estatistica.py
+python scripts/validar_elo.py              # Elo: previsão, calibração e picos coerentes
 python -m http.server 8600 -d site     # http://localhost:8600
 ```
 

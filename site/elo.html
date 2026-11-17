@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-en="Elo · Tennis by numbers">Elo · Tênis em números</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/estilo.css?v=4">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="assets/site.js?v=6"></script>
+<script src="assets/comum.js?v=7"></script>
+<script src="assets/descritiva.js?v=6"></script>
+<script src="assets/jogadores.js?v=9"></script>
+<style>
+  .combo { position: relative; display: inline-block; }
+  .combo-seta { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); border: 0; background: none;
+    font-size: 1rem; color: var(--tinta-3); cursor: pointer; padding: 2px 6px; }
+  .combo-lista { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 100%; max-height: 340px;
+    overflow: auto; margin: 0; padding: 4px; list-style: none; background: #fff; border: 1px solid var(--borda);
+    border-radius: 10px; box-shadow: 0 10px 30px rgba(15,61,46,.18); }
+  .combo-lista li { display: flex; justify-content: space-between; gap: 14px; padding: 6px 10px; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+  .combo-lista li small { color: var(--tinta-3); font-variant-numeric: tabular-nums; }
+  .combo-lista li.foco { background: #eef3ef; }
+  .combo-lista li.vazio { color: var(--tinta-3); cursor: default; font-style: italic; }
+  input.busca { min-width: 240px; padding-right: 30px; }
+  .escolhidos .chip i { font-style: normal; margin-left: 6px; opacity: .7; }
+  .n1 { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .n1 div { background: var(--papel, #fff); border: 1px solid var(--borda); border-radius: 10px; padding: 8px 10px; }
+  .n1 small { display: block; color: var(--tinta-3); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<header class="topo"><div id="quadra"></div><div class="topo-dentro">
+  <span class="etiqueta"><span data-l="pt">Épocas · Elo</span><span data-l="en">Eras · Elo</span></span>
+  <h1><span data-l="pt">Quem dominou cada época?</span><span data-l="en">Who dominated each era?</span></h1>
+  <p data-l="pt">O <b>Elo</b> é uma nota que sobe quando o jogador vence e desce quando perde, mais ou menos conforme a força do
+    adversário. Vencer um nº 1 vale muito mais do que vencer o 200º. Diferente do ranking da ATP, ele não depende de pontos de
+    torneio nem de regras que mudaram com os anos, só de quem venceu quem.</p>
+  <p data-l="en"><b>Elo</b> is a rating that goes up when a player wins and down when they lose, by more or less depending on the
+    opponent's strength. Beating a No. 1 is worth far more than beating the No. 200. Unlike the ATP ranking, it does not depend on
+    tournament points or rules that changed over the years, only on who beat whom.</p>
+</div></header>
+<main class="conteudo">
+  <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
+  <div id="placar" style="margin-top:22px"></div>
+
+  <h2><span data-l="pt">A carreira em Elo</span><span data-l="en">Careers in Elo</span></h2>
+  <div class="filtros" style="position:relative;top:0;z-index:30">
+    <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="f-sup"></span></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Adicionar jogador</span><span data-l="en">Add player</span></span>
+      <input class="sel busca" id="f-add" placeholder="Digite ou escolha" data-en-placeholder="Type or pick"></div>
+    <div class="grupo escolhidos" id="f-escolhidos"></div>
+  </div>
+  <div class="cartao"><div id="g-serie" class="grafico" style="min-height:460px"></div><p class="nota" id="nota-serie"></p></div>
+  <div id="comoler"></div>
+
+  <div class="grade g2" style="margin-top:16px">
+    <div class="cartao rolagem"><h3 style="margin-top:0" id="tit-picos"></h3><table class="t" id="t-picos"></table></div>
+    <div class="cartao rolagem"><h3 style="margin-top:0" id="tit-atual"></h3><table class="t" id="t-atual"></table></div>
+  </div>
+
+  <h2><span data-l="pt">Nº 1 pelo Elo no fim de cada temporada</span><span data-l="en">No. 1 by Elo at the end of each season</span></h2>
+  <div class="n1" id="n1"></div>
+  <p class="nota"><span data-l="pt">Entre quem jogou nos 12 meses anteriores. Pode diferir do nº 1 da ATP, que soma pontos de torneio.</span>
+    <span data-l="en">Among players active in the previous 12 months. It can differ from the ATP No. 1, which adds up tournament points.</span></p>
+
+  <h2><span data-l="pt">O Elo funciona?</span><span data-l="en">Does Elo work?</span></h2>
+  <div class="grade g2">
+    <div class="cartao"><div id="g-acerto" class="grafico" style="min-height:340px"></div></div>
+    <div class="cartao"><div id="g-cal" class="grafico" style="min-height:340px"></div></div>
+  </div>
+  <p class="nota" id="nota-metodo"></p>
+</main>
+<script>
+document.getElementById("quadra").innerHTML = svgQuadra();
+(async () => {
+  const E = await carregar("elo");
+  document.getElementById("carregando").remove();
+  const V = E.validacao, M = E.metodo;
+  const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
+  const titulo = t => ({ text: t, x: 0, font: { size: 16, family: "Barlow Condensed" } });
+  const g0 = E.picos.geral[0], n1 = E.atual.geral[0];
+  placar(document.getElementById("placar"), [
+    { rot: T("Elo acerta o vencedor", "Elo picks the winner"), num: pct(V.acerto_elo), sub: T(`ranking da ATP: ${pct(V.acerto_ranking)}`, `ATP ranking: ${pct(V.acerto_ranking)}`) },
+    { rot: T("Maior pico", "Highest peak"), num: br(g0.elo, 0), sub: `${g0.jogador} · ${mesAno(g0.data)}` },
+    { rot: T("Melhor Elo hoje", "Best Elo now"), num: br(n1.elo, 0), sub: `${n1.jogador} · ${T("até", "as of")} ${mesAno(M.ultima_data)}` },
+    { rot: T("Partidas avaliadas", "Matches assessed"), num: br(V.n, 0), sub: T("previsão feita antes de cada partida", "forecast made before each match") },
+  ]);
+
+  // ---------- séries
+  const SUPS_E = [["geral", T("Geral", "Overall")], ["Dura", tr("Dura")], ["Saibro", tr("Saibro")], ["Grama", tr("Grama")]];
+  const pico = nome => Math.max(...E.series[nome].elo);
+  const naSup = s => T({ Dura: "em quadra dura", Saibro: "no saibro", Grama: "na grama" }[s], { Dura: "on hard courts", Saibro: "on clay", Grama: "on grass" }[s]);
+  const nomes = Object.keys(E.series).sort((a, b) => pico(b) - pico(a));
+  let sup = "geral", escolhidos = ["Novak Djokovic", "Roger Federer", "Rafael Nadal", "Pete Sampras", "Jannik Sinner", "Carlos Alcaraz"].filter(n => E.series[n]);
+  const cores = ["#6250d6", "#d55181", "#eb6834", "#1baf7a", "#2a78d6", "#c98500", "#4b5650", "#8c5a3c"];
+  const supEl = document.getElementById("f-sup");
+  supEl.innerHTML = SUPS_E.map(([v, r]) => `<button class="chip ${v === sup ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
+  supEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+    sup = b.dataset.v; supEl.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); desenharSerie(); desenharPicos(); }));
+  const desenharEscolhidos = () => {
+    const el = document.getElementById("f-escolhidos");
+    el.innerHTML = escolhidos.map((n, i) => `<button class="chip on" data-n="${n}" title="${T("Remover", "Remove")}"><span class="pt" style="background:${cores[i % cores.length]}"></span>${n}<i>×</i></button>`).join("");
+    el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { escolhidos = escolhidos.filter(n => n !== b.dataset.n); desenharEscolhidos(); desenharSerie(); }));
+  };
+  const combo = combobox(document.getElementById("f-add"), nomes, i => `${T("pico", "peak")} ${br(pico(nomes[i]), 0)}`, nome => {
+    if (!escolhidos.includes(nome) && escolhidos.length < 8) escolhidos.push(nome);
+    combo.definir(""); desenharEscolhidos(); desenharSerie();
+  });
+  combo.definir("");
+  function desenharSerie() {
+    const tr0 = escolhidos.map((n, i) => {
+      const s = sup === "geral" ? E.series[n] : E.series[n][sup];
+      return { x: s.meses.map(m => m + "-15"), y: s.elo, mode: "lines", name: n, line: { color: cores[i % cores.length], width: 2.5 },
+               hovertemplate: `<b>${n}</b><br>%{x|%b %Y}: %{y:.0f}<extra></extra>` };
+    });
+    const [a0, a1] = M.aquecimento;
+    plot(document.getElementById("g-serie"), tr0, { height: 460, title: titulo(T(`Elo ${sup === "geral" ? "geral" : naSup(sup)} ao longo da carreira`, `${sup === "geral" ? "Overall Elo" : "Elo " + naSup(sup)} over each career`)),
+      shapes: [{ type: "rect", xref: "x", yref: "paper", x0: `${a0}-01-01`, x1: `${a1}-12-31`, y0: 0, y1: 1, fillcolor: "rgba(137,135,129,.15)", line: { width: 0 } }],
+      annotations: [{ x: `${a0}-06-01`, y: 1, yref: "paper", yanchor: "bottom", xanchor: "left", text: T("aquecimento", "warm-up"), showarrow: false, font: { color: "#4b5650", size: 12 } }],
+      xaxis: { type: "date" }, yaxis: { title: "Elo", gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 60, r: 20, t: 80, b: 40 } });
+    document.getElementById("nota-serie").innerHTML = T(`Último Elo de cada mês. Até 8 jogadores (clique num nome para tirar). A faixa cinza (${a0}–${a1}) é o
+      aquecimento: a base começa em ${a0} com todos em 1500, e quem já estava no circuito leva alguns meses para chegar à nota real.`,
+      `Last Elo of each month. Up to 8 players (click a name to remove it). The grey band (${a0}–${a1}) is the warm-up: the data
+      starts in ${a0} with everyone at 1500, and players already on tour take a few months to reach their real rating.`);
+  }
+  desenharEscolhidos(); desenharSerie();
+
+  // ---------- picos e atual
+  function desenharPicos() {
+    const lista = (sup === "geral" ? E.picos.geral : E.picos[sup]).slice(0, 20);
+    document.getElementById("tit-picos").textContent = T(`Maiores picos de Elo ${sup === "geral" ? "" : naSup(sup)}`, `Highest Elo peaks ${sup === "geral" ? "" : naSup(sup)}`);
+    document.getElementById("t-picos").innerHTML = `<tr><th>#</th><th>${T("Jogador", "Player")}</th><th>Elo</th><th>${T("Quando", "When")}</th><th>${T("Idade", "Age")}</th></tr>` +
+      lista.map((r, i) => `<tr><td>${ordinal(i + 1)}</td><td>${r.jogador}</td><td class="n"><b>${br(r.elo, 0)}</b></td><td>${mesAno(r.data)}</td><td class="n">${r.idade === null ? "—" : br(r.idade, 1)}</td></tr>`).join("");
+    const atual = sup === "geral" ? E.atual.geral.slice(0, 10) : E.atual[sup];
+    document.getElementById("tit-atual").textContent = T(`Melhores Elo hoje ${sup === "geral" ? "" : naSup(sup)}`, `Best Elo now ${sup === "geral" ? "" : naSup(sup)}`);
+    document.getElementById("t-atual").innerHTML = `<tr><th>#</th><th>${T("Jogador", "Player")}</th><th>Elo</th></tr>` +
+      atual.map((r, i) => `<tr><td>${ordinal(i + 1)}</td><td>${r.jogador}</td><td class="n"><b>${br(r.elo, 0)}</b></td></tr>`).join("") +
+      `<tr><td colspan="3" class="nota">${T(`Jogou nos 12 meses até ${mesAno(M.ultima_data)}.`, `Played in the 12 months to ${mesAno(M.ultima_data)}.`)}</td></tr>`;
+  }
+  desenharPicos();
+  document.getElementById("n1").innerHTML = E.n1_por_ano.map(r => `<div><small>${r.ano}</small><b>${r.jogador}</b><small>Elo ${br(r.elo, 0)}</small></div>`).join("");
+
+  // ---------- validação
+  const dec = Object.entries(V.por_decada);
+  plot(document.getElementById("g-acerto"), [
+    { type: "bar", x: dec.map(([k]) => k), y: dec.map(([, v]) => v.elo), name: "Elo", marker: { color: CORES.pop }, text: dec.map(([, v]) => pct(v.elo)), textposition: "outside", cliponaxis: false },
+    { type: "bar", x: dec.map(([k]) => k), y: dec.map(([, v]) => v.ranking), name: T("Ranking da ATP", "ATP ranking"), marker: { color: CORES.demais }, text: dec.map(([, v]) => pct(v.ranking)), textposition: "outside", cliponaxis: false },
+  ], { height: 340, barmode: "group", title: titulo(T("Quem acerta mais o vencedor, antes da partida", "Who picks the winner more often, before the match")),
+       yaxis: { tickformat: ".0%", range: [0.55, 0.72], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 56, r: 10, t: 80, b: 40 } });
+  const C = V.calibracao;
+  plot(document.getElementById("g-cal"), [
+    { x: [0, 1], y: [0, 1], mode: "lines", line: { color: CORES.neutra, dash: "dash" }, name: T("perfeito", "perfect"), hoverinfo: "skip" },
+    { x: C.previsto, y: C.real, mode: "lines+markers", name: "Elo", line: { color: CORES.pop, width: 3 }, marker: { size: 9 }, customdata: C.n,
+      hovertemplate: `${T("previsto", "forecast")} %{x:.0%} → ${T("real", "actual")} %{y:.0%} (n = %{customdata:,})<extra></extra>` },
+  ], { height: 340, title: titulo(T("Quando o Elo diz 70%, o favorito vence 70%?", "When Elo says 70%, does the favourite win 70%?")),
+       xaxis: { tickformat: ".0%", title: T("chance prevista", "forecast probability"), range: [0, 1] },
+       yaxis: { tickformat: ".0%", title: T("vitórias de fato", "actual wins"), range: [0, 1], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 60, r: 10, t: 80, b: 50 } });
+
+  document.getElementById("comoler").innerHTML = comoLer(T(`Uma diferença de <b>100 pontos</b> de Elo dá cerca de 64% de chance ao mais
+    bem avaliado; 200 pontos, cerca de 76%. O Elo mede <b>o domínio sobre os jogadores da mesma época</b>, não um nível absoluto:
+    raquetes, cordas, preparo físico e quadras mudaram. Por isso um 2.200 dos anos 90 e um 2.200 de hoje significam "tão acima do seu
+    circuito", não "igualmente bons". Comparar épocas é com cuidado, e é o tema das próximas análises (auge e idade).`,
+    `A gap of <b>100 Elo points</b> gives the higher-rated player about a 64% chance; 200 points, about 76%. Elo measures <b>dominance
+    over players of the same era</b>, not an absolute level: rackets, strings, fitness and courts changed. So a 2,200 in the 1990s and a
+    2,200 today mean "this far above their tour", not "equally good". Comparing eras needs care, and that is the topic of the next
+    analyses (peak and age).`));
+  document.getElementById("nota-metodo").innerHTML = T(`<b>Método:</b> todos começam com ${M.inicial}; depois de cada partida, a nota muda
+    K × (resultado − chance prevista), com K = ${M.k} (quem tem poucas partidas muda rápido). Elo por superfície usa só as partidas
+    daquela superfície (carpete conta como dura); a previsão usa a média do Elo geral com o da superfície. Só partidas concluídas do
+    circuito principal, sem Challengers, qualifying ou Copa Davis, então os valores ficam abaixo dos de sites que usam essas partidas.
+    O Elo puro sai confiante demais nos extremos; as chances usam a diferença × ${br(M.escala_prob, 2)}, ajustada em 1993–2015 e
+    conferida em 2016–2025. Validação: ${br(V.n, 0)} partidas fora do aquecimento.`,
+    `<b>Method:</b> everyone starts at ${M.inicial}; after each match the rating changes by K × (result − forecast probability), with
+    K = 250 / (matches + 5)^0.4 (players with few matches move fast). Surface Elo uses only that surface's matches (carpet counts as
+    hard); the forecast averages overall and surface Elo. Only completed main-tour matches, without Challengers, qualifying or Davis Cup,
+    so values sit below those of sites that use them. Raw Elo is overconfident at the extremes; probabilities use the gap ×
+    ${br(M.escala_prob, 2)}, fitted on 1993–2015 and checked on 2016–2025. Validation: ${br(V.n, 0)} matches outside the warm-up.`);
+})();
+</script>
+</body>
+</html>
