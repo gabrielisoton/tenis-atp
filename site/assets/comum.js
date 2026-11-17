@@ -152,6 +152,15 @@ function rodape() {
   document.body.append(f);
 }
 
+/* abre a aba indicada no endereço (pagina.html#aba): procura o botão pelo id ou pelo data-a.
+   Chamar DEPOIS de ligar os eventos das abas (algumas desenham o conteúdo no primeiro clique). */
+function abrirAbaDoHash(sel) {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) return;
+  const b = document.querySelector(`${sel} button[data-a="${h}"], ${sel} button#${CSS.escape(h)}`);
+  if (b && !b.classList.contains("on")) b.click();
+}
+
 /* números da base no texto fixo: <span data-meta="N|periodo|ano_min|ano_max|n_temporadas"></span>
    (vêm de data/meta.json, então o texto acompanha a base quando ela é atualizada) */
 function preencherMeta() {

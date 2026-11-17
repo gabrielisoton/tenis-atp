@@ -10,14 +10,19 @@ com saque, devolução, break points, tie-breaks e títulos de cada jogador. Sit
 > points, tie-breaks and titles per player. Static site in Portuguese and English.*
 
 ## Páginas
-| Página | O que mostra |
-|---|---|
-| Início | A base, a população (o que entra e o que fica de fora), o que tem em cada partida, termos de uso |
-| O circuito | Descritiva da população inteira com filtros: superfícies, duração, aces, ranking |
-| Explorar | Top N × demais, ranking × zebras (chance de o favorito vencer), linha do tempo, "venceu perdendo nos pontos" |
-| Jogadores | Líderes de todos os critérios (pódio e quadro de medalhas), ranking por critério com IC 95% de Wilson e perfil completo de cada jogador |
-| Elo | Elo geral e por superfície partida a partida: carreira de cada jogador, maiores picos, o auge (pico e melhor média de 12 meses, com a idade e a idade no auge por época), a curva de envelhecimento por época (método delta), a corrida de títulos e Slams por idade (Slams desde 1968), o simulador "Pico × Pico" (chance de vitória entre dois jogadores no auge, por superfície e em melhor de 3 ou 5), nº 1 por temporada, Elo atual e a validação (acerto e calibração contra o ranking) |
-| Rivalidades | Confronto direto entre quaisquer dois jogadores (regra do H2H oficial): saldo ao longo do tempo, por superfície, em Slams e finais, como cada um jogou no confronto × na carreira, todas as partidas e as maiores rivalidades |
+Cinco páginas, cada uma respondendo a um tipo de pergunta. Cada aba tem endereço próprio (`pagina.html#aba`), para
+links diretos e compartilhamento.
+
+| Página | Pergunta | Abas |
+|---|---|---|
+| **Achados** (`index.html`) | O que há de mais interessante? | 8 achados com o número, um mini gráfico e o link para a análise (números tirados de `data/achados.json`) |
+| **Jogadores** | Quão bom é o meu jogador? | Líderes de cada critério (pódio e quadro de medalhas) · Ranking por critério com IC de Wilson · Perfil do jogador · Rivalidades (H2H com a regra oficial) |
+| **Épocas** | Quem foi o melhor de cada época? | Elo (carreiras, picos, Elo atual, nº 1 por temporada) · O auge (pico, melhor média de 12 meses, idade, curva de envelhecimento pelo método delta) · Corrida por idade (títulos e Slams, Slams desde 1968) · Pico × Pico |
+| **O jogo** | O que faz ganhar no tênis? | Top N × demais · Ranking e zebras · Linha do tempo · Venceu perdendo nos pontos |
+| **Sobre os dados** | Dá para confiar? | A base e a população · O circuito (descritiva com filtros) · Métodos e validação (checagens, Elo × ranking, regras de cada contagem) |
+
+Endereços antigos (`explorar.html`, `circuito.html`, `elo.html`, `rivalidades.html`) redirecionam para o lugar novo.
+Uma sexta página, **Torneios**, entra quando o item de páginas de torneio for feito.
 
 ## Como funciona
 O Python é o motor: baixa a base, monta a população e exporta JSON. O site só desenha e filtra no navegador.
@@ -25,7 +30,8 @@ O Python é o motor: baixa a base, monta a população e exporta JSON. O site s�
 dados/      baixar.py (CSVs da TML, 1991+) → preparar_populacao.py (base/populacao.parquet, com data, ids e ordem)
 tenis/      estatistica.py, analises.py (critérios, líderes, perfis), elo.py, exportacao.py, idiomas.py (rótulos em inglês)
 scripts/    exportar_site.py (gera site/data/*.json) · validar_estatistica.py (confere contra o scipy)
-site/       index, circuito, explorar, jogadores + assets/ + data/  → publicado no GitHub Pages pelo Actions
+tenis/      … achados.py (números da página inicial), corrida.py, h2h.py
+site/       index (achados), jogadores, epocas, jogo, sobre + assets/ + data/  → publicado no GitHub Pages pelo Actions
 ```
 Os cálculos da página Jogadores são refeitos em JavaScript e **conferidos com o Python** a cada carga
 (`conferir()` em `site/assets/jogadores.js`, resultado no console).

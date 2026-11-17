@@ -10,6 +10,7 @@ Saídas:
 - elo.json         Elo geral e por superfície: validação, picos, nº 1 por temporada, atual e séries mensais
 - corrida.json     títulos e Slams de cada jogador com a idade (corrida por idade)
 - h2h/indice.json + h2h/<id>.json  confrontos diretos: índice e um arquivo por jogador (carregado sob demanda)
+- achados.json     os números da página inicial (tirados dos resultados acima)
 """
 import sys
 from pathlib import Path
@@ -18,6 +19,7 @@ import pandas as pd
 
 AQUI = Path(__file__).resolve().parents[1]           # raiz do repositório
 sys.path.insert(0, str(AQUI))
+from tenis import achados  # noqa: E402
 from tenis import analises as an  # noqa: E402
 from tenis import exportacao as ex  # noqa: E402
 from tenis import corrida  # noqa: E402
@@ -93,15 +95,22 @@ def rodadas_por_nivel(pop: pd.DataFrame) -> dict:
 
 def main() -> None:
     pop = ex.populacao()
-    ex.salvar(SAIDA, "meta.json", {"resumo": ex.resumo(), "codigos": ex.CODIGOS})
+    resumo = ex.resumo()
+    ex.salvar(SAIDA, "meta.json", {"resumo": resumo, "codigos": ex.CODIGOS})
     ex.salvar(SAIDA, "populacao.json", ex.colunar(pop))
-    ex.salvar(SAIDA, "extras.json", extras(pop))
+    X = extras(pop)
+    ex.salvar(SAIDA, "extras.json", X)
     ex.salvar(SAIDA, "jogadores.json", jogadores(pop))
     ex.salvar(SAIDA, "en.json", idiomas.EN)
-    ex.salvar(SAIDA, "venceu_perdendo.json", an.vencer_perdendo(pop))
-    ex.salvar(SAIDA, "elo.json", elo.exportar(pop))
-    ex.salvar(SAIDA, "corrida.json", corrida.exportar(pd.read_parquet(ex.BASE / "titulos.parquet"), pop))
-    ex.salvar(SAIDA / "h2h", "indice.json", h2h.exportar(pd.read_parquet(ex.BASE / "h2h.parquet"), SAIDA))
+    VP = an.vencer_perdendo(pop)
+    ex.salvar(SAIDA, "venceu_perdendo.json", VP)
+    E = elo.exportar(pop)
+    ex.salvar(SAIDA, "elo.json", E)
+    C = corrida.exportar(pd.read_parquet(ex.BASE / "titulos.parquet"), pop)
+    ex.salvar(SAIDA, "corrida.json", C)
+    H = h2h.exportar(pd.read_parquet(ex.BASE / "h2h.parquet"), SAIDA)
+    ex.salvar(SAIDA / "h2h", "indice.json", H)
+    ex.salvar(SAIDA, "achados.json", achados.montar(resumo, X, VP, E, C, H))
 
 
 if __name__ == "__main__":

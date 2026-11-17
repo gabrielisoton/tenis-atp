@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-en="About the data · Tennis by numbers">Sobre os dados · Tênis em números</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/estilo.css?v=4">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="assets/site.js?v=8"></script>
+<script src="assets/comum.js?v=8"></script>
+<script src="assets/base.js?v=5"></script>
+<script src="assets/descritiva.js?v=7"></script>
+<style>
+  .checagens { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .checagens .cartao b.ok { color: #0a6b0a; }
+</style>
+</head>
+<body>
+<header class="topo"><div id="quadra"></div><div class="topo-dentro">
+  <span class="etiqueta"><span data-l="pt">Bastidores · Sobre os dados</span><span data-l="en">Behind the scenes · About the data</span></span>
+  <h1><span data-l="pt">De onde vêm os números, e por que confiar neles</span><span data-l="en">Where the numbers come from, and why trust them</span></h1>
+  <p data-l="pt">A base, o recorte usado, a visão geral do circuito e as checagens que o projeto faz a cada atualização.</p>
+  <p data-l="en">The data, the scope used, an overview of the tour and the checks the project runs on every update.</p>
+</div></header>
+<main class="conteudo" id="area-s">
+  <div class="abas" id="abas-s" style="margin-top:22px"><button class="on" data-a="base">📚 <span data-l="pt">A base</span><span data-l="en">The data</span></button>
+    <button data-a="circuito">📊 <span data-l="pt">O circuito</span><span data-l="en">The tour</span></button>
+    <button data-a="metodos">🔬 <span data-l="pt">Métodos e validação</span><span data-l="en">Methods and validation</span></button></div>
+
+  <section class="painel-aba" data-p="base">
+    <div id="placar" style="margin-top:14px"></div>
+    <div id="base-populacao" style="margin-top:14px"></div>
+    <h3><span data-l="pt">O que tem em cada partida</span><span data-l="en">What each match contains</span></h3>
+    <div class="cartao rolagem"><table class="t" id="conteudo-partida"></table></div>
+    <p class="nota" data-l="pt">Das 50 colunas brutas da base, ficaram de fora só identificadores (id do torneio, da partida e dos jogadores),
+      cabeça de chave, forma de entrada (qualifier, wild card, lucky loser), pontos no ranking e tamanho da chave.</p>
+    <p class="nota" data-l="en">Of the 50 raw columns in the database, the only ones left out are identifiers (tournament, match and
+      player ids), seeding, entry type (qualifier, wild card, lucky loser), ranking points and draw size.</p>
+    <div id="termos"></div>
+  </section>
+
+  <section class="painel-aba" data-p="circuito" hidden>
+    <p class="nota" style="margin-top:14px"><span data-l="pt">Todas as partidas da base, com filtros: superfícies, duração, aces, ranking e mais.</span>
+      <span data-l="en">Every match in the data, with filters: surfaces, duration, aces, ranking and more.</span></p>
+    <div id="filtros"></div>
+    <div id="c-placar"></div>
+    <div id="painel"></div>
+  </section>
+
+  <section class="painel-aba" data-p="metodos" hidden>
+    <h2><span data-l="pt">Como sabemos que os números estão certos</span><span data-l="en">How we know the numbers are right</span></h2>
+    <div class="checagens" id="checagens"></div>
+    <h2><span data-l="pt">O Elo funciona?</span><span data-l="en">Does Elo work?</span></h2>
+    <div class="grade g2">
+      <div class="cartao"><div id="g-acerto" class="grafico" style="min-height:340px"></div></div>
+      <div class="cartao"><div id="g-cal" class="grafico" style="min-height:340px"></div></div>
+    </div>
+    <p class="nota" id="nota-metodo"></p>
+    <h2><span data-l="pt">As regras de cada contagem</span><span data-l="en">The rules behind each count</span></h2>
+    <div class="cartao" id="regras"></div>
+  </section>
+</main>
+<script>
+document.getElementById("quadra").innerHTML = svgQuadra();
+(async () => {
+  const meta = await carregar("meta");
+  const r = meta.resumo;
+  ligarAbas(document.getElementById("area-s"), "#abas-s", true);
+
+  // ---------- a base
+  placar(document.getElementById("placar"), [
+    { rot: T("Partidas", "Matches"), num: br(r.N, 0), sub: T("circuito principal, concluídas", "main tour, completed") },
+    { rot: T("Temporadas", "Seasons"), num: String(r.n_temporadas), sub: r.periodo },
+    { rot: T("Jogadores", "Players"), num: br(r.n_jogadores, 0), sub: T(`${br(r.n_torneios, 0)} edições de torneios`, `${br(r.n_torneios, 0)} tournament editions`) },
+    { rot: T("Com estatísticas", "With stats"), num: pct(r.pct_com_estatisticas / 100), sub: T("saque, devolução e pontos", "serve, return and points") },
+  ]);
+  secaoBase(document.getElementById("base-populacao"), r,
+            { unidade: T("Unidade de análise", "Unit of analysis"),
+              tituloPop: T("População: o que entra e o que fica de fora", "Population: what is in and what is left out") });
+  const grupos = EM_INGLES ? [
+    ["Tournament", "year, tournament, level, surface, indoor/outdoor, round, best of 3 or 5"],
+    ["Result", "winner, loser, score (sets and tie-breaks), duration in minutes"],
+    ["Players", "age, height, playing hand, country and ATP ranking at the start of the tournament"],
+    ["Serve (each player)", "aces, double faults, service points, 1st serves in, points won on 1st and 2nd serve, service games, break points faced and saved"],
+    ["Derived", "did the favourite win?, deciding set?, ranking gap, sets played; and, per player, return points won, total points won, break points converted, dominance ratio, tie-breaks, titles and Elo"],
+  ] : [
+    ["Torneio", "ano, torneio, nível, superfície, quadra aberta/coberta, rodada, melhor de 3 ou 5"],
+    ["Resultado", "vencedor, perdedor, placar (sets e tie-breaks), duração em minutos"],
+    ["Jogadores", "idade, altura, mão dominante, país e ranking ATP no início do torneio"],
+    ["Saque (de cada jogador)", "aces, duplas faltas, pontos de saque, 1º saque dentro, pontos ganhos com o 1º e com o 2º saque, games de saque, break points enfrentados e salvos"],
+    ["Derivadas", "favorito venceu?, foi ao set decisivo?, diferença de ranking, sets jogados; e, por jogador, pontos ganhos na devolução e no total, break points convertidos, dominance ratio, tie-breaks, títulos e Elo"],
+  ];
+  document.getElementById("conteudo-partida").innerHTML = `<tr><th>${T("Grupo", "Group")}</th><th>${T("Colunas", "Columns")}</th></tr>` +
+    grupos.map(([g, c]) => `<tr><td><b>${g}</b></td><td>${c}</td></tr>`).join("");
+  document.getElementById("termos").innerHTML = termosDeUso();
+
+  // ---------- o circuito (4,5 MB: só quando a aba é aberta)
+  async function abrirCircuito() {
+    const pop = await carregar("populacao");
+    const raiz = document.getElementById("painel");
+    raiz.innerHTML = htmlPainel();
+    ligarAbas(raiz);
+    const f = estadoFiltros(meta, [r.ano_min, r.ano_max]);
+    const desenhar = () => {
+      const idx = aplicarFiltros(pop, f);
+      placarFiltrado(document.getElementById("c-placar"), pop, idx);
+      if (!idx.length) { raiz.querySelector("#quali").innerHTML = `<p>${T("Nenhuma partida com esses filtros.", "No matches with these filters.")}</p>`; return; }
+      painelDescritivo(raiz, meta, { nome: T("População", "Population"), cor: CORES.pop, d: pop, idx }, null);
+    };
+    montarFiltros(document.getElementById("filtros"), meta, f, desenhar);
+    desenhar();
+  }
+
+  // ---------- métodos e validação
+  async function abrirMetodos() {
+    const E = await carregar("elo"), V = E.validacao, M = E.metodo;
+    const titulo = t => ({ text: t, x: 0, font: { size: 16, family: "Barlow Condensed" } });
+    const itens = [
+      [T("Estatística conferida com o scipy", "Statistics checked against scipy"), T(`Intervalos de confiança (Wilson e outros) e testes são comparados com a biblioteca
+        scipy e com contas feitas à mão a cada atualização (scripts/validar_estatistica.py).`, `Confidence intervals (Wilson and others) and tests are compared with the
+        scipy library and with hand calculations on every update (scripts/validar_estatistica.py).`)],
+      [T("O site calcula igual ao Python", "The site computes exactly like Python"), T(`A página Jogadores refaz no navegador os rankings e o perfil e compara com valores
+        calculados no Python (resultado no console: "conferidos com o Python (OK)").`, `The Players page recomputes rankings and the profile in the browser and compares them
+        with values computed in Python (result in the console: "checked against Python (OK)").`)],
+      [T("Estatísticas impossíveis ficam de fora", "Impossible stats are left out"), T(`Cada partida passa por um teste: os pontos ganhos têm que ser pelo menos 4 × os
+        games vencidos. ${br(r.n_stats_impossiveis, 0)} partidas com estatísticas incompletas ou impossíveis saem dos critérios de saque e pontos.`,
+        `Each match is tested: points won must be at least 4 × games won. ${br(r.n_stats_impossiveis, 0)} matches with incomplete or impossible stats are left
+        out of the serve and points criteria.`)],
+      [T("Elo validado antes de cada partida", "Elo validated before every match"), T(`Acerta o vencedor em ${pct(V.acerto_elo)} das ${br(V.n, 0)} partidas, contra
+        ${pct(V.acerto_ranking)} do ranking da ATP, e ganha em toda década. Os picos batem com a história (Djokovic 2016, Nadal no saibro, Federer na grama).`,
+        `It picks the winner in ${pct(V.acerto_elo)} of ${br(V.n, 0)} matches, against ${pct(V.acerto_ranking)} for the ATP ranking, and wins in every decade.
+        The peaks match history (Djokovic 2016, Nadal on clay, Federer on grass).`)],
+      [T("Contagens iguais às oficiais", "Counts match the official ones"), T(`Títulos (Federer 103, Djokovic 100 sem Olimpíadas, Nadal 91) e confrontos diretos
+        (Djokovic × Nadal 31–29, Federer × Nadal 16–24) conferem com os números oficiais da ATP.`, `Titles (Federer 103, Djokovic 100 without the Olympics, Nadal 91)
+        and head-to-heads (Djokovic vs Nadal 31–29, Federer vs Nadal 16–24) match the official ATP figures.`)],
+      [T("Nomes conferidos por id", "Names checked by id"), T(`Um nome por jogador: corrigido um erro de digitação da fonte e separados homônimos
+        (${(r.correcoes_de_nome || []).length} correções).`, `One name per player: a typo in the source was fixed and namesakes were told apart
+        (${(r.correcoes_de_nome || []).length} corrections).`)],
+    ];
+    document.getElementById("checagens").innerHTML = itens.map(([t, d]) => `<div class="cartao"><b class="ok">✓ ${t}</b><p class="nota" style="margin:.4rem 0 0">${d}</p></div>`).join("");
+    const dec = Object.entries(V.por_decada);
+    plot(document.getElementById("g-acerto"), [
+      { type: "bar", x: dec.map(([k]) => k), y: dec.map(([, v]) => v.elo), name: "Elo", marker: { color: CORES.pop }, text: dec.map(([, v]) => pct(v.elo)), textposition: "outside", cliponaxis: false },
+      { type: "bar", x: dec.map(([k]) => k), y: dec.map(([, v]) => v.ranking), name: T("Ranking da ATP", "ATP ranking"), marker: { color: CORES.demais }, text: dec.map(([, v]) => pct(v.ranking)), textposition: "outside", cliponaxis: false },
+    ], { height: 340, barmode: "group", title: titulo(T("Quem acerta mais o vencedor, antes da partida", "Who picks the winner more often, before the match")),
+         yaxis: { tickformat: ".0%", range: [0.55, 0.72], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 56, r: 10, t: 80, b: 40 } });
+    const C = V.calibracao;
+    plot(document.getElementById("g-cal"), [
+      { x: [0, 1], y: [0, 1], mode: "lines", line: { color: CORES.neutra, dash: "dash" }, name: T("perfeito", "perfect"), hoverinfo: "skip" },
+      { x: C.previsto, y: C.real, mode: "lines+markers", name: "Elo", line: { color: CORES.pop, width: 3 }, marker: { size: 9 }, customdata: C.n,
+        hovertemplate: `${T("previsto", "forecast")} %{x:.0%} → ${T("real", "actual")} %{y:.0%} (n = %{customdata:,})<extra></extra>` },
+    ], { height: 340, title: titulo(T("Quando o Elo diz 70%, o favorito vence 70%?", "When Elo says 70%, does the favourite win 70%?")),
+         xaxis: { tickformat: ".0%", title: T("chance prevista", "forecast probability"), range: [0, 1] },
+         yaxis: { tickformat: ".0%", title: T("vitórias de fato", "actual wins"), range: [0, 1], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 60, r: 10, t: 80, b: 50 } });
+    document.getElementById("nota-metodo").innerHTML = T(`<b>Elo:</b> todos começam com ${M.inicial}; depois de cada partida, a nota muda
+      K × (resultado − chance prevista), com K = ${M.k} (quem tem poucas partidas muda rápido). Elo por superfície usa só as partidas
+      daquela superfície (carpete conta como dura); a previsão usa a média do Elo geral com o da superfície. Só partidas concluídas do
+      circuito principal, sem Challengers, qualifying ou Copa Davis, então os valores ficam abaixo dos de sites que usam essas partidas.
+      O Elo puro sai confiante demais nos extremos; as chances usam a diferença × ${br(M.escala_prob, 2)}, ajustada em 1993–2015 e
+      conferida em 2016–2025. ${M.aquecimento[0]}–${M.aquecimento[1]} são aquecimento (todos começam em 1500).`,
+      `<b>Elo:</b> everyone starts at ${M.inicial}; after each match the rating changes by K × (result − forecast probability), with
+      K = 250 / (matches + 5)^0.4 (players with few matches move fast). Surface Elo uses only that surface's matches (carpet counts as
+      hard); the forecast averages overall and surface Elo. Only completed main-tour matches, without Challengers, qualifying or Davis Cup,
+      so values sit below those of sites that use them. Raw Elo is overconfident at the extremes; probabilities use the gap ×
+      ${br(M.escala_prob, 2)}, fitted on 1993–2015 and checked on 2016–2025. ${M.aquecimento[0]}–${M.aquecimento[1]} are a warm-up (everyone starts at 1500).`);
+    const regras = EM_INGLES ? [
+      ["Statistics (Players, The game, Eras)", "completed main-tour singles matches: Grand Slams, ATP Finals, Masters 1000, ATP 500 and 250. No Davis Cup, Olympics, team events or exhibitions; walkovers, retirements and defaults are left out."],
+      ["Titles and the race by age", "every final won counts, including when the opponent retired. Grand Slams since 1968; other titles since 1991 (before that the source codes tournaments differently). No Olympics or Davis Cup."],
+      ["Head to head", "the official ATP rule: main tour, Davis Cup, Olympics and ATP Cup/United Cup; retirements count, walkovers do not. No Laver Cup."],
+      ["Peaks and ages", "the sustained peak is the best 12-month average of end-of-month Elo. Players at their peak right now and careers already under way in 1991 are left out of the age figures."],
+    ] : [
+      ["Estatísticas (Jogadores, O jogo, Épocas)", "partidas de simples concluídas do circuito principal: Grand Slams, ATP Finals, Masters 1000, ATP 500 e 250. Sem Copa Davis, Olimpíadas, eventos por equipes ou exibições; W/O, abandonos e desclassificações ficam de fora."],
+      ["Títulos e corrida por idade", "conta toda final vencida, inclusive quando o adversário abandonou. Grand Slams desde 1968; os demais títulos desde 1991 (antes a fonte codifica os torneios de outro jeito). Sem Olimpíadas nem Copa Davis."],
+      ["Confrontos diretos", "a regra do H2H oficial da ATP: circuito principal, Copa Davis, Olimpíadas e ATP Cup/United Cup; abandono conta, W/O não. Sem Laver Cup."],
+      ["Auge e idades", "o auge sustentado é a melhor média de 12 meses do Elo de fim de mês. Quem está no auge agora e carreiras já em curso em 1991 ficam fora das contas de idade."],
+    ];
+    document.getElementById("regras").innerHTML = `<table class="t">${regras.map(([a, b]) => `<tr><td><b>${a}</b></td><td>${b}</td></tr>`).join("")}</table>`;
+  }
+
+  const prontas = new Set(["base"]), abrir = { circuito: abrirCircuito, metodos: abrirMetodos };
+  document.querySelectorAll("#abas-s button").forEach(b => b.addEventListener("click", () => {
+    if (!prontas.has(b.dataset.a)) { prontas.add(b.dataset.a); abrir[b.dataset.a](); } }));
+  abrirAbaDoHash("#abas-s");
+})();
+</script>
+</body>
+</html>

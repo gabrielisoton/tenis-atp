@@ -110,6 +110,19 @@
 **Desde 1968:** descartado. Ganharíamos Borg, McEnroe e Connors, mas com buracos grandes nos dados. 1991+ cobre
 Sampras, Agassi, Big 3 e a nova geração com tudo medido.
 
+## Estrutura do site
+Para não virar um site longo demais, tudo cabe em **6 páginas**, uma por tipo de pergunta. Os itens novos entram como
+abas dessas páginas, não como páginas novas:
+
+| Página | Itens do backlog que entram nela |
+|---|---|
+| Achados (início) | um card novo para cada achado forte de qualquer item |
+| Jogadores | 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado |
+| Épocas | 21 Os nº 1 |
+| Torneios (nova, quando o item 7 for feito) | 7 páginas de torneio · 16 velocidade da quadra |
+| O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar · 22 guia para quem treina |
+| Sobre os dados | 3 atualização automática (selo "dados até") · 19 previsão de partidas e calibração |
+
 ## Fases
 | Fase | Tema | Entrega visível |
 |---|---|---|

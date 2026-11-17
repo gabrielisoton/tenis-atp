@@ -4,108 +4,134 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-en="Tennis by numbers">Tênis em números</title>
-<meta name="description" content="O circuito ATP desde 1991 em números: quem é o melhor em cada aspecto do jogo, ranking, zebras e a evolução do tênis. · The ATP tour from 2000 to 2025 in numbers: who is the best at each part of the game.">
+<meta name="description" content="O circuito ATP desde 1991 em números: o auge de cada jogador, rivalidades, quem venceu perdendo nos pontos e o que separa a elite. · The ATP tour since 1991 in numbers: each player's peak, rivalries, who won while losing on points and what sets the elite apart.">
+<meta property="og:title" content="Tênis em números · Tennis by numbers">
+<meta property="og:description" content="96 mil partidas da ATP desde 1991: o auge de cada jogador, rivalidades e o que separa a elite.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css?v=4">
-<script src="assets/site.js?v=7"></script>
-<script src="assets/comum.js?v=7"></script>
-<script src="assets/base.js?v=5"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="assets/site.js?v=8"></script>
+<script src="assets/comum.js?v=8"></script>
+<style>
+  .achados { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; margin-top: 8px; }
+  .achado { display: flex; flex-direction: column; text-decoration: none; color: inherit; position: relative; padding-top: 18px; }
+  .achado:hover { box-shadow: 0 10px 28px rgba(15,61,46,.14); }
+  .achado .tema { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--tinta-3); font-weight: 600; }
+  .achado .grande { font-family: "Barlow Condensed", sans-serif; font-size: 2.6rem; font-weight: 700; line-height: 1.05; margin: 6px 0 4px; color: var(--quadra); }
+  .achado .grande small { font-size: 1.1rem; font-weight: 600; color: var(--tinta-2); margin-left: 4px; }
+  .achado p { margin: 0 0 6px; color: var(--tinta-2); font-size: .95rem; }
+  .achado .mini { height: 120px; margin-top: auto; }
+  .achado .ver { font-size: .85rem; font-weight: 600; color: var(--pop); margin-top: 6px; }
+  .achado .faixa { position: absolute; left: 0; right: 0; top: 0; height: 5px; border-radius: 12px 12px 0 0; }
+  .paginas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+</style>
 </head>
 <body>
 <header class="hero">
   <div id="quadra"></div>
   <div class="hero-dentro">
     <span class="etiqueta"><span data-l="pt">Analytics de tênis</span><span data-l="en">Tennis analytics</span> · ATP <span data-meta="periodo"></span></span>
-    <h1 data-l="pt">Tênis em números<br><em>quem é o melhor</em> em cada aspecto do jogo?</h1>
-    <h1 data-l="en">Tennis by numbers<br><em>who is the best</em> at each part of the game?</h1>
-    <p data-l="pt">Todas as <b><span data-meta="N"></span> partidas</b> do circuito principal da ATP entre <span data-meta="ano_min"></span> e <span data-meta="ano_max"></span>, com saque, devolução, break points,
-      tie-breaks e títulos de cada jogador. Explore o circuito, compare a elite com o resto e veja o perfil completo de
-      cada jogador.</p>
-    <p data-l="en">All <b><span data-meta="N"></span> matches</b> on the main ATP tour between <span data-meta="ano_min"></span> and <span data-meta="ano_max"></span>, with every player's serve, return,
-      break points, tie-breaks and titles. Explore the tour, compare the elite with the rest and see each player's full
-      profile.</p>
+    <h1 data-l="pt">Tênis em números<br><em>o que os dados contam</em> sobre o circuito</h1>
+    <h1 data-l="en">Tennis by numbers<br><em>what the data says</em> about the tour</h1>
+    <p data-l="pt"><b><span data-meta="N"></span> partidas</b> da ATP desde 1991, com saque, devolução e pontos de cada jogador. Alguns
+      achados, cada um levando à análise completa.</p>
+    <p data-l="en"><b><span data-meta="N"></span> ATP matches</b> since 1991, with every player's serve, return and points. A few findings,
+      each leading to the full analysis.</p>
   </div>
 </header>
 
 <main class="conteudo">
-  <div id="placar" style="margin-top:-28px"></div>
-
-  <h2><span data-l="pt">O que dá para ver aqui</span><span data-l="en">What you can explore</span></h2>
-  <div class="grade g2">
-    <a class="cartao set" href="circuito.html"><span class="faixa" style="background:var(--pop)"></span>
-      <div class="n"><span data-l="pt">Visão geral</span><span data-l="en">Overview</span></div>
-      <h3><span data-l="pt">O circuito</span><span data-l="en">The tour</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Como é uma partida típica: superfícies, duração, aces, ranking. Com filtros.</span>
-        <span data-l="en">What a typical match looks like: surfaces, duration, aces, ranking. With filters.</span></div></a>
-    <a class="cartao set" href="explorar.html"><span class="faixa" style="background:var(--top)"></span>
-      <div class="n">Tie-break</div><h3><span data-l="pt">Explorar</span><span data-l="en">Explore</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Top 10 × resto: onde a elite se diferencia. Ranking e zebras. Como o jogo mudou desde 1991.</span>
-        <span data-l="en">Top 10 vs the rest: where the elite stands out. Ranking and upsets. How the game has changed since 1991.</span></div></a>
-    <a class="cartao set" href="jogadores.html"><span class="faixa" style="background:var(--top)"></span>
-      <div class="n"><span data-l="pt">Vestiário</span><span data-l="en">Locker room</span></div>
-      <h3><span data-l="pt">Jogadores</span><span data-l="en">Players</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Os líderes de cada critério e o quadro de medalhas, o ranking por critério e o perfil
-        completo de cada jogador.</span><span data-l="en">The leaders in every category and the medal table, the ranking
-        by category and each player's full profile.</span></div></a>
-    <a class="cartao set" href="elo.html"><span class="faixa" style="background:var(--pop)"></span>
-      <div class="n"><span data-l="pt">Épocas</span><span data-l="en">Eras</span></div><h3>Elo</h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Quem dominou cada época: a carreira de cada um em Elo, os maiores picos, o nº 1
-        de cada temporada e quanto o Elo acerta.</span><span data-l="en">Who dominated each era: every career in Elo, the highest peaks,
-        the No. 1 of each season and how often Elo gets it right.</span></div></a>
-    <a class="cartao set" href="rivalidades.html"><span class="faixa" style="background:var(--top)"></span>
-      <div class="n"><span data-l="pt">Duelos</span><span data-l="en">Head to head</span></div>
-      <h3><span data-l="pt">Rivalidades</span><span data-l="en">Rivalries</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">O confronto direto entre quaisquer dois jogadores: saldo ao longo do tempo, por
-        superfície, em Slams e finais, e como cada um jogou contra o outro.</span><span data-l="en">The head to head between any two players:
-        balance over time, by surface, at Slams and in finals, and how each played against the other.</span></div></a>
-  </div>
+  <h2><span data-l="pt">Achados</span><span data-l="en">Findings</span></h2>
+  <div class="achados" id="achados"></div>
 
   <div class="rede"></div>
-  <h2><span data-l="pt">A base de dados e a população</span><span data-l="en">The data and the population</span></h2>
-  <div id="base-populacao"></div>
-
-  <h3><span data-l="pt">O que tem em cada partida</span><span data-l="en">What each match contains</span></h3>
-  <div class="cartao rolagem"><table class="t" id="conteudo-partida"></table></div>
-  <p class="nota" data-l="pt">Das 50 colunas brutas da base, ficaram de fora só identificadores (id do torneio, da partida e dos jogadores),
-    cabeça de chave, forma de entrada (qualifier, wild card, lucky loser), pontos no ranking e tamanho da chave. Elas são
-    boas candidatas para análises futuras.</p>
-  <p class="nota" data-l="en">Of the 50 raw columns in the database, the only ones left out are identifiers (tournament, match
-    and player ids), seeding, entry type (qualifier, wild card, lucky loser), ranking points and draw size. They are good
-    candidates for future analyses.</p>
-  <div id="termos"></div>
+  <h2><span data-l="pt">Explore</span><span data-l="en">Explore</span></h2>
+  <div class="paginas">
+    <a class="cartao set" href="jogadores.html"><span class="faixa" style="background:var(--top)"></span>
+      <div class="n"><span data-l="pt">Vestiário</span><span data-l="en">Locker room</span></div><h3><span data-l="pt">Jogadores</span><span data-l="en">Players</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Líderes de cada critério, ranking, perfil completo e rivalidades.</span>
+        <span data-l="en">Leaders in every category, ranking, full profile and rivalries.</span></div></a>
+    <a class="cartao set" href="epocas.html"><span class="faixa" style="background:var(--pop)"></span>
+      <div class="n">Elo · <span data-l="pt">auge</span><span data-l="en">peak</span></div><h3><span data-l="pt">Épocas</span><span data-l="en">Eras</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Quem dominou cada época, o auge e a idade, corrida por idade e Pico × Pico.</span>
+        <span data-l="en">Who dominated each era, peak and age, race by age and Peak vs Peak.</span></div></a>
+    <a class="cartao set" href="jogo.html"><span class="faixa" style="background:var(--top)"></span>
+      <div class="n">Tie-break</div><h3><span data-l="pt">O jogo</span><span data-l="en">The game</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Elite × resto, ranking e zebras, como o jogo mudou e quem vence perdendo nos pontos.</span>
+        <span data-l="en">Elite vs the rest, ranking and upsets, how the game changed and who wins while losing on points.</span></div></a>
+    <a class="cartao set" href="sobre.html"><span class="faixa" style="background:var(--pop)"></span>
+      <div class="n"><span data-l="pt">Bastidores</span><span data-l="en">Behind the scenes</span></div><h3><span data-l="pt">Sobre os dados</span><span data-l="en">About the data</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">A base, a visão geral do circuito e como cada número é conferido.</span>
+        <span data-l="en">The data, an overview of the tour and how every number is checked.</span></div></a>
+  </div>
 </main>
 
 <script>
 document.getElementById("quadra").innerHTML = svgQuadra();
 (async () => {
-  const meta = await carregar("meta");
-  const r = meta.resumo;
-  placar(document.getElementById("placar"), [
-    { rot: T("Partidas", "Matches"), num: br(r.N, 0), sub: T("circuito principal, concluídas", "main tour, completed") },
-    { rot: T("Temporadas", "Seasons"), num: String(r.n_temporadas), sub: r.periodo },
-    { rot: T("Jogadores", "Players"), num: br(r.n_jogadores, 0), sub: T(`${br(r.n_torneios, 0)} edições de torneios`, `${br(r.n_torneios, 0)} tournament editions`) },
-    { rot: T("Colunas", "Columns"), num: br(r.n_variaveis, 0), sub: T("na base processada", "in the processed data") },
-  ]);
-  secaoBase(document.getElementById("base-populacao"), r,
-            { unidade: T("Unidade de análise", "Unit of analysis"),
-              tituloPop: T("População: o que entra e o que fica de fora", "Population: what is in and what is left out") });
-  const grupos = EM_INGLES ? [
-    ["Tournament", "year, tournament, level, surface, indoor/outdoor, round, best of 3 or 5"],
-    ["Result", "winner, loser, score (sets and tie-breaks), duration in minutes"],
-    ["Players", "age, height, playing hand, country and ATP ranking at the start of the tournament"],
-    ["Serve (each player)", "aces, double faults, service points, 1st serves in, points won on 1st and 2nd serve, service games, break points faced and saved"],
-    ["Derived", "did the favourite win?, deciding set?, ranking gap, sets played; and, per player, return points won, break points converted, dominance ratio, tie-breaks and titles"],
-  ] : [
-    ["Torneio", "ano, torneio, nível, superfície, quadra aberta/coberta, rodada, melhor de 3 ou 5"],
-    ["Resultado", "vencedor, perdedor, placar (sets e tie-breaks), duração em minutos"],
-    ["Jogadores", "idade, altura, mão dominante, país e ranking ATP no início do torneio"],
-    ["Saque (de cada jogador)", "aces, duplas faltas, pontos de saque, 1º saque dentro, pontos ganhos com o 1º e com o 2º saque, games de saque, break points enfrentados e salvos"],
-    ["Derivadas", "favorito venceu?, foi ao set decisivo?, diferença de ranking, sets jogados; e, por jogador, pontos ganhos na devolução, break points convertidos, dominance ratio, tie-breaks e títulos"],
+  const A = await carregar("achados");
+  const sobre = n => n.split(" ").slice(-1)[0];
+  const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
+  const P = A.pico, AU = A.auge, VP = A.venceu_perdendo, R = A.rivalidade, EL = A.elite, EA = A.elo_acerta, AC = A.aces;
+  const eps = Object.entries(AU.por_epoca);
+  const card = (cor, tema, grande, texto, link, mini) => ({ cor, tema, grande, texto, link, mini });
+  const cards = [
+    card("var(--pop)", T("O maior auge", "The highest peak"), `${br(P.elo, 0)}<small>Elo</small>`,
+      T(`${P.jogador} em ${mesAno(P.data)}, aos ${Math.floor(P.idade)} anos: o maior Elo da base. ${P.segundo.jogador} vem depois (${br(P.segundo.elo, 0)}, ${String(P.segundo.data).slice(0, 4)}).`,
+        `${P.jogador} in ${mesAno(P.data)}, aged ${Math.floor(P.idade)}: the highest Elo in the data. ${P.segundo.jogador} comes next (${br(P.segundo.elo, 0)}, ${String(P.segundo.data).slice(0, 4)}).`),
+      "epocas.html#elo", "pico"),
+    card("var(--pop)", T("A idade do auge", "The age of the peak"), `${AU.idade}<small>${T("anos", "years")}</small>`,
+      T(`É a idade em que o jogador típico está no seu melhor. O auge ficou mais tardio: ${eps.map(([, v]) => v).join(" → ")} anos, dos anos 90 até hoje.`,
+        `The age at which the typical player is at his best. The peak came later over time: ${eps.map(([, v]) => v).join(" → ")} years, from the 1990s to today.`),
+      "epocas.html#auge", "auge"),
+    card("var(--top)", T("A corrida por idade", "The race by age"), `${A.aos22.slice(0, 3).map(([, v]) => v).join(" · ")}<small>Slams</small>`,
+      T(`Até os 22 anos: ${A.aos22.slice(0, 3).map(([n, v]) => `${sobre(n)} ${v}`).join(", ")}. Comparar por idade é o jeito justo de comparar épocas.`,
+        `By age 22: ${A.aos22.slice(0, 3).map(([n, v]) => `${sobre(n)} ${v}`).join(", ")}. Comparing by age is the fair way to compare eras.`),
+      "epocas.html#corrida", "aos22"),
+    card("var(--top)", T("Vencer perdendo nos pontos", "Winning while losing on points"), VP.federer ? `${VP.federer.perdeu_mais}<small>${T("derrotas", "losses")}</small>` : pct(VP.pct),
+      VP.federer ? T(`Federer perdeu ${VP.federer.perdeu_mais} partidas ganhando mais pontos que o rival, como na final de Wimbledon 2019 (${VP.wimbledon_2019 ? `${VP.wimbledon_2019.pp} × ${VP.wimbledon_2019.pv}` : ""}). Acontece em ${pct(VP.pct)} dos jogos e em ${pct(VP.pct_decisivo, 0)} dos que vão ao set decisivo.`,
+        `Federer lost ${VP.federer.perdeu_mais} matches while winning more points than his opponent, like the 2019 Wimbledon final (${VP.wimbledon_2019 ? `${VP.wimbledon_2019.pp}–${VP.wimbledon_2019.pv}` : ""}). It happens in ${pct(VP.pct)} of matches and ${pct(VP.pct_decisivo, 0)} of those that go to a deciding set.`) : "",
+      "jogo.html#venceu-perdendo", null),
+    card("var(--top)", T("A maior rivalidade", "The biggest rivalry"), `${R.va}–${R.vb}`,
+      T(`${R.a} × ${R.b}: ${R.n} jogos, a rivalidade com mais partidas desde 1991. Veja o saldo ao longo do tempo e por superfície.`,
+        `${R.a} vs ${R.b}: ${R.n} matches, the most-played rivalry since 1991. See the balance over time and by surface.`),
+      "jogadores.html#rivalidades", null),
+    card("var(--pop)", T("O que separa a elite", "What sets the elite apart"), `+${br(100 * (EL.tpw_top10 - EL.tpw_demais), 1)}<small>${T("pontos em 100", "points per 100")}</small>`,
+      T(`O Top 10 ganha ${pct(EL.tpw_top10)} dos pontos; os demais, ${pct(EL.tpw_demais)}. Uma diferença pequena por ponto vira ${pct(EL.vitorias_top10, 0)} de vitórias sobre quem está fora.`,
+        `The Top 10 win ${pct(EL.tpw_top10)} of points; the rest, ${pct(EL.tpw_demais)}. A small edge per point turns into ${pct(EL.vitorias_top10, 0)} wins over players outside it.`),
+      "jogo.html#top", "elite"),
+    card("var(--pop)", T("Como o jogo mudou", "How the game changed"), `+${br(100 * (AC.media[AC.media.length - 1] / AC.media[0] - 1), 0)}%<small>aces</small>`,
+      T(`Aces por partida: ${br(AC.media[0], 1)} em ${AC.anos[0]}, ${br(AC.media[AC.media.length - 1], 1)} em ${AC.anos[AC.anos.length - 1]}. As partidas também ficaram mais longas.`,
+        `Aces per match: ${br(AC.media[0], 1)} in ${AC.anos[0]}, ${br(AC.media[AC.media.length - 1], 1)} in ${AC.anos[AC.anos.length - 1]}. Matches also got longer.`),
+      "jogo.html#tempo", "aces"),
+    card("var(--top)", T("Números conferidos", "Numbers that check out"), pct(EA.elo),
+      T(`O Elo acerta o vencedor em ${pct(EA.elo)} das ${br(EA.n, 0)} partidas, contra ${pct(EA.ranking)} do ranking da ATP. Títulos e confrontos batem com os oficiais.`,
+        `Elo picks the winner in ${pct(EA.elo)} of ${br(EA.n, 0)} matches, against ${pct(EA.ranking)} for the ATP ranking. Titles and head-to-heads match the official figures.`),
+      "sobre.html#metodos", null),
   ];
-  document.getElementById("conteudo-partida").innerHTML = `<tr><th>${T("Grupo", "Group")}</th><th>${T("Colunas", "Columns")}</th></tr>` +
-    grupos.map(([g, c]) => `<tr><td><b>${g}</b></td><td>${c}</td></tr>`).join("");
-  document.getElementById("termos").innerHTML = termosDeUso();
+  document.getElementById("achados").innerHTML = cards.map((c, i) => `<a class="cartao achado" href="${c.link}"><span class="faixa" style="background:${c.cor}"></span>
+    <span class="tema">${c.tema}</span><div class="grande">${c.grande}</div><p>${c.texto}</p>
+    ${c.mini ? `<div class="mini" id="mini-${c.mini}"></div>` : ""}<span class="ver">${T("Ver a análise →", "See the analysis →")}</span></a>`).join("");
+
+  // mini gráficos (sem eixos, só a forma)
+  const mini = { displayModeBar: false, staticPlot: true, responsive: true };
+  const base = extra => Object.assign({ margin: { l: 4, r: 4, t: 4, b: 18 }, height: 120, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    showlegend: false, font: { family: "Barlow", size: 11, color: "#4b5650" }, xaxis: { showgrid: false, zeroline: false, showline: false },
+    yaxis: { visible: false } }, extra);
+  Plotly.newPlot("mini-pico", [{ x: P.serie.meses.map(m => m + "-15"), y: P.serie.elo, mode: "lines", line: { color: CORES.pop, width: 2 } },
+    { x: [P.data.slice(0, 7) + "-15"], y: [P.elo], mode: "markers", marker: { symbol: "star", size: 14, color: CORES.pop } }], base({ xaxis: { type: "date", showgrid: false, dtick: "M60", tickformat: "%Y" } }), mini);
+  const coresEp = [CORES.sup.Grama, CORES.pop, CORES.top];
+  Plotly.newPlot("mini-auge", Object.values(AU.curvas).map((c, k) => ({ x: c.idades, y: c.nivel, mode: "lines", line: { color: coresEp[k], width: 2 } })),
+    base({ xaxis: { showgrid: false, dtick: 4, ticksuffix: T("a", "y") } }), mini);
+  Plotly.newPlot("mini-aos22", [{ type: "bar", x: A.aos22.slice(0, 5).map(([n]) => sobre(n)), y: A.aos22.slice(0, 5).map(([, v]) => v),
+    marker: { color: A.aos22.slice(0, 5).map((_, i) => i < 3 ? CORES.top : CORES.demais) }, text: A.aos22.slice(0, 5).map(([, v]) => v), textposition: "inside" }],
+    base({ bargap: .3, xaxis: { showgrid: false } }), mini);
+  Plotly.newPlot("mini-elite", [{ type: "bar", orientation: "h", y: [T("demais", "rest"), "Top 10"], x: [EL.tpw_demais, EL.tpw_top10],
+    marker: { color: [CORES.demais, CORES.pop] }, text: [pct(EL.tpw_demais), pct(EL.tpw_top10)], textposition: "inside" }],
+    base({ xaxis: { range: [0.45, 0.545], visible: false }, yaxis: { visible: true, showgrid: false }, margin: { l: 52, r: 4, t: 4, b: 4 } }), mini);
+  Plotly.newPlot("mini-aces", [{ x: AC.anos, y: AC.media, mode: "lines", line: { color: CORES.pop, width: 2 }, fill: "tozeroy", fillcolor: "rgba(98,80,214,.12)" }],
+    base({ xaxis: { showgrid: false, dtick: 10 } }), mini);
 })();
 </script>
 </body>

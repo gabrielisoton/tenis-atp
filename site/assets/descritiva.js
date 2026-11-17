@@ -268,10 +268,12 @@ function htmlPainel() {
       <div class="mets" id="mets-quant"></div></div></section>
   <section class="painel-aba" data-p="tab" hidden><div class="cartao rolagem" id="medidas"></div></section>`;
 }
-function ligarAbas(raiz, sel = "#abas-desc") {
+function ligarAbas(raiz, sel = "#abas-desc", comEndereco = false) {
   const abas = raiz.querySelector(sel);
   abas.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
     abas.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+    // abas principais ganham endereço próprio (pagina.html#aba), para links diretos e compartilhamento
+    if (comEndereco) history.replaceState(null, "", location.pathname + location.search + "#" + (b.id || b.dataset.a));
     const grupo = abas.parentElement;
     grupo.querySelectorAll(":scope > .painel-aba").forEach(p => p.hidden = p.dataset.p !== b.dataset.a);
     window.dispatchEvent(new Event("resize"));   // Plotly redimensiona os gráficos que estavam ocultos
