@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=4"></script>
+<script src="assets/site.js?v=5"></script>
 <script src="assets/comum.js?v=7"></script>
 <script src="assets/descritiva.js?v=6"></script>
 <script src="assets/jogadores.js?v=7"></script>
@@ -57,6 +57,8 @@
   <div class="abas" id="abas-j" style="margin-top:22px"><button class="on" data-a="lid">🏆 <span data-l="pt">Líderes de cada critério</span><span data-l="en">Leaders in every category</span></button>
     <button data-a="rank">🏅 <span data-l="pt">Ranking por critério</span><span data-l="en">Ranking by category</span></button>
     <button data-a="perfil">🎾 <span data-l="pt">Perfil do jogador</span><span data-l="en">Player profile</span></button></div>
+  <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando os dados de todos os jogadores…</span><span
+    data-l="en">Loading the data for every player…</span></div>
 
   <section class="painel-aba" data-p="lid">
     <div class="filtros" style="position:static">
@@ -110,10 +112,14 @@ document.getElementById("quadra").innerHTML = svgQuadra();
 ligarAbas(document.getElementById("area"), "#abas-j");
 (async () => {
   const J = await carregar("jogadores");
+  document.getElementById("carregando").remove();
   const CR = J.criterios, CRIT = Object.fromEntries(CR.map(c => [c.chave, c]));
-  const erros = conferir(J);
-  console[erros.length ? "error" : "info"](erros.length ? `Divergências com o Python: ${erros.join(" | ")}` : "Jogadores: cálculos conferidos com o Python (OK)");
-  window.__checagemJogadores = erros;
+  // a checagem Python × JS (~0,3 s) roda depois da primeira tela, quando o navegador está ocioso
+  (window.requestIdleCallback || (f => setTimeout(f, 300)))(() => {
+    const erros = conferir(J);
+    console[erros.length ? "error" : "info"](erros.length ? `Divergências com o Python: ${erros.join(" | ")}` : "Jogadores: cálculos conferidos com o Python (OK)");
+    window.__checagemJogadores = erros;
+  });
   // daqui em diante nome, grupo e descrição dos critérios só servem para exibir: já no idioma escolhido
   CR.forEach(c => { c.nome = tr(c.nome); c.grupo = tr(c.grupo); c.desc = tr(c.desc); });
   const PP = T("p.p.", "pp"), PART = T("partidas", "matches");
@@ -220,7 +226,6 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   ["l-a0", "l-a1"].forEach(id => document.getElementById(id).addEventListener("change", e => {
     LD[id.slice(2)] = +e.target.value; mudarAnos(LD, "l", id.slice(2)); desenharLideres(); }));
   ligarDicas(document.getElementById("l-med"));
-  desenharLideres();
 
   /* ================= ranking ================= */
   const R = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]), niv: new Set([0, 1, 2, 3, 4]) };
@@ -293,7 +298,6 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   ["r-crit", "r-min"].forEach(id => document.getElementById(id).addEventListener("change", desenharRanking));
   ["r-a0", "r-a1"].forEach(id => document.getElementById(id).addEventListener("change", e => {
     R[id.slice(2)] = +e.target.value; mudarAnos(R, "r", id.slice(2)); desenharRanking(); }));
-  desenharRanking();
 
   /* ================= perfil ================= */
   const P = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]) };
@@ -421,7 +425,13 @@ ligarAbas(document.getElementById("area"), "#abas-j");
   combobox(document.getElementById("p-nome"), J.nomes, i => `${br(car.get(i), 0)} ${PART}`, desenharPerfil);
   ["p-a0", "p-a1"].forEach(id => document.getElementById(id).addEventListener("change", e => {
     P[id.slice(2)] = +e.target.value; mudarAnos(P, "p", id.slice(2), false); desenharPerfil(); }));
-  desenharPerfil();
+
+  /* cada aba só é desenhada quando é aberta pela primeira vez (antes as três eram desenhadas na carga) */
+  const desenhar = { lid: desenharLideres, rank: desenharRanking, perfil: desenharPerfil }, prontas = new Set();
+  const abrir = a => { if (!prontas.has(a)) { prontas.add(a); desenhar[a](); } };
+  document.querySelectorAll("#abas-j button").forEach(b => b.addEventListener("click", () => abrir(b.dataset.a)));
+  abrir(document.querySelector("#abas-j button.on").dataset.a);
+  console.info(`Jogadores: primeira tela em ${Math.round(performance.now())} ms`);
 })();
 </script>
 </body>
