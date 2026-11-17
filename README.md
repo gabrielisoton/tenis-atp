@@ -17,6 +17,7 @@ com saque, devolução, break points, tie-breaks e títulos de cada jogador. Sit
 | Explorar | Top N × demais, ranking × zebras (chance de o favorito vencer), linha do tempo, "venceu perdendo nos pontos" |
 | Jogadores | Líderes de todos os critérios (pódio e quadro de medalhas), ranking por critério com IC 95% de Wilson e perfil completo de cada jogador |
 | Elo | Elo geral e por superfície partida a partida: carreira de cada jogador, maiores picos, o auge (pico e melhor média de 12 meses, com a idade e a idade no auge por época), a curva de envelhecimento por época (método delta), a corrida de títulos e Slams por idade (Slams desde 1968), o simulador "Pico × Pico" (chance de vitória entre dois jogadores no auge, por superfície e em melhor de 3 ou 5), nº 1 por temporada, Elo atual e a validação (acerto e calibração contra o ranking) |
+| Rivalidades | Confronto direto entre quaisquer dois jogadores (regra do H2H oficial): saldo ao longo do tempo, por superfície, em Slams e finais, como cada um jogou no confronto × na carreira, todas as partidas e as maiores rivalidades |
 
 ## Como funciona
 O Python é o motor: baixa a base, monta a população e exporta JSON. O site só desenha e filtra no navegador.
@@ -35,6 +36,7 @@ pip install -r requirements.txt
 python dados/baixar.py
 python dados/preparar_populacao.py
 python dados/preparar_titulos.py          # finais vencidas (+ Slams desde 1968) para a corrida por idade
+python dados/preparar_h2h.py              # partidas que contam no H2H oficial (inclui abandonos, Davis, Olimpíadas)
 python scripts/exportar_site.py
 python scripts/validar_estatistica.py
 python scripts/validar_elo.py              # Elo: previsão, calibração e picos coerentes

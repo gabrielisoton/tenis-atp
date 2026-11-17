@@ -9,6 +9,7 @@ window.SITE = {
     ["explorar.html", "Tie-break", ["Explorar", "Explore"]],
     ["jogadores.html", ["Vestiário", "Locker room"], ["Jogadores", "Players"]],
     ["elo.html", ["Épocas", "Eras"], "Elo"],
+    ["rivalidades.html", ["Duelos", "Head to head"], ["Rivalidades", "Rivalries"]],
   ],
   extras: null,
   rodape: ["Projeto pessoal de analytics de tênis · <a href=\"https://github.com/gabrielisoton/tenis-atp\">código no GitHub</a>",

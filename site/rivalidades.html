@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-en="Rivalries · Tennis by numbers">Rivalidades · Tênis em números</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/estilo.css?v=4">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="assets/site.js?v=7"></script>
+<script src="assets/comum.js?v=7"></script>
+<script src="assets/descritiva.js?v=6"></script>
+<script src="assets/jogadores.js?v=9"></script>
+<style>
+  .combo { position: relative; display: inline-block; }
+  .combo-seta { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); border: 0; background: none;
+    font-size: 1rem; color: var(--tinta-3); cursor: pointer; padding: 2px 6px; }
+  .combo-lista { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 100%; max-height: 340px;
+    overflow: auto; margin: 0; padding: 4px; list-style: none; background: #fff; border: 1px solid var(--borda);
+    border-radius: 10px; box-shadow: 0 10px 30px rgba(15,61,46,.18); }
+  .combo-lista li { display: flex; justify-content: space-between; gap: 14px; padding: 6px 10px; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+  .combo-lista li small { color: var(--tinta-3); font-variant-numeric: tabular-nums; }
+  .combo-lista li.foco { background: #eef3ef; }
+  .combo-lista li.vazio { color: var(--tinta-3); cursor: default; font-style: italic; }
+  input.busca { min-width: 240px; padding-right: 30px; }
+  .riv { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+  .riv button { text-align: left; background: #fff; border: 1px solid var(--borda); border-radius: 10px; padding: 8px 10px; cursor: pointer; font: inherit; }
+  .riv button:hover { border-color: var(--pop); }
+  .riv small { display: block; color: var(--tinta-3); font-variant-numeric: tabular-nums; }
+  .venceu { font-weight: 700; }
+</style>
+</head>
+<body>
+<header class="topo"><div id="quadra"></div><div class="topo-dentro">
+  <span class="etiqueta"><span data-l="pt">Duelos · Rivalidades</span><span data-l="en">Head to head · Rivalries</span></span>
+  <h1><span data-l="pt">Quem leva a melhor no confronto direto?</span><span data-l="en">Who comes out on top head to head?</span></h1>
+  <p data-l="pt">Todos os confrontos entre dois jogadores desde 1991, com a mesma regra do H2H oficial da ATP: circuito principal, Copa
+    Davis, Olimpíadas e ATP Cup/United Cup; partidas com abandono contam, W/O não.</p>
+  <p data-l="en">Every match between two players since 1991, with the same rule as the official ATP head-to-head: main tour, Davis Cup,
+    Olympics and ATP Cup/United Cup; retirements count, walkovers do not.</p>
+</div></header>
+<main class="conteudo">
+  <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
+  <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:22px">
+    <div class="grupo"><span class="rot"><span data-l="pt">Jogador</span><span data-l="en">Player</span></span><input class="sel busca" id="h-a"></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Adversário</span><span data-l="en">Opponent</span></span><input class="sel busca" id="h-b"></div>
+  </div>
+  <div id="h-placar"></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-linha" class="grafico" style="min-height:380px"></div></div>
+    <div class="cartao"><div id="g-sup" class="grafico" style="min-height:380px"></div></div>
+  </div>
+  <div class="cartao rolagem" style="margin-top:14px"><h3 style="margin-top:0"><span data-l="pt">Como cada um jogou no confronto × na carreira</span>
+    <span data-l="en">How each played in the head to head vs over their career</span></h3><table class="t" id="h-stats"></table>
+    <p class="nota" id="h-stats-nota"></p></div>
+  <h2><span data-l="pt">Todas as partidas</span><span data-l="en">Every match</span></h2>
+  <div class="cartao rolagem" style="max-height:560px;overflow:auto"><table class="t" id="h-t"></table></div>
+  <p class="nota" id="h-nota"></p>
+  <h2><span data-l="pt">As maiores rivalidades</span><span data-l="en">The biggest rivalries</span></h2>
+  <div class="riv" id="h-riv"></div>
+</main>
+<script>
+document.getElementById("quadra").innerHTML = svgQuadra();
+(async () => {
+  const I = await fetch("data/h2h/indice.json").then(r => r.json());
+  if (EM_INGLES) await carregar("meta");   // garante o dicionário de rótulos (tr)
+  document.getElementById("carregando").remove();
+  const nome = Object.fromEntries(I.jogadores.map(([id, n]) => [id, n]));
+  const idDe = Object.fromEntries(I.jogadores.map(([id, n]) => [n, id]));
+  const comArquivo = I.jogadores.filter(j => j[2] >= I.min_partidas);
+  const cache = {};
+  const arquivo = id => cache[id] ??= fetch(`data/h2h/${id}.json`).then(r => r.ok ? r.json() : null);
+  const data = d => { const s = String(d); return `${s.slice(6, 8)}/${s.slice(4, 6)}/${s.slice(0, 4)}`; };
+  const ultimoNome = n => n.split(" ").slice(-1)[0];
+  let A = "D643", B = "N409", PA = null;
+  const listaA = comArquivo.map(j => j[1]);
+  const cbA = combobox(document.getElementById("h-a"), listaA, i => `${br(comArquivo[i][2], 0)} ${T("partidas", "matches")}`, async n => { A = idDe[n]; await carregarA(); });
+  let opB = [], cbB = null;
+
+  async function carregarA(manterB = false) {
+    PA = await arquivo(A);
+    const cont = {};
+    PA.o.forEach(o => cont[o] = (cont[o] || 0) + 1);
+    opB = Object.entries(cont).sort((x, y) => y[1] - x[1]);
+    if (!manterB || !cont[B]) B = opB[0][0];
+    const el = document.getElementById("h-b"), novo = el.cloneNode(false);
+    const caixa = el.closest(".combo"); if (caixa) caixa.replaceWith(novo); else el.replaceWith(novo);
+    cbB = combobox(novo, opB.map(([o]) => nome[o]), i => `${opB[i][1]} ${T("jogos", "matches")}`, n => { B = idDe[n]; desenhar(); });
+    cbB.definir(nome[B]); cbA.definir(nome[A]);
+    desenhar();
+  }
+
+  async function desenhar() {
+    const idx = PA.o.map((o, k) => o === B ? k : -1).filter(k => k >= 0);
+    const m = idx.map(k => ({ d: PA.d[k], t: I.torneios[PA.t[k]], n: PA.n[k], s: PA.s[k], r: PA.r[k], p: PA.p[k], a: PA.a[k], v: PA.v[k], st: PA.st[k] }));
+    const vA = m.filter(x => x.v).length, vB = m.length - vA, na = nome[A], nb = nome[B];
+    const conta = f => { const x = m.filter(f); return `${x.filter(y => y.v).length}–${x.filter(y => !y.v).length}`; };
+    const gs = conta(x => x.n === 0), fin = conta(x => I.rodadas[x.r] === "Final");
+    const ult = m[m.length - 1];
+    placar(document.getElementById("h-placar"), [
+      { rot: `${ultimoNome(na)} × ${ultimoNome(nb)}`, num: `${vA}–${vB}`, sub: T(`${m.length} partidas`, `${m.length} matches`) },
+      { rot: T("Em Grand Slams", "At Grand Slams"), num: gs, sub: T("vitórias de cada um", "wins each") },
+      { rot: T("Em finais", "In finals"), num: fin, sub: T("todos os níveis", "all levels") },
+      { rot: T("Último jogo", "Last match"), num: ult ? (ult.v ? ultimoNome(na) : ultimoNome(nb)) : "—", sub: ult ? `${ult.t} ${String(ult.d).slice(0, 4)}` : "" },
+    ]);
+    // saldo acumulado
+    let s = 0; const ys = m.map(x => (s += x.v ? 1 : -1));
+    const corSup = x => CORES.sup[I.sups[x.s]] || CORES.neutra;
+    plot(document.getElementById("g-linha"), [
+      { x: m.map(x => data(x.d).split("/").reverse().join("-")), y: ys, mode: "lines+markers", line: { shape: "hv", color: CORES.neutra, width: 2 },
+        marker: { size: 9, color: m.map(corSup), line: { color: "#fff", width: 1 } },
+        text: m.map(x => `${x.t} · ${tr(I.rodadas[x.r] ?? "")}<br>${x.v ? na : nb} ${x.p}`),
+        hovertemplate: `%{x|%d/%m/%Y}<br>%{text}<br>${T("saldo", "balance")}: %{y:+d}<extra></extra>`, showlegend: false }],
+      { height: 380, title: { text: T(`Saldo no confronto (acima de 0 = ${ultimoNome(na)} na frente)<br><sup>cor = superfície</sup>`, `Head-to-head balance (above 0 = ${ultimoNome(na)} ahead)<br><sup>colour = surface</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: 0, y1: 0, line: { color: CORES.neutra, dash: "dash" } }],
+        yaxis: { gridcolor: "rgba(137,135,129,.22)", zeroline: false }, margin: { l: 50, r: 10, t: 80, b: 40 } });
+    const sups = I.sups.map((nm, k) => [nm, m.filter(x => x.s === k)]).filter(([, l]) => l.length);
+    plot(document.getElementById("g-sup"), [
+      { type: "bar", x: sups.map(([nm]) => tr(nm)), y: sups.map(([, l]) => l.filter(x => x.v).length), name: na, marker: { color: CORES.pop } },
+      { type: "bar", x: sups.map(([nm]) => tr(nm)), y: sups.map(([, l]) => l.filter(x => !x.v).length), name: nb, marker: { color: CORES.top } },
+    ], { height: 380, barmode: "group", title: { text: T("Vitórias por superfície", "Wins by surface"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+      yaxis: { gridcolor: "rgba(137,135,129,.22)", dtick: 1 }, legend: { orientation: "h", y: -0.12, yanchor: "top", x: 0 }, margin: { l: 40, r: 10, t: 50, b: 70 } });
+    // estatísticas: no confronto × na carreira (arquivo do adversário, se existir)
+    const PB = await arquivo(B);
+    const somar = lista => lista.reduce((t, st) => st ? [t[0] + st[0], t[1] + st[1], t[2] + st[2], t[3] + st[3]] : t, [0, 0, 0, 0]);
+    const taxas = t => t[0] && t[2] ? { saque: t[1] / t[0], dev: t[3] / t[2], tpw: (t[1] + t[3]) / (t[0] + t[2]) } : null;
+    const noH2H_A = taxas(somar(m.map(x => x.st))), carA = taxas(somar(PA.st));
+    const noH2H_B = noH2H_A ? { saque: 1 - noH2H_A.dev, dev: 1 - noH2H_A.saque, tpw: 1 - noH2H_A.tpw } : null;
+    const carB = PB ? taxas(somar(PB.st)) : null;
+    const lin = (rot, k) => `<tr><td>${rot}</td>` + [[noH2H_A, carA], [noH2H_B, carB]].map(([h, c]) =>
+      `<td class="n"><b>${h ? pct(h[k]) : "—"}</b></td><td class="n">${c ? pct(c[k]) : "—"}</td><td class="n ${h && c ? (h[k] >= c[k] ? "pos" : "neg") : ""}">${h && c ? (h[k] >= c[k] ? "+" : "") + br(100 * (h[k] - c[k]), 1) : "—"}</td>`).join("") + "</tr>";
+    document.getElementById("h-stats").innerHTML = `<tr><th></th><th colspan="3">${na}</th><th colspan="3">${nb}</th></tr>
+      <tr><th>${T("Pontos ganhos", "Points won")}</th>${[0, 1].map(() => `<th>${T("no confronto", "in the H2H")}</th><th>${T("na carreira", "career")}</th><th>${T("dif. (p.p.)", "diff. (pp)")}</th>`).join("")}</tr>` +
+      lin(T("no saque", "on serve"), "saque") + lin(T("na devolução", "on return"), "dev") + lin(T("no total", "in total"), "tpw");
+    document.getElementById("h-stats-nota").innerHTML = T(`Só partidas com estatísticas (${m.filter(x => x.st).length} de ${m.length}). "Na carreira" = todas as partidas
+      do jogador na base. Contra um rival forte quase todo mundo ganha menos pontos que na carreira; o interessante é quem cai menos.`,
+      `Only matches with stats (${m.filter(x => x.st).length} of ${m.length}). "Career" = all the player's matches in the data. Almost everyone wins
+      fewer points against a strong rival than over their career; the interesting part is who drops less.`);
+    document.getElementById("h-t").innerHTML = `<tr><th>${T("Data", "Date")}</th><th>${T("Torneio", "Tournament")}</th><th>${T("Nível", "Level")}</th>
+      <th>${T("Superfície", "Surface")}</th><th>${T("Rodada", "Round")}</th><th>${T("Vencedor", "Winner")}</th><th>${T("Placar", "Score")}</th><th>${T("Pontos", "Points")}</th></tr>` +
+      m.slice().reverse().map(x => `<tr><td>${data(x.d)}</td><td>${x.t}</td><td>${tr(I.niveis[x.n])}</td><td>${tr(I.sups[x.s] ?? "")}</td><td>${tr(I.rodadas[x.r] ?? "—")}</td>
+        <td class="venceu" style="color:${x.v ? CORES.pop : CORES.top}">${x.v ? na : nb}</td><td>${x.p}${x.a ? ` <span class="nota">(${T("abandono", "retired")})</span>` : ""}</td>
+        <td class="n">${x.st ? `${x.st[1] + x.st[3]} × ${x.st[0] + x.st[2] - x.st[1] - x.st[3]}` : "—"}</td></tr>`).join("");
+    const antes = m.length && String(m[0].d).slice(0, 4) <= "1992";
+    document.getElementById("h-nota").innerHTML = T(`Pontos do ${ultimoNome(na)} × do ${ultimoNome(nb)}.`, `Points ${ultimoNome(na)} × ${ultimoNome(nb)}.`) +
+      (antes ? " " + T(`O primeiro jogo da base é de ${String(m[0].d).slice(0, 4)}: eles podem ter se enfrentado antes de 1991, que não está na base.`,
+        `The first match in the data is from ${String(m[0].d).slice(0, 4)}: they may have met before 1991, which is not in the data.`) : "");
+  }
+
+  document.getElementById("h-riv").innerHTML = I.rivalidades.map(([a, b, n, va, vb]) =>
+    `<button data-a="${a}" data-b="${b}"><b>${nome[a]} × ${nome[b]}</b><small>${va}–${vb} · ${n} ${T("partidas", "matches")}</small></button>`).join("");
+  document.querySelectorAll("#h-riv button").forEach(bt => bt.addEventListener("click", async () => {
+    A = bt.dataset.a; B = bt.dataset.b; await carregarA(true); document.getElementById("h-placar").scrollIntoView({ behavior: "smooth", block: "center" }); }));
+  await carregarA(true);
+})();
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ Saídas:
 - venceu_perdendo.json  partidas vencidas com menos pontos que o adversário (aba do Explorar)
 - elo.json         Elo geral e por superfície: validação, picos, nº 1 por temporada, atual e séries mensais
 - corrida.json     títulos e Slams de cada jogador com a idade (corrida por idade)
+- h2h/indice.json + h2h/<id>.json  confrontos diretos: índice e um arquivo por jogador (carregado sob demanda)
 """
 import sys
 from pathlib import Path
@@ -21,6 +22,7 @@ from tenis import analises as an  # noqa: E402
 from tenis import exportacao as ex  # noqa: E402
 from tenis import corrida  # noqa: E402
 from tenis import elo  # noqa: E402
+from tenis import h2h  # noqa: E402
 from tenis import idiomas  # noqa: E402
 
 SAIDA = AQUI / "site" / "data"
@@ -99,6 +101,7 @@ def main() -> None:
     ex.salvar(SAIDA, "venceu_perdendo.json", an.vencer_perdendo(pop))
     ex.salvar(SAIDA, "elo.json", elo.exportar(pop))
     ex.salvar(SAIDA, "corrida.json", corrida.exportar(pd.read_parquet(ex.BASE / "titulos.parquet"), pop))
+    ex.salvar(SAIDA / "h2h", "indice.json", h2h.exportar(pd.read_parquet(ex.BASE / "h2h.parquet"), SAIDA))
 
 
 if __name__ == "__main__":
