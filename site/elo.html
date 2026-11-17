@@ -60,6 +60,16 @@
     <div class="cartao rolagem"><h3 style="margin-top:0" id="tit-atual"></h3><table class="t" id="t-atual"></table></div>
   </div>
 
+  <h2><span data-l="pt">O auge: quando e com que idade</span><span data-l="en">The peak: when and at what age</span></h2>
+  <div id="auge-comoler"></div>
+  <div id="auge-placar"></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-auge" class="grafico" style="min-height:440px"></div></div>
+    <div class="cartao"><div id="g-epoca" class="grafico" style="min-height:440px"></div></div>
+  </div>
+  <div class="cartao rolagem" style="max-height:520px;overflow:auto;margin-top:14px"><table class="t" id="t-auges"></table></div>
+  <p class="nota" id="auge-nota"></p>
+
   <h2><span data-l="pt">Nº 1 pelo Elo no fim de cada temporada</span><span data-l="en">No. 1 by Elo at the end of each season</span></h2>
   <div class="n1" id="n1"></div>
   <p class="nota"><span data-l="pt">Entre quem jogou nos 12 meses anteriores. Pode diferir do nº 1 da ATP, que soma pontos de torneio.</span>
@@ -115,6 +125,14 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       return { x: s.meses.map(m => m + "-15"), y: s.elo, mode: "lines", name: n, line: { color: cores[i % cores.length], width: 2.5 },
                hovertemplate: `<b>${n}</b><br>%{x|%b %Y}: %{y:.0f}<extra></extra>` };
     });
+    // ★ no ponto mais alto de cada um (fora do aquecimento)
+    escolhidos.forEach((n, i) => {
+      const s = sup === "geral" ? E.series[n] : E.series[n][sup];
+      let k = -1; s.elo.forEach((v, j) => { if (+s.meses[j].slice(0, 4) > M.aquecimento[1] && (k < 0 || v > s.elo[k])) k = j; });
+      if (k >= 0) tr0.push({ x: [s.meses[k] + "-15"], y: [s.elo[k]], mode: "markers", showlegend: false,
+        marker: { symbol: "star", size: 16, color: cores[i % cores.length], line: { color: "#fff", width: 1 } },
+        hovertemplate: `<b>${n}</b> · ${T("pico", "peak")}<br>%{x|%b %Y}: %{y:.0f}<extra></extra>` });
+    });
     const [a0, a1] = M.aquecimento;
     plot(document.getElementById("g-serie"), tr0, { height: 460, title: titulo(T(`Elo ${sup === "geral" ? "geral" : naSup(sup)} ao longo da carreira`, `${sup === "geral" ? "Overall Elo" : "Elo " + naSup(sup)} over each career`)),
       shapes: [{ type: "rect", xref: "x", yref: "paper", x0: `${a0}-01-01`, x1: `${a1}-12-31`, y0: 0, y1: 1, fillcolor: "rgba(137,135,129,.15)", line: { width: 0 } }],
@@ -140,6 +158,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       `<tr><td colspan="3" class="nota">${T(`Jogou nos 12 meses até ${mesAno(M.ultima_data)}.`, `Played in the 12 months to ${mesAno(M.ultima_data)}.`)}</td></tr>`;
   }
   desenharPicos();
+  desenharAuge();
   document.getElementById("n1").innerHTML = E.n1_por_ano.map(r => `<div><small>${r.ano}</small><b>${r.jogador}</b><small>Elo ${br(r.elo, 0)}</small></div>`).join("");
 
   // ---------- validação
@@ -177,6 +196,61 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     hard); the forecast averages overall and surface Elo. Only completed main-tour matches, without Challengers, qualifying or Davis Cup,
     so values sit below those of sites that use them. Raw Elo is overconfident at the extremes; probabilities use the gap ×
     ${br(M.escala_prob, 2)}, fitted on 1993–2015 and checked on 2016–2025. Validation: ${br(V.n, 0)} matches outside the warm-up.`);
+
+  function desenharAuge() {
+    const A = E.auges, EP = E.idade_auge_por_epoca;
+    const ok = A.filter(r => !r.no_auge && !r.carreira_antes_1991 && r.auge_idade !== null);
+    const med = l => { const v = l.map(r => r.auge_idade).sort((a, b) => a - b), m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; };
+    const novo = ok.reduce((a, r) => r.auge_idade < a.auge_idade ? r : a), velho = ok.reduce((a, r) => r.auge_idade > a.auge_idade ? r : a);
+    const intervalo = r => `${mesAno(r.auge_ini + "-01")}–${mesAno(r.auge_fim + "-01")}`;
+    document.getElementById("auge-comoler").innerHTML = comoLer(T(`Dois jeitos de medir o auge. O <b>pico</b> é o maior Elo que o jogador
+      atingiu, às vezes numa semana excepcional. O <b>auge sustentado</b> é a melhor média de 12 meses seguidos do Elo de fim de mês: a
+      "melhor temporada" de cada um, que não depende de uma semana boa. A idade vem da data de nascimento. Ficam fora das contas de idade
+      quem está no auge agora (o melhor período termina no último ano da base, então ainda pode melhorar) e quem já estava no circuito
+      antes de ${M.aquecimento[0]} (o auge pode ter sido antes).`, `Two ways to measure a peak. The <b>peak</b> is the highest Elo a player
+      ever reached, sometimes in one exceptional week. The <b>sustained peak</b> is the best 12-month average of end-of-month Elo: each
+      player's "best season", which does not hinge on one good week. Age comes from the date of birth. Left out of the age figures:
+      players at their peak right now (their best period ends in the last year of the data, so they may still improve) and players
+      already on tour before ${M.aquecimento[0]} (their peak may have come earlier).`));
+    placar(document.getElementById("auge-placar"), [
+      { rot: T("Idade mediana no auge", "Median age at peak"), num: br(med(ok), 1), sub: T(`${ok.length} jogadores com Elo ≥ 2.050`, `${ok.length} players with Elo ≥ 2,050`) },
+      { rot: T("Auge mais jovem", "Youngest peak"), num: br(novo.auge_idade, 1), sub: `${novo.jogador} · ${intervalo(novo)}` },
+      { rot: T("Auge mais velho", "Oldest peak"), num: br(velho.auge_idade, 1), sub: `${velho.jogador} · ${intervalo(velho)}` },
+      { rot: T("Idade no auge por época", "Age at peak by era"), num: EP.map(e => br(e.mediana, 1)).join(" → "), sub: EP.map(e => e.epoca).join(" · ") },
+    ]);
+    const corEp = ano => ano <= 2002 ? CORES.sup.Grama : ano <= 2012 ? CORES.pop : CORES.top;
+    const pontos = (lista, nome, aberto) => ({ type: "scatter", mode: "markers", name: nome, x: lista.map(r => r.auge_idade), y: lista.map(r => r.auge),
+      text: lista.map(r => r.jogador), customdata: lista.map(r => intervalo(r)),
+      marker: { size: 11, color: lista.map(r => aberto ? "#fff" : corEp(+r.auge_fim.slice(0, 4))), line: { color: lista.map(r => corEp(+r.auge_fim.slice(0, 4))), width: 2 } },
+      hovertemplate: `<b>%{text}</b><br>${T("auge", "peak")} %{customdata}<br>${T("idade", "age")} %{x:.1f} · Elo %{y:.0f}<extra></extra>` });
+    const rotulos = A.slice(0, 8);
+    plot(document.getElementById("g-auge"), [pontos(ok, T("auge já passou", "peak already passed"), false),
+      pontos(A.filter(r => r.no_auge), T("no auge agora", "at peak right now"), true)],
+      { height: 440, title: { text: T("Idade × força no auge sustentado<br><sup>cor = época do auge: verde até 2002, roxo 2003–2012, rosa depois</sup>",
+          "Age × strength at sustained peak<br><sup>colour = era of the peak: green to 2002, purple 2003–2012, pink after</sup>"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        annotations: rotulos.map(r => ({ x: r.auge_idade, y: r.auge, text: r.jogador.split(" ").slice(-1)[0], showarrow: false, yshift: 12, font: { size: 11, color: "#4b5650" } })),
+        xaxis: { title: T("idade no auge (anos)", "age at peak (years)"), gridcolor: "rgba(137,135,129,.22)" }, yaxis: { title: T("Elo médio no auge", "average Elo at peak"), gridcolor: "rgba(137,135,129,.22)" },
+        margin: { l: 60, r: 10, t: 90, b: 50 } });
+    plot(document.getElementById("g-epoca"), [{ type: "scatter", mode: "markers", x: EP.map(e => e.epoca), y: EP.map(e => e.media),
+      error_y: { type: "data", symmetric: false, array: EP.map(e => e.ic_sup - e.media), arrayminus: EP.map(e => e.media - e.ic_inf), color: CORES.pop, thickness: 2, width: 6 },
+      marker: { size: 14, color: CORES.pop }, customdata: EP.map(e => [e.n, e.mediana]),
+      hovertemplate: `%{x}: ${T("média", "mean")} %{y:.1f} · ${T("mediana", "median")} %{customdata[1]:.1f} (n = %{customdata[0]})<extra></extra>` }],
+      { height: 440, showlegend: false, title: { text: T("Idade média no auge, por época<br><sup>traço = IC 95%</sup>", "Mean age at peak, by era<br><sup>bar = 95% CI</sup>"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        yaxis: { title: T("idade (anos)", "age (years)"), gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 60, r: 10, t: 90, b: 50 } });
+    document.getElementById("t-auges").innerHTML = `<tr><th>#</th><th>${T("Jogador", "Player")}</th><th>${T("Auge sustentado", "Sustained peak")}</th>
+      <th>${T("Período", "Period")}</th><th>${T("Idade", "Age")}</th><th>${T("Pico", "Peak")}</th><th>${T("Quando", "When")}</th><th>${T("Idade", "Age")}</th><th></th></tr>` +
+      A.slice(0, 25).map((r, i) => `<tr><td>${ordinal(i + 1)}</td><td>${r.jogador}</td><td class="n"><b>${br(r.auge, 0)}</b></td><td>${intervalo(r)}</td>
+        <td class="n">${r.auge_idade === null ? "—" : br(r.auge_idade, 1)}</td><td class="n">${br(r.pico, 0)}</td><td>${mesAno(r.pico_data + "-01")}</td>
+        <td class="n">${r.pico_idade === null ? "—" : br(r.pico_idade, 1)}</td>
+        <td>${r.no_auge ? `<span class="tag" style="background:#fbfde9">${T("no auge agora", "at peak now")}</span>` : r.carreira_antes_1991 ? `<span class="tag" style="background:#f1efe8">${T("carreira antes de 1991", "career before 1991")}</span>` : ""}</td></tr>`).join("");
+    const e0 = EP[0], e2 = EP[EP.length - 1];
+    document.getElementById("auge-nota").innerHTML = T(`<b>Leitura:</b> nos anos 90 os jogadores chegavam ao auge mais cedo (mediana de ${br(e0.mediana, 1)}
+      anos); depois de 2003 o auge passou para perto dos ${br(e2.mediana, 0)}. É coerente com carreiras mais longas, preparo físico melhor e
+      o domínio prolongado do Big 3. Os intervalos são largos (${e0.n} a ${e2.n} jogadores por época), então a diferença entre as duas
+      últimas épocas não é conclusiva.`, `<b>Reading:</b> in the 1990s players reached their peak earlier (median ${br(e0.mediana, 1)});
+      after 2003 the peak moved to around ${br(e2.mediana, 0)}. That fits longer careers, better fitness and the Big 3's long dominance.
+      The intervals are wide (${e0.n} to ${e2.n} players per era), so the difference between the last two eras is not conclusive.`);
+  }
 })();
 </script>
 </body>

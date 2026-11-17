@@ -168,4 +168,63 @@ def exportar(pop: pd.DataFrame, min_pico_serie: float = 2050.0) -> dict:
         "n1_por_ano": n1,
         "atual": {"geral": [{"jogador": r.jogador, "elo": round(float(r.elo), 1)} for r in ultimo.itertuples()], **sup_atual},
         "series": series,
+        "auges": (lista := auges(dep, min_pico_serie)),
+        "idade_auge_por_epoca": idade_auge_por_epoca(lista),
     }
+
+
+# ------------------------------------------------------------------ auge: quando e com que idade
+EPOCAS_AUGE = [(1993, 2002), (2003, 2012), (2013, 2100)]
+
+
+def auges(dep: pd.DataFrame, min_pico: float = 2050.0) -> list[dict]:
+    """Pico instantâneo e auge sustentado (melhor média de 12 meses do Elo de fim de mês) de cada jogador.
+
+    - idade: a partir do nascimento estimado (data da partida − idade registrada, mediana);
+    - "no_auge": o melhor período de 12 meses termina no último ano da base, então o auge pode não ter
+      chegado ainda (ex.: quem está subindo agora) — fica fora das contas de idade;
+    - "carreira_antes_1991": estreou na base em 1991–1992 já com 22 anos ou mais; o auge pode ter sido
+      antes de 1991 — também fica fora das contas de idade.
+    """
+    dep = dep.assign(dt=pd.to_datetime(dep["data"]))
+    nasc = (dep["dt"] - pd.to_timedelta(dep["idade"] * 365.25, unit="D")).groupby(dep["id"]).median()
+    ult = dep["dt"].max()
+    valido = ~dep["ano"].between(*AQUECIMENTO)
+    pico = dep[valido].groupby("id")["elo"].max()
+    idade = lambda jid, t: None if pd.isna(nasc[jid]) else round((t - nasc[jid]).days / 365.25, 1)  # noqa: E731
+    saida = []
+    for jid in pico[pico >= min_pico].index:
+        g = dep[dep["id"] == jid].set_index("dt")
+        mes = g["elo"].resample("ME").last().ffill()
+        rol = mes.rolling(12).mean()
+        rol = rol[rol.index.year > AQUECIMENTO[1]].dropna()
+        if rol.empty:
+            continue
+        fim = rol.idxmax()
+        ini = fim - pd.DateOffset(months=11)
+        gi = g[g["ano"] > AQUECIMENTO[1]]
+        t_pico = gi["elo"].idxmax()
+        estreia = g.index.min()
+        saida.append({
+            "jogador": g["jogador"].iloc[0],
+            "pico": round(float(gi["elo"].max()), 1), "pico_data": t_pico.strftime("%Y-%m"), "pico_idade": idade(jid, t_pico),
+            "auge": round(float(rol.max()), 1), "auge_ini": ini.strftime("%Y-%m"), "auge_fim": fim.strftime("%Y-%m"),
+            "auge_idade": idade(jid, ini + (fim - ini) / 2),
+            "no_auge": bool(fim > ult - pd.Timedelta(days=365)),
+            "carreira_antes_1991": bool(estreia.year <= AQUECIMENTO[1] and (idade(jid, estreia) or 0) >= 22),
+        })
+    return sorted(saida, key=lambda r: -r["auge"])
+
+
+def idade_auge_por_epoca(lista: list[dict]) -> list[dict]:
+    """Idade no auge sustentado por época do auge (sem quem está no auge agora nem carreiras pré-1991)."""
+    ok = pd.DataFrame([r for r in lista if not r["no_auge"] and not r["carreira_antes_1991"] and r["auge_idade"]])
+    ok["ano"] = ok["auge_fim"].str[:4].astype(int)
+    saida = []
+    for a, b in EPOCAS_AUGE:
+        g = ok[ok["ano"].between(a, b)]["auge_idade"]
+        n = len(g)
+        ep = float(g.std(ddof=1) / np.sqrt(n)) if n > 1 else None
+        saida.append({"epoca": f"{a}–{min(b, int(ok['ano'].max()))}", "n": n, "mediana": float(g.median()), "media": float(g.mean()),
+                      "ic_inf": float(g.mean() - 1.96 * ep) if ep else None, "ic_sup": float(g.mean() + 1.96 * ep) if ep else None})
+    return saida

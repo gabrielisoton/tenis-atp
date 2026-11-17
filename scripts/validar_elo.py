@@ -45,7 +45,16 @@ saibro = dep[dep["superficie"] == "Saibro"].sort_values("elo_sup", ascending=Fal
 grama = dep[dep["superficie"] == "Grama"].sort_values("elo_sup", ascending=False)
 checar(saibro["jogador"].iloc[0] == "Rafael Nadal", f"maior pico no saibro: {saibro['jogador'].iloc[0]}")
 checar(grama["jogador"].iloc[0] == "Roger Federer", f"maior pico na grama: {grama['jogador'].iloc[0]}")
-# 4. contas: soma de Elo se conserva (o que um ganha o outro perde) — com K diferente para cada um, não é
+# 4. auge sustentado (melhor média de 12 meses) no período que a história do esporte conhece
+au = {r["jogador"]: r for r in elo.auges(elo.depois(d))}
+for nome, (a0, a1) in {"Roger Federer": (2004, 2008), "Rafael Nadal": (2008, 2014), "Novak Djokovic": (2011, 2016),
+                       "Pete Sampras": (1993, 1998), "Andy Murray": (2015, 2017)}.items():
+    fim = int(au[nome]["auge_fim"][:4])
+    checar(a0 <= fim <= a1 + 1, f"auge de {nome}: {au[nome]['auge_ini']} a {au[nome]['auge_fim']} (esperado {a0}–{a1})")
+idades = [r["auge_idade"] for r in au.values() if not r["no_auge"] and not r["carreira_antes_1991"] and r["auge_idade"]]
+checar(23 <= float(np.median(idades)) <= 29, f"idade mediana no auge: {np.median(idades):.1f} anos ({len(idades)} jogadores)")
+checar(au["Jannik Sinner"]["no_auge"] and not au["Novak Djokovic"]["no_auge"], "Sinner marcado como 'no auge agora'; Djokovic não")
+# 5. contas: soma de Elo se conserva (o que um ganha o outro perde) — com K diferente para cada um, não é
 #    exato; checamos só que nenhuma nota é absurda
 checar(dep["elo"].between(1000, 2800).all(), f"todas as notas entre 1000 e 2800 (min {dep['elo'].min():.0f}, max {dep['elo'].max():.0f})")
 
