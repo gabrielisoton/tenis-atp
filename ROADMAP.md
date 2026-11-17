@@ -75,12 +75,18 @@
 **Os nº 1: a jornada até o topo**
 - **Por que é a análise mais forte:** uma carreira tem história (começo, ano da virada, auge, declínio), e é isso que
   prende o fã. O grupo é o dos **nº 1 do mundo**: critério objetivo, fácil de explicar.
-- **O que todos têm em comum** (prévia com 2000–2025: 13 nº 1 contra 366 jogadores com ≥ 100 partidas):
-  - **2º saque:** +1,9 desvio-padrão;
-  - **sets decisivos:** +1,9 (100% dos nº 1 acima de +1);
-  - **devolução:** +1,5;
+- **Feito** (aba "Os nº 1" da página Épocas, `tenis/numero1.py`, conferido por `scripts/validar_numero1.py`).
+- **O que todos têm em comum** (21 nº 1 desde 1991 contra 508 jogadores com ≥ 100 partidas, em desvios-padrão):
+  - **sets decisivos:** +1,8 (19 dos 21 acima de +1);
+  - **2º saque:** +1,6 (14 dos 21);
   - **tie-breaks:** +1,5;
-  - aces (+0,2) e 1º saque dentro (+0,1) estão quase na média. **Saque grande não faz um nº 1.**
+  - **break points salvos:** +1,3; **devolução:** +1,2 (14 dos 21);
+  - aces (+0,3) e 1º saque dentro (+0,0) estão quase na média. **Saque grande não faz um nº 1.**
+- **Anos da virada** (maior salto de vitórias contra o Top 10): Federer 2004, Nadal 2008, Djokovic 2011,
+  Murray 2015, Alcaraz 2022, Sinner 2023.
+- **Depois do topo** (17 nº 1 que já pararam, do auge às duas últimas temporadas): cai primeiro a **devolução**
+  (−1,9 p.p., em 15 dos 17) e os pontos com o 1º saque (−1,9, em 15 dos 17); o 1º saque dentro não muda.
+- **Idade ao chegar a nº 1:** Alcaraz 19,4 · Nadal 22,2 · Federer 22,5 · Djokovic 24,2.
 - **A jornada (Djokovic):** da fase de ranking > 50 ao nº 1:
 
   | Indicador | > 50 | Nº 1 |
@@ -97,7 +103,8 @@
   - **duas réguas:** contra todos e só contra Top 10, porque no topo os adversários são mais fortes;
   - **seções:** a jornada, comparar jornadas (por idade), o que todos têm em comum e depois do topo.
 - **Cuidados:**
-  - **Cobertura:** só 8 dos 13 nº 1 têm o começo da carreira na base 2000+. A **base 1991+ (#2) é pré-requisito**.
+  - **Cobertura:** com a base 1991+, 15 dos 21 têm a jornada completa; Sampras, Agassi e Courier já estavam no
+    topo em 1991 e Becker, Edberg e Muster tinham carreira antes (a página avisa em cada caso).
   - **Começo da carreira:** sem Challengers nem qualifying na TML, o começo tem poucas partidas.
   - **Clutch:** momentos decisivos só viram "clutch" comparados ao esperado (#19).
   - **Não é causa:** "o que mudou" na subida não é receita.
@@ -118,7 +125,7 @@ abas dessas páginas, não como páginas novas:
 |---|---|
 | Achados (início) | um card novo para cada achado forte de qualquer item |
 | Jogadores | 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado |
-| Épocas | 21 Os nº 1 |
+| Épocas | 21 Os nº 1 (feito) |
 | Torneios (nova, quando o item 7 for feito) | 7 páginas de torneio · 16 velocidade da quadra |
 | O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar · 22 guia para quem treina |
 | Sobre os dados | 3 atualização automática (selo "dados até") · 19 previsão de partidas e calibração |

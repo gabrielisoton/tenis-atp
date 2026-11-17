@@ -15,9 +15,9 @@ links diretos e compartilhamento.
 
 | Página | Pergunta | Abas |
 |---|---|---|
-| **Achados** (`index.html`) | O que há de mais interessante? | 8 achados com o número, um mini gráfico e o link para a análise (números tirados de `data/achados.json`) |
+| **Achados** (`index.html`) | O que há de mais interessante? | 9 achados com o número, um mini gráfico e o link para a análise (números tirados de `data/achados.json`) |
 | **Jogadores** | Quão bom é o meu jogador? | Líderes de cada critério (pódio e quadro de medalhas) · Ranking por critério com IC de Wilson · Perfil do jogador · Rivalidades (H2H com a regra oficial) |
-| **Épocas** | Quem foi o melhor de cada época? | Elo (carreiras, picos, Elo atual, nº 1 por temporada) · O auge (pico, melhor média de 12 meses, idade, curva de envelhecimento pelo método delta) · Corrida por idade (títulos e Slams, Slams desde 1968) · Pico × Pico |
+| **Épocas** | Quem foi o melhor de cada época? | Elo (carreiras, picos, Elo atual, nº 1 por temporada) · O auge (pico, melhor média de 12 meses, idade, curva de envelhecimento pelo método delta) · Corrida por idade (títulos e Slams, Slams desde 1968) · Pico × Pico · Os nº 1 (a jornada por fase de ranking, ano da virada, comparar jornadas, o que todos têm em comum, depois do topo) |
 | **O jogo** | O que faz ganhar no tênis? | Top N × demais · Ranking e zebras · Linha do tempo · Venceu perdendo nos pontos |
 | **Sobre os dados** | Dá para confiar? | A base e a população · O circuito (descritiva com filtros) · Métodos e validação (checagens, Elo × ranking, regras de cada contagem) |
 
@@ -30,7 +30,7 @@ O Python é o motor: baixa a base, monta a população e exporta JSON. O site s�
 dados/      baixar.py (CSVs da TML, 1991+) → preparar_populacao.py (base/populacao.parquet, com data, ids e ordem)
 tenis/      estatistica.py, analises.py (critérios, líderes, perfis), elo.py, exportacao.py, idiomas.py (rótulos em inglês)
 scripts/    exportar_site.py (gera site/data/*.json) · validar_estatistica.py (confere contra o scipy)
-tenis/      … achados.py (números da página inicial), corrida.py, h2h.py
+tenis/      … achados.py (números da página inicial), corrida.py, h2h.py, numero1.py (os nº 1)
 site/       index (achados), jogadores, epocas, jogo, sobre + assets/ + data/  → publicado no GitHub Pages pelo Actions
 ```
 Os cálculos da página Jogadores são refeitos em JavaScript e **conferidos com o Python** a cada carga
@@ -46,6 +46,7 @@ python dados/preparar_h2h.py              # partidas que contam no H2H oficial (
 python scripts/exportar_site.py
 python scripts/validar_estatistica.py
 python scripts/validar_elo.py              # Elo: previsão, calibração e picos coerentes
+python scripts/validar_numero1.py          # nº 1: anos da virada, cobertura, marcos e o que todos têm em comum
 python -m http.server 8600 -d site     # http://localhost:8600
 ```
 

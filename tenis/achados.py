@@ -7,7 +7,7 @@ O texto (PT/EN) fica no site, montado a partir destes números.
 from __future__ import annotations
 
 
-def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict) -> dict:
+def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict) -> dict:
     # 1. maior pico de Elo e a carreira de quem o atingiu
     pico = E["picos"]["geral"][0]
     serie = E["series"][pico["jogador"]]
@@ -28,6 +28,9 @@ def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: di
     V = E["validacao"]
     # 8. como o jogo mudou: aces por partida
     lt = extras["linha_tempo"]
+    # 9. o que todo nº 1 tem: quantos estão bem acima do circuito (z > 1) em cada critério de jogo
+    nn = len(n1["jogadores"])
+    acima = {r["crit"]: round(r["pct_acima_1"] * nn) for r in n1["em_comum"]}
     return {
         "resumo": {"N": resumo["N"], "periodo": resumo["periodo"], "n_jogadores": resumo["n_jogadores"]},
         "pico": {"jogador": pico["jogador"], "elo": pico["elo"], "data": pico["data"], "idade": pico["idade"],
@@ -46,4 +49,5 @@ def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: di
         "elite": {"tpw_top10": top10["top"]["tpw"], "tpw_demais": top10["demais"]["tpw"], "vitorias_top10": top10["duelo"]["vitorias_top"]},
         "elo_acerta": {"elo": V["acerto_elo"], "ranking": V["acerto_ranking"], "n": V["n"]},
         "aces": {"anos": [r["ano"] for r in lt], "media": [round(r["aces_media"], 2) for r in lt]},
+        "numero1": {"n": nn, "acima": acima},
     }

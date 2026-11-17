@@ -54,8 +54,8 @@
         <span data-l="en">Leaders in every category, ranking, full profile and rivalries.</span></div></a>
     <a class="cartao set" href="epocas.html"><span class="faixa" style="background:var(--pop)"></span>
       <div class="n">Elo · <span data-l="pt">auge</span><span data-l="en">peak</span></div><h3><span data-l="pt">Épocas</span><span data-l="en">Eras</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Quem dominou cada época, o auge e a idade, corrida por idade e Pico × Pico.</span>
-        <span data-l="en">Who dominated each era, peak and age, race by age and Peak vs Peak.</span></div></a>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Quem dominou cada época, o auge e a idade, corrida por idade, Pico × Pico e a jornada dos nº 1.</span>
+        <span data-l="en">Who dominated each era, peak and age, race by age, Peak vs Peak and the No. 1s' journey.</span></div></a>
     <a class="cartao set" href="jogo.html"><span class="faixa" style="background:var(--top)"></span>
       <div class="n">Tie-break</div><h3><span data-l="pt">O jogo</span><span data-l="en">The game</span></h3>
       <div style="color:var(--tinta-2)"><span data-l="pt">Elite × resto, ranking e zebras, como o jogo mudou e quem vence perdendo nos pontos.</span>
@@ -73,7 +73,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const A = await carregar("achados");
   const sobre = n => n.split(" ").slice(-1)[0];
   const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
-  const P = A.pico, AU = A.auge, VP = A.venceu_perdendo, R = A.rivalidade, EL = A.elite, EA = A.elo_acerta, AC = A.aces;
+  const P = A.pico, AU = A.auge, VP = A.venceu_perdendo, R = A.rivalidade, EL = A.elite, EA = A.elo_acerta, AC = A.aces, N1 = A.numero1;
   const eps = Object.entries(AU.por_epoca);
   const card = (cor, tema, grande, texto, link, mini) => ({ cor, tema, grande, texto, link, mini });
   const cards = [
@@ -109,6 +109,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       T(`O Elo acerta o vencedor em ${pct(EA.elo)} das ${br(EA.n, 0)} partidas, contra ${pct(EA.ranking)} do ranking da ATP. Títulos e confrontos batem com os oficiais.`,
         `Elo picks the winner in ${pct(EA.elo)} of ${br(EA.n, 0)} matches, against ${pct(EA.ranking)} for the ATP ranking. Titles and head-to-heads match the official figures.`),
       "sobre.html#metodos", null),
+    card("var(--pop)", T("O que todo nº 1 tem", "What every No. 1 has"), `${N1.acima.ganhos_2} ${T("de", "of")} ${N1.n}<small>${T("nº 1", "No. 1s")}</small>`,
+      T(`${N1.acima.ganhos_2} dos ${N1.n} nº 1 desde 1991 ganham muito mais pontos com o 2º saque que o circuito, e ${N1.acima.devolucao} na devolução. Em aces, só ${N1.acima.aces_game}. O que une os melhores é ganhar os pontos em que o saque não ajuda.`,
+        `${N1.acima.ganhos_2} of the ${N1.n} No. 1s since 1991 win far more points on their 2nd serve than the tour, and ${N1.acima.devolucao} on return. In aces, only ${N1.acima.aces_game}. What unites the best is winning the points where the serve doesn't help.`),
+      "epocas.html#n1", "n1"),
   ];
   document.getElementById("achados").innerHTML = cards.map((c, i) => `<a class="cartao achado" href="${c.link}"><span class="faixa" style="background:${c.cor}"></span>
     <span class="tema">${c.tema}</span><div class="grande">${c.grande}</div><p>${c.texto}</p>
@@ -132,6 +136,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     base({ xaxis: { range: [0.45, 0.545], visible: false }, yaxis: { visible: true, showgrid: false }, margin: { l: 52, r: 4, t: 4, b: 4 } }), mini);
   Plotly.newPlot("mini-aces", [{ x: AC.anos, y: AC.media, mode: "lines", line: { color: CORES.pop, width: 2 }, fill: "tozeroy", fillcolor: "rgba(98,80,214,.12)" }],
     base({ xaxis: { showgrid: false, dtick: 10 } }), mini);
+  const n1k = ["ganhos_2", "devolucao", "ganhos_1", "aces_game", "primeiro_dentro"];
+  const n1r = { ganhos_2: T("2º saque", "2nd serve"), devolucao: T("devolução", "return"), ganhos_1: T("1º saque", "1st serve"), aces_game: "aces", primeiro_dentro: T("1º dentro", "1st in") };
+  Plotly.newPlot("mini-n1", [{ type: "bar", x: n1k.map(k => n1r[k]), y: n1k.map(k => N1.acima[k]), marker: { color: n1k.map((_, i) => i < 2 ? CORES.pop : CORES.demais) },
+    text: n1k.map(k => N1.acima[k]), textposition: "inside" }], base({ bargap: .3, xaxis: { showgrid: false } }), mini);
 })();
 </script>
 </body>

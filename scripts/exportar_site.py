@@ -10,6 +10,7 @@ Saídas:
 - elo.json         Elo geral e por superfície: validação, picos, nº 1 por temporada, atual e séries mensais
 - corrida.json     títulos e Slams de cada jogador com a idade (corrida por idade)
 - h2h/indice.json + h2h/<id>.json  confrontos diretos: índice e um arquivo por jogador (carregado sob demanda)
+- numero1.json     os nº 1 do mundo: jornada por fase e temporada, ano da virada, em comum, depois do topo
 - achados.json     os números da página inicial (tirados dos resultados acima)
 """
 import sys
@@ -26,6 +27,7 @@ from tenis import corrida  # noqa: E402
 from tenis import elo  # noqa: E402
 from tenis import h2h  # noqa: E402
 from tenis import idiomas  # noqa: E402
+from tenis import numero1  # noqa: E402
 
 SAIDA = AQUI / "site" / "data"
 CONF = 0.95
@@ -108,9 +110,11 @@ def main() -> None:
     ex.salvar(SAIDA, "elo.json", E)
     C = corrida.exportar(pd.read_parquet(ex.BASE / "titulos.parquet"), pop)
     ex.salvar(SAIDA, "corrida.json", C)
+    N1 = numero1.exportar(pop, pd.read_parquet(ex.BASE / "titulos.parquet"))
+    ex.salvar(SAIDA, "numero1.json", N1)
     H = h2h.exportar(pd.read_parquet(ex.BASE / "h2h.parquet"), SAIDA)
     ex.salvar(SAIDA / "h2h", "indice.json", H)
-    ex.salvar(SAIDA, "achados.json", achados.montar(resumo, X, VP, E, C, H))
+    ex.salvar(SAIDA, "achados.json", achados.montar(resumo, X, VP, E, C, H, N1))
 
 
 if __name__ == "__main__":

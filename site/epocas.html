@@ -47,7 +47,8 @@
   <div class="abas" id="abas-e" style="margin-top:22px"><button class="on" data-a="elo">📈 Elo</button>
     <button data-a="auge">⭐ <span data-l="pt">O auge</span><span data-l="en">The peak</span></button>
     <button data-a="corrida">🏁 <span data-l="pt">Corrida por idade</span><span data-l="en">Race by age</span></button>
-    <button data-a="pxp">🥊 <span data-l="pt">Pico × Pico</span><span data-l="en">Peak vs Peak</span></button></div>
+    <button data-a="pxp">🥊 <span data-l="pt">Pico × Pico</span><span data-l="en">Peak vs Peak</span></button>
+    <button data-a="n1">🥇 <span data-l="pt">Os nº 1</span><span data-l="en">The No. 1s</span></button></div>
 
   <section class="painel-aba" data-p="elo">
   <h2><span data-l="pt">A carreira em Elo</span><span data-l="en">Careers in Elo</span></h2>
@@ -137,6 +138,40 @@
   </div>
   <p class="nota" id="x-nota"></p>
   </section>
+  <section class="painel-aba" data-p="n1" hidden>
+  <h2><span data-l="pt">A jornada até o nº 1</span><span data-l="en">The journey to No. 1</span></h2>
+  <div class="filtros" style="position:relative;top:0;z-index:30">
+    <div class="grupo"><span class="rot"><span data-l="pt">Nº 1</span><span data-l="en">No. 1</span></span><input class="sel busca" id="n1-a"></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Régua</span><span data-l="en">Ruler</span></span><span id="n1-regua"></span></div>
+  </div>
+  <div id="n1-placar"></div>
+  <div class="aviso" id="n1-cobertura" hidden></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-n1-fase" class="grafico" style="min-height:420px"></div></div>
+    <div class="cartao"><div id="g-n1-temp" class="grafico" style="min-height:420px"></div></div>
+  </div>
+  <div id="n1-comoler"></div>
+
+  <h2><span data-l="pt">Comparar jornadas</span><span data-l="en">Compare journeys</span></h2>
+  <div class="filtros" style="position:relative;top:0;z-index:29">
+    <div class="grupo"><span class="rot"><span data-l="pt">Comparar com</span><span data-l="en">Compare with</span></span><input class="sel busca" id="n1-b"></div>
+  </div>
+  <div class="grade g2">
+    <div class="cartao"><div id="g-n1-idade" class="grafico" style="min-height:400px"></div></div>
+    <div class="cartao rolagem"><table class="t" id="n1-t-marcos"></table><p class="nota" id="n1-nota-marcos"></p></div>
+  </div>
+
+  <h2><span data-l="pt">O que todos têm em comum</span><span data-l="en">What they all have in common</span></h2>
+  <div class="grade g2">
+    <div class="cartao"><div id="g-n1-comum" class="grafico" style="min-height:420px"></div></div>
+    <div class="cartao rolagem" style="max-height:470px;overflow:auto"><h3 style="margin-top:0"><span data-l="pt">A assinatura de cada um</span><span data-l="en">Each one's signature</span></h3>
+      <table class="t" id="n1-t-assin"></table></div>
+  </div>
+  <p class="nota" id="n1-nota-comum"></p>
+
+  <h2><span data-l="pt">Depois do topo: o que cai primeiro</span><span data-l="en">After the top: what fades first</span></h2>
+  <div class="cartao"><div id="g-n1-queda" class="grafico" style="min-height:380px"></div><p class="nota" id="n1-nota-queda"></p></div>
+  </section>
 </main>
 <script>
 document.getElementById("quadra").innerHTML = svgQuadra();
@@ -216,7 +251,8 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   }
   desenharPicos();
   ligarAbas(document.getElementById("area-e"), "#abas-e", true);
-  const prontas = new Set(["elo"]), abrir = { auge: desenharAuge, corrida: () => carregar("corrida").then(desenharCorrida), pxp: desenharPxP };
+  const prontas = new Set(["elo"]), abrir = { auge: desenharAuge, corrida: () => carregar("corrida").then(desenharCorrida), pxp: desenharPxP,
+    n1: () => carregar("numero1").then(desenharN1) };
   document.querySelectorAll("#abas-e button").forEach(b => b.addEventListener("click", () => {
     if (!prontas.has(b.dataset.a)) { prontas.add(b.dataset.a); abrir[b.dataset.a](); } }));
   abrirAbaDoHash("#abas-e");
@@ -390,6 +426,140 @@ document.getElementById("quadra").innerHTML = svgQuadra();
         grass peak sometimes shows up later than fans remember.`);
     }
     desenhar();
+  }
+
+  function desenharN1(N) {
+    const J = N.jogadores, NOMES = Object.keys(J).sort((a, b) => (J[b].auge?.auge || 0) - (J[a].auge?.auge || 0));
+    const IND = { vitorias: ["Vitórias", "Wins"], tpw: ["Pontos ganhos (total)", "Total points won"], saque: ["Pontos no saque", "Service points won"],
+      devolucao: ["Pontos na devolução", "Return points won"], primeiro_dentro: ["1º saque dentro", "1st serve in"], ganhos_1: ["Ganhos com o 1º saque", "1st serve points won"],
+      ganhos_2: ["Ganhos com o 2º saque", "2nd serve points won"], bp_salvos: ["Break points salvos", "Break points saved"], bp_convertidos: ["Break points convertidos", "Break points converted"],
+      aces_game: ["Aces por game", "Aces per game"], df_game: ["Duplas faltas por game (menos)", "Double faults per game (fewer)"], tie_breaks: ["Tie-breaks vencidos", "Tie-breaks won"],
+      decisivos: ["Sets decisivos vencidos", "Deciding sets won"] };
+    const nomeI = k => T(IND[k][0], IND[k][1]);
+    const FASE_EN = { "> 50": "> 50", "11–50": "11–50", "4–10": "4–10", "2–3": "2–3", "nº 1": "No. 1" };
+    const nomeF = f => EM_INGLES ? FASE_EN[f] : f;
+    let A = "Novak Djokovic", B = "Carlos Alcaraz", regua = "todos";
+    const cores = { A: CORES.pop, B: CORES.top };
+    const dt = d => d ? mesAno(d.slice(0, 7) + "-01") : "—";
+    const reguaEl = document.getElementById("n1-regua");
+    reguaEl.innerHTML = [["todos", T("Contra todos", "Against everyone")], ["top10", T("Só contra Top 10", "Only against the Top 10")]]
+      .map(([v, r]) => `<button class="chip ${v === regua ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
+    reguaEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+      regua = b.dataset.v; reguaEl.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); jornada(); }));
+    const cbA = combobox(document.getElementById("n1-a"), NOMES, i => J[NOMES[i]].marcos.n1 ? T(`nº 1 em ${String(J[NOMES[i]].marcos.n1).slice(0, 4)}`, `No. 1 in ${String(J[NOMES[i]].marcos.n1).slice(0, 4)}`) : "", n => { A = n; jornada(); comparar(); });
+    const cbB = combobox(document.getElementById("n1-b"), NOMES, i => T(`${J[NOMES[i]].marcos.slams} Slams`, `${J[NOMES[i]].marcos.slams} Slams`), n => { B = n; comparar(); });
+    cbA.definir(A); cbB.definir(B);
+    document.getElementById("n1-comoler").innerHTML = comoLer(T(`A <b>fase de ranking</b> é o ranking com que o jogador entrou em cada partida: o mesmo
+      jogador passa por > 50, 11–50, 4–10, 2–3 e nº 1 ao longo da carreira. No topo os adversários são mais fortes, então a régua
+      <b>"só contra Top 10"</b> é a comparação justa entre as fases. O <b>ano da virada</b> é a temporada com o maior salto de vitórias contra o
+      Top 10 em relação à anterior (pelo menos 6 jogos contra Top 10 nas duas). A mudança na subida mistura técnica, físico, idade e confiança:
+      mostra o que mudou, não uma receita.`, `The <b>ranking phase</b> is the ranking the player had going into each match: the same player passes
+      through > 50, 11–50, 4–10, 2–3 and No. 1 over a career. At the top the opponents are stronger, so the <b>"only against the Top 10"</b> ruler
+      is the fair comparison across phases. The <b>breakthrough year</b> is the season with the biggest jump in wins against the Top 10 compared
+      with the previous one (at least 6 matches against the Top 10 in both). The change during the climb mixes technique, fitness, age and
+      confidence: it shows what changed, not a recipe.`));
+
+    function jornada() {
+      const j = J[A], fases = N.fases.filter(f => j.fases[f] && j.fases[f][regua] && j.fases[f][regua].n >= 5);
+      const v = (f, k) => j.fases[f][regua][k];
+      const prim = fases[0], ult = fases[fases.length - 1];
+      const mud = ["tpw", "saque", "devolucao", "ganhos_1", "ganhos_2", "bp_salvos"].filter(k => v(prim, k) != null && v(ult, k) != null)
+        .map(k => [k, v(ult, k) - v(prim, k)]).sort((a, b) => b[1] - a[1]);
+      const vir = j.virada;
+      placar(document.getElementById("n1-placar"), [
+        { rot: T("Chegou a nº 1", "Reached No. 1"), num: j.marcos.n1 ? String(j.marcos.n1).slice(0, 4) : "—", sub: j.marcos.n1_idade ? T(`aos ${br(j.marcos.n1_idade, 1)} anos`, `aged ${br(j.marcos.n1_idade, 1)}`) : "" },
+        { rot: T("Ano da virada", "Breakthrough year"), num: vir ? String(vir.ano) : "—", sub: vir ? T(`vitórias contra Top 10: ${pct(vir.antes, 0)} → ${pct(vir.depois, 0)}`, `wins vs Top 10: ${pct(vir.antes, 0)} → ${pct(vir.depois, 0)}`) : T("sem salto claro na base", "no clear jump in the data") },
+        { rot: T(`O que mais cresceu (${nomeF(prim)} → ${nomeF(ult)})`, `What grew most (${nomeF(prim)} → ${nomeF(ult)})`), num: mud.length ? `+${br(100 * mud[0][1], 1)} ${T("p.p.", "pp")}` : "—", sub: mud.length ? nomeI(mud[0][0]) : "" },
+        { rot: T("Títulos · Slams", "Titles · Slams"), num: `${j.marcos.titulos} · ${j.marcos.slams}`, sub: j.marcos.slam ? T(`1º Slam: ${j.marcos.slam.torneio} ${j.marcos.slam.data.slice(0, 4)}`, `1st Slam: ${j.marcos.slam.torneio} ${j.marcos.slam.data.slice(0, 4)}`) : "" },
+      ]);
+      const cob = document.getElementById("n1-cobertura");
+      cob.hidden = j.cobertura === "completa";
+      cob.innerHTML = j.cobertura === "ja_no_topo" ? T(`${A} já estava no Top 30 quando a base começa (1991): o começo da subida não está aqui.`, `${A} was already in the Top 30 when the data starts (1991): the start of the climb is not here.`)
+        : j.cobertura === "antes_1991" ? T(`${A} já tinha carreira antes de 1991: a jornada e os títulos daquela época não estão na base (os Slams sim).`, `${A} already had a career before 1991: that part of the journey and those titles are not in the data (Slams are).`) : "";
+      const ks = ["tpw", "saque", "devolucao", "ganhos_2"], cs = [CORES.pop, CORES.sup.Dura, CORES.sup.Saibro, CORES.top];
+      plot(document.getElementById("g-n1-fase"), ks.map((k, i) => ({ x: fases.map(nomeF), y: fases.map(f => v(f, k)), mode: "lines+markers", name: nomeI(k),
+        line: { color: cs[i], width: 3 }, marker: { size: 8 }, customdata: fases.map(f => v(f, "n")),
+        hovertemplate: `${nomeI(k)} · %{x}: %{y:.1%} (%{customdata} ${T("jogos", "matches")})<extra></extra>` })),
+        { height: 420, title: { text: T(`${A}: do ranking baixo ao nº 1<br><sup>${regua === "top10" ? "só jogos contra Top 10" : "contra todos"} · fases com 5+ jogos</sup>`,
+            `${A}: from low rankings to No. 1<br><sup>${regua === "top10" ? "only matches vs the Top 10" : "against everyone"} · phases with 5+ matches</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          xaxis: { title: { text: T("fase de ranking", "ranking phase"), standoff: 6 } }, yaxis: { tickformat: ".0%", gridcolor: "rgba(137,135,129,.22)" },
+          legend: { orientation: "h", y: -0.3, yanchor: "top", x: 0 }, margin: { l: 56, r: 10, t: 70, b: 120 } });
+      const t = j.temporadas.filter(r => r.elo != null);
+      const marcos = [[j.cobertura === "completa" ? j.marcos.titulo?.data : null, T("1º título", "1st title")], [j.marcos.slam?.data, T("1º Slam", "1st Slam")], [j.marcos.n1, T("nº 1", "No. 1")],
+        [vir ? `${vir.ano}-07-01` : null, T("virada", "breakthrough")]].filter(([d]) => d && +d.slice(0, 4) >= t[0]?.ano);
+      plot(document.getElementById("g-n1-temp"), [
+        { x: t.map(r => r.ano), y: t.map(r => r.elo), mode: "lines+markers", name: T("Elo no fim da temporada", "Elo at season end"), line: { color: CORES.pop, width: 3 },
+          hovertemplate: `%{x}: Elo %{y:.0f}<extra></extra>` },
+        { x: t.map(r => r.ano), y: t.map(r => r.vit_top10), yaxis: "y2", type: "bar", name: T("vitórias contra Top 10", "wins vs Top 10"), marker: { color: "rgba(213,81,129,.16)", line: { color: "rgba(213,81,129,.45)", width: 1 } },
+          customdata: t.map(r => r.n_top10), hovertemplate: `%{x}: %{y:.0%} (%{customdata} ${T("jogos", "matches")})<extra></extra>` }],
+        { height: 420, title: { text: T("Temporada a temporada", "Season by season"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          shapes: marcos.map(([d]) => ({ type: "line", xref: "x", yref: "paper", x0: +d.slice(0, 4) + (+d.slice(5, 7) - 1) / 12, x1: +d.slice(0, 4) + (+d.slice(5, 7) - 1) / 12, y0: 0, y1: 1, line: { color: CORES.neutra, dash: "dot" } })),
+          annotations: marcos.map(([d, r], i) => ({ x: +d.slice(0, 4) + (+d.slice(5, 7) - 1) / 12, y: 1 - 0.07 * i, yref: "paper", text: r, showarrow: false, xanchor: "left", font: { size: 11, color: "#4b5650" } })),
+          yaxis: { title: "Elo", gridcolor: "rgba(137,135,129,.22)" }, yaxis2: { overlaying: "y", side: "right", tickformat: ".0%", range: [0, 1], showgrid: false },
+          xaxis: { dtick: 2 }, legend: { orientation: "h", y: -0.12, yanchor: "top", x: 0 }, margin: { l: 56, r: 50, t: 50, b: 80 } });
+    }
+
+    function comparar() {
+      const tr0 = [[A, cores.A], [B, cores.B]].map(([n, cor]) => ({ x: J[n].idade_elo.idade, y: J[n].idade_elo.elo, mode: "lines", name: n, line: { color: cor, width: 2.5 },
+        hovertemplate: `<b>${n}</b> · ${T("idade", "age")} %{x:.1f}: %{y:.0f}<extra></extra>` }));
+      [[A, cores.A], [B, cores.B]].forEach(([n, cor]) => { const m = J[n].marcos; if (m.n1_idade) {
+        const k = J[n].idade_elo.idade.findIndex(x => x >= m.n1_idade);
+        if (k >= 0) tr0.push({ x: [J[n].idade_elo.idade[k]], y: [J[n].idade_elo.elo[k]], mode: "markers", showlegend: false, marker: { symbol: "star", size: 15, color: cor, line: { color: "#fff", width: 1 } },
+          hovertemplate: `<b>${n}</b> · ${T("chega a nº 1", "reaches No. 1")} (${br(m.n1_idade, 1)})<extra></extra>` }); } });
+      plot(document.getElementById("g-n1-idade"), tr0, { height: 400, title: { text: T("Elo por idade · ★ = chega a nº 1", "Elo by age · ★ = reaches No. 1"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        xaxis: { title: { text: T("idade (anos)", "age (years)"), standoff: 6 }, dtick: 2, gridcolor: "rgba(137,135,129,.22)", showgrid: true }, yaxis: { title: "Elo", gridcolor: "rgba(137,135,129,.22)" },
+        legend: { orientation: "h", y: -0.3, yanchor: "top", x: 0 }, margin: { l: 56, r: 10, t: 50, b: 110 } });
+      const linha = (rot, f) => `<tr><td>${rot}</td>${[A, B].map(n => `<td class="n">${f(J[n])}</td>`).join("")}</tr>`;
+      const idade = x => x == null ? "—" : `${br(x, 1)}`;
+      document.getElementById("n1-t-marcos").innerHTML = `<tr><th></th><th style="color:${cores.A}">${A}</th><th style="color:${cores.B}">${B}</th></tr>` +
+        linha(T("Idade no 1º título", "Age at 1st title"), j => j.cobertura === "completa" ? idade(j.marcos.titulo?.idade) : T("antes de 1991", "before 1991")) + linha(T("Idade no 1º Slam", "Age at 1st Slam"), j => idade(j.marcos.slam?.idade)) +
+        linha(T("Idade ao chegar a nº 1", "Age on reaching No. 1"), j => idade(j.marcos.n1_idade)) + linha(T("Ano da virada", "Breakthrough year"), j => j.virada ? j.virada.ano : "—") +
+        linha(T("Auge sustentado (Elo)", "Sustained peak (Elo)"), j => j.auge ? `${br(j.auge.auge, 0)} · ${T("aos", "at")} ${idade(j.auge.auge_idade)}` : "—") +
+        linha(T("Títulos · Slams", "Titles · Slams"), j => `${j.marcos.titulos} · ${j.marcos.slams}`);
+      document.getElementById("n1-nota-marcos").innerHTML = T(`Idades a partir da data de nascimento; "chegar a nº 1" = primeiro torneio disputado como nº 1. Títulos desde 1991
+        (Slams desde 1968).`, `Ages from the date of birth; "reaching No. 1" = first tournament played as No. 1. Titles since 1991 (Slams since 1968).`);
+    }
+
+    function comum() {
+      const C = N.em_comum;
+      plot(document.getElementById("g-n1-comum"), [{ type: "bar", orientation: "h", y: C.map(r => nomeI(r.crit)).reverse(), x: C.map(r => r.z).reverse(),
+        error_x: { type: "data", array: C.map(r => r.ic).reverse(), color: CORES.neutra, thickness: 1.5 }, marker: { color: C.map(r => r.z >= 1 ? CORES.pop : CORES.demais).reverse() },
+        customdata: C.map(r => r.pct_acima_1).reverse(), hovertemplate: `%{y}: z %{x:.2f} · ${T("acima de +1 em", "above +1 in")} %{customdata:.0%} ${T("dos nº 1", "of No. 1s")}<extra></extra>` }],
+        { height: 420, title: { text: T(`Distância dos nº 1 para o circuito<br><sup>em desvios-padrão (z), contra ${N.n_referencia} jogadores com 100+ partidas · traço = IC 95%</sup>`,
+            `How far the No. 1s sit above the tour<br><sup>in standard deviations (z), against ${N.n_referencia} players with 100+ matches · bar = 95% CI</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          xaxis: { title: "z", zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 200, r: 20, t: 70, b: 50 } });
+      document.getElementById("n1-t-assin").innerHTML = `<tr><th>${T("Nº 1", "No. 1")}</th><th>${T("Mais forte em", "Strongest at")}</th><th>${T("Depois", "Then")}</th></tr>` +
+        NOMES.map(n => { const z = Object.entries(J[n].z); return `<tr><td>${n}</td>${z.slice(0, 2).map(([k, v]) => `<td>${nomeI(k)} <span class="nota">+${br(v, 1)}</span></td>`).join("")}</tr>`; }).join("");
+      document.getElementById("n1-nota-comum").innerHTML = T(`<b>Leitura:</b> o que une os nº 1 é ganhar os pontos em que o saque não dá vantagem (2º saque e
+        devolução) e decidir bem; saque grande (aces, 1º saque dentro) quase não os separa do circuito. <b>Cuidado:</b> sets decisivos, tie-breaks e
+        break points são em parte consequência de ser melhor; para falar em "frieza" seria preciso comparar com o esperado pelo nível de cada um
+        (item do roadmap). Ficam de fora vitórias e títulos, que já definem quem é nº 1.`, `<b>Reading:</b> what unites the No. 1s is winning the points
+        where the serve gives no edge (2nd serve and return) and closing out well; a big serve (aces, 1st serve in) barely sets them apart from the tour.
+        <b>Caution:</b> deciding sets, tie-breaks and break points partly follow from being better; to talk about "clutch" we would need to compare with
+        what each player's level predicts (a roadmap item). Wins and titles are left out, since they already define who is No. 1.`);
+    }
+
+    function queda() {
+      const Q = N.depois_do_topo; if (!Q) return;
+      const L = Q.media.filter(r => r.ind !== "vitorias");
+      plot(document.getElementById("g-n1-queda"), [{ type: "bar", x: L.map(r => nomeI(r.ind)), y: L.map(r => 100 * r.media),
+        error_y: { type: "data", array: L.map(r => 196 * r.ep), color: CORES.neutra, thickness: 1.5 }, marker: { color: L.map(r => r.media + 1.96 * r.ep < 0 ? CORES.top : CORES.demais) },
+        customdata: L.map(r => r.caiu_em), hovertemplate: `%{x}: %{y:+.1f} ${T("p.p.", "pp")} · ${T("caiu em", "fell in")} %{customdata} ${T("de", "of")} ${Q.n}<extra></extra>` }],
+        { height: 380, title: { text: T(`Do auge às duas últimas temporadas (${Q.n} nº 1 que já pararam)<br><sup>variação média em pontos percentuais · traço = IC 95% · rosa = queda clara (IC todo abaixo de zero)</sup>`,
+            `From the peak to the last two seasons (${Q.n} No. 1s who have retired)<br><sup>mean change in percentage points · bar = 95% CI · pink = clear drop (whole CI below zero)</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          yaxis: { title: T("p.p.", "pp"), zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 56, r: 10, t: 70, b: 90 } });
+      const g = k => Q.media.find(r => r.ind === k);
+      document.getElementById("n1-nota-queda").innerHTML = T(`<b>Leitura:</b> no fim da carreira o que cai primeiro é a <b>devolução</b> (caiu em ${g("devolucao").caiu_em} de ${Q.n})
+        e os <b>pontos com o 1º saque</b> (${g("ganhos_1").caiu_em} de ${Q.n}): pernas e potência. A consistência quase não muda: o 1º saque dentro e os pontos
+        com o 2º saque ficam perto do auge. Os break points convertidos têm a maior queda média, mas oscilam muito (caíram em ${g("bp_convertidos").caiu_em} de ${Q.n}): não dá para
+        separar do acaso. As vitórias caem ${br(-100 * g("vitorias").media, 0)} pontos. O auge é o ano da melhor média de 12 meses do Elo; o fim, as
+        duas últimas temporadas com 15+ jogos.`, `<b>Reading:</b> at the end of a career what fades first is the <b>return</b> (down for ${g("devolucao").caiu_em} of ${Q.n})
+        and <b>points behind the 1st serve</b> (${g("ganhos_1").caiu_em} of ${Q.n}): legs and power. Consistency barely changes: 1st serves in and points on the
+        2nd serve stay close to the peak. Break points converted show the biggest average drop, but they swing a lot (down for ${g("bp_convertidos").caiu_em} of ${Q.n}): it can't be told
+        apart from chance. Wins drop ${br(-100 * g("vitorias").media, 0)} points. The peak is the year of the best 12-month Elo average; the end,
+        the last two seasons with 15+ matches.`);
+    }
+    jornada(); comparar(); comum(); queda();
   }
 
   function desenharCorrida(C) {
