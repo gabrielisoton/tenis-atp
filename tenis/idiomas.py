@@ -19,7 +19,7 @@ EN: dict[str, str] = {
     "Resultado": "Results", "Saque": "Serve", "Devolução": "Return", "Pressão": "Under pressure",
     "Conquistas": "Trophies",
     # critérios (tenis/analises.CRITERIOS) e métricas do Top N (METRICAS)
-    "Vitórias": "Wins", "Pontos ganhos (total)": "Total points won", "Vitórias contra Top 10": "Wins vs Top 10", "Dominance ratio": "Dominance ratio",
+    "Vitórias": "Wins", "Pontos ganhos (total)": "Total points won", "Vitórias contra Top 10": "Wins vs Top 10", "Índice de domínio": "Dominance ratio",
     "Pontos ganhos no saque": "Service points won", "1º saque dentro": "1st serve in",
     "Pontos ganhos com o 1º saque": "1st serve points won", "Pontos ganhos com o 2º saque": "2nd serve points won",
     "Aces por game de saque": "Aces per service game", "Duplas faltas por game de saque": "Double faults per service game",

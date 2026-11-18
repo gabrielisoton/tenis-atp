@@ -59,16 +59,25 @@ def jogadores(pop: pd.DataFrame) -> dict:
     para conferir o JavaScript.
     """
     lg = an.longo(pop)
+    # finais não concluídas (abandono ou W.O.) não estão na população, mas contam como título e final, como na ATP:
+    # entram como linhas sem partida, só com os componentes de títulos e finais (ex.: Federer, Estoril 2008)
+    tit = pd.read_parquet(ex.BASE / "titulos.parquet")
+    nc = tit[(tit["fonte"] == "1991+") & ~tit["concluida"]]
+    extras = [pd.DataFrame({"jogador": nc[col], "ano": nc["ano"], "superficie": nc["superficie"], "nivel": nc["nivel"],
+                            "partida": 0, "venceu": 0, "final": 1, "titulo": v, "titulo_gs": v * (nc["nivel"] == "Grand Slam").astype(int)})
+              for col, v in (("vencedor", 1), ("perdedor", 0))]
+    lg = pd.concat([lg, *extras], ignore_index=True)
     por = ["jogador", "ano", "superficie", "nivel"]
     s = an.somas(lg, por).reset_index()
-    nomes = lg["jogador"].value_counts().index.tolist()  # ordenado por nº de partidas
+    nomes = lg.groupby("jogador")["partida"].sum().sort_values(ascending=False, kind="stable").index.tolist()  # por nº de partidas
     idx = {n: i for i, n in enumerate(nomes)}
     col = {"j": s["jogador"].map(idx).tolist(), "ano": s["ano"].astype(int).tolist(),
            "sup": ex.codigo(s["superficie"], ex.SUP), "niv": ex.codigo(s["nivel"], ex.NIV),
            "mr": ex.inteiros(s["melhor_rank"])}
     for c in an.COMPONENTES:  # esperados de pressão em centésimos (o site divide por 100)
         col[c] = ((s[c] * 100) if c in an.ESPERADOS else s[c]).round().astype(int).tolist()
-    finais = pop[pop["rodada"] == "Final"][["ano", "torneio", "nivel", "superficie", "vencedor", "perdedor", "placar"]]
+    finais = pd.concat([pop[pop["rodada"] == "Final"][["ano", "torneio", "nivel", "superficie", "vencedor", "perdedor", "placar"]],
+                        nc[["ano", "torneio", "nivel", "superficie", "vencedor", "perdedor", "placar"]]]).sort_values(["ano", "torneio"], kind="stable")
     # checagem: ranking padrão (≥100 partidas, tudo) e o perfil do Federer
     tab = an.tabela_jogadores(lg)
     cheq = {c.chave: [[j, float(v)] for j, v in an.ranking_criterio(tab, c.chave)[c.chave].head(3).items()]

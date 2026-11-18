@@ -42,6 +42,8 @@ def finais(arquivos, niveis) -> pd.DataFrame:
         "data": data.dt.strftime("%Y-%m-%d"), "ano": data.dt.year, "torneio": d["tourney_name"],
         "nivel": d["tourney_level"].astype(str).map(NIVEIS), "id_vencedor": d["winner_id"].astype(str),
         "vencedor": d["winner_name"], "perdedor": d["loser_name"], "idade": d["winner_age"].round(2),
+        "id_perdedor": d["loser_id"].astype(str),
+        "superficie": d["surface"].map({"Hard": "Dura", "Clay": "Saibro", "Grass": "Grama", "Carpet": "Carpete"}),
         "placar": d["score"].astype(str),
         "concluida": ~d["score"].astype(str).str.contains(r"W/O|RET|DEF", regex=True),
     })
@@ -59,6 +61,7 @@ def main() -> None:
     nomes = pd.concat([pop[["id_vencedor", "vencedor"]].set_axis(["id", "nome"], axis=1),
                        pop[["id_perdedor", "perdedor"]].set_axis(["id", "nome"], axis=1)]).drop_duplicates("id").set_index("id")["nome"]
     t["vencedor"] = t["id_vencedor"].map(nomes).fillna(t["vencedor"])
+    t["perdedor"] = t["id_perdedor"].map(nomes).fillna(t["perdedor"])
     t.to_parquet(SAIDA, index=False)
     print(f"{len(t)} títulos ({(t['fonte'] == 'slam_antes_1991').sum()} Slams antes de 1991, "
           f"{(~t['concluida']).sum()} finais não concluídas) → {SAIDA.name}")

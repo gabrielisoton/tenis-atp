@@ -81,7 +81,7 @@ function montarNav() {
   nav.innerHTML = `<div class="nav-dentro">
     <a class="marca" href="index.html"><span class="bola"></span> ${L(SITE.marca)}</a>
     ${SITE.paginas.map(([href, set, nome]) =>
-      `<a class="item ${href === atual ? "ativo" : ""}" href="${href}"><small>${L(set)}</small>${L(nome)}</a>`).join("")}
+      `<a class="item ${href === atual ? "ativo" : ""}" href="${href}">${set ? `<small>${L(set)}</small>` : ""}${L(nome)}</a>`).join("")}
     ${SITE.extras ? `<span class="nav-sep" title="${L(SITE.extras.dica) || ""}">${L(SITE.extras.rotulo)}</span>` +
       SITE.extras.itens.map(([href, set, nome]) =>
         `<a class="item extra ${href === atual ? "ativo" : ""}" href="${href}"><small>${L(set)}</small>${L(nome)}</a>`).join("") : ""}
@@ -114,6 +114,17 @@ function placar(el, itens) {
   el.innerHTML = itens.map(i => `<div class="cel"><div class="rot">${i.rot}</div>
     <div class="num">${i.num}</div>${i.sub ? `<div class="sub">${i.sub}</div>` : ""}</div>`).join("");
 }
+
+/* a resposta da aba em uma frase, no topo (o que o leitor leva mesmo sem ler o resto) */
+function resposta(el, frase, sub = "") {
+  (typeof el === "string" ? document.getElementById(el) : el).innerHTML = `<div class="resposta">${frase}${sub ? `<small>${sub}</small>` : ""}</div>`;
+}
+/* como ler em uma ou duas linhas, sempre visível, ao lado do gráfico */
+/* bloco recolhido no pé da aba, para quem quer o detalhe técnico */
+const aprof = (titulo, texto) => `<details class="aprofundar"><summary>🔎 ${titulo}</summary><div class="nota">${texto}</div></details>`;
+const lerCurto = texto => `<p class="ler">📖 ${texto}</p>`;
+/* gráficos dentro de blocos que abrem e fecham: ao abrir, o Plotly se redimensiona */
+document.addEventListener("toggle", e => { if (e.target.open) window.dispatchEvent(new Event("resize")); }, true);
 
 function comoLer(texto) {
   return `<details class="como-ler"><summary>📖 ${T("Como ler", "How to read")}</summary><div>${texto}</div></details>`;

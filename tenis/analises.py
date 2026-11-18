@@ -139,7 +139,7 @@ CRITERIOS = [
     Criterio("vitorias", "Vitórias", "venceu", "partida", True, "%", "Resultado", "partidas vencidas"),
     Criterio("vitorias_top10", "Vitórias contra Top 10", "vitoria_top10", "vs_top10", True, "%", "Resultado",
              "partidas vencidas contra quem estava no Top 10 do ranking"),
-    Criterio("dominance", "Dominance ratio", "ret_won", "sv_pts", True, "razao", "Resultado",
+    Criterio("dominance", "Índice de domínio", "ret_won", "sv_pts", True, "razao", "Resultado",
              "% de pontos ganhos na devolução ÷ % de pontos perdidos no saque (acima de 1 = domina)"),
     Criterio("tpw", "Pontos ganhos (total)", "pts_ganhos", "pts_jogados", True, "%", "Resultado",
              "todos os pontos vencidos ÷ todos os pontos jogados, sacando e devolvendo (50% = jogador médio)"),

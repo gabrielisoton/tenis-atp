@@ -9,6 +9,10 @@ from __future__ import annotations
 import numpy as np
 
 
+# aspectos do jogo comparados no card "a maior vantagem do Top N" (proporções; fora os totais e o resultado)
+ASPECTOS = ["primeiro_dentro", "ganhos_1", "ganhos_2", "devolucao", "bp_salvos", "bp_convertidos"]
+
+
 def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict, ganhar: dict, conf: dict) -> dict:
     # 1. maior pico de Elo e a carreira de quem o atingiu
     pico = E["picos"]["geral"][0]
@@ -51,6 +55,14 @@ def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: di
         "elite": {"tpw_top10": top10["top"]["tpw"], "tpw_demais": top10["demais"]["tpw"], "vitorias_top10": top10["duelo"]["vitorias_top"]},
         "elo_acerta": {"elo": V["acerto_elo"], "ranking": V["acerto_ranking"], "n": V["n"]},
         "aces": {"anos": [r["ano"] for r in lt], "media": [round(r["aces_media"], 2) for r in lt]},
+        # o jogo está mais rápido? aces e duração (melhor de 3) por temporada completa
+        "tempo": {"anos": [r["ano"] for r in lt], "aces": [round(r["aces_media"], 2) for r in lt],
+                  "minutos": [round(r["minutos_bo3_media"], 1) for r in lt]},
+        # a maior vantagem do Top 5 e do Top 10 sobre os demais, entre os aspectos do jogo (em pontos percentuais)
+        "vantagem": {n: sorted([{"chave": k, "top": round(extras["top_n"]["por_n"][n]["Todas"]["top"][k], 4),
+                                 "demais": round(extras["top_n"]["por_n"][n]["Todas"]["demais"][k], 4),
+                                 "dif": round(extras["top_n"]["por_n"][n]["Todas"]["top"][k] - extras["top_n"]["por_n"][n]["Todas"]["demais"][k], 4)}
+                                for k in ASPECTOS], key=lambda r: -r["dif"]) for n in ("5", "10")},
         "numero1": {"n": nn, "acima": acima},
         # 10. o que faz ganhar: quanto vale +1 ponto de saque a cada 100 numa partida parelha, e o peso (z) de cada aspecto
         "ganhar": (lambda c: {"por_ponto": round(sum(x["por_ponto"] for x in c if x["por_ponto"]) / 3, 4),
