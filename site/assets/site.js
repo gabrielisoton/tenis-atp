@@ -5,8 +5,8 @@ window.SITE = {
   marca: ["Tênis em números", "Tennis by numbers"],
   paginas: [
     ["index.html", ["Início", "Home"], ["Achados", "Findings"]],
-    ["jogadores.html", ["Vestiário", "Locker room"], ["Jogadores", "Players"]],
     ["epocas.html", ["Elo · auge", "Elo · peak"], ["Épocas", "Eras"]],
+    ["jogadores.html", ["Vestiário", "Locker room"], ["Jogadores", "Players"]],
     ["jogo.html", "Tie-break", ["O jogo", "The game"]],
     ["sobre.html", ["Bastidores", "Behind the scenes"], ["Sobre os dados", "About the data"]],
   ],

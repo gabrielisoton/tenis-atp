@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css?v=5">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=8"></script>
+<script src="assets/site.js?v=9"></script>
 <script src="assets/comum.js?v=9"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <script src="assets/jogadores.js?v=10"></script>
@@ -51,6 +51,7 @@
     <button data-a="n1">🥇 <span data-l="pt">Os nº 1</span><span data-l="en">The No. 1s</span></button></div>
 
   <section class="painel-aba" data-p="elo">
+  <details class="como-ler elo-explica" id="elo-explica"></details>
   <h2><span data-l="pt">A carreira em Elo</span><span data-l="en">Careers in Elo</span></h2>
   <div class="filtros" style="position:relative;top:0;z-index:30">
     <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="f-sup"></span></div>
@@ -182,6 +183,55 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
   const titulo = t => ({ text: t, x: 0, font: { size: 16, family: "Barlow Condensed" } });
   const g0 = E.picos.geral[0], n1 = E.atual.geral[0];
+
+  // ---------- o que é o Elo e como calculamos (mesmas contas de tenis/elo.py)
+  const kf = n => 250 / Math.pow(n + 5, 0.4), chance = dif => 1 / (1 + Math.pow(10, -dif / 400));
+  const pFav = chance(200), kV = kf(300), kN = kf(10);
+  const ganhaFav = kV * (1 - pFav), ganhaZeb = kV * pFav, n0 = br(M.inicial, 0), i = x => br(x, 0);
+  document.getElementById("elo-explica").innerHTML = T(`<summary>📖 O que é o Elo e como calculamos</summary><div>
+    <p><b>O que é.</b> Uma nota de força de cada jogador. Todos começam com ${n0}. A cada partida, quem vence tira pontos de quem
+      perde, e quantos depende de duas coisas: <b>o quanto a vitória era esperada</b> e <b>quantas partidas o jogador já tem</b>.</p>
+    <p><b>A conta, num exemplo.</b> Um jogador com 1.700 enfrenta um com 1.500, os dois com 300 partidas. Pela diferença de 200
+      pontos, o favorito tem <b>${pct(pFav, 0)}</b> de chance. Se ele vence, ganha só <b>${i(ganhaFav)} pontos</b> (era o esperado) e o
+      outro perde ${i(ganhaFav)}. Se o azarão vence, ele sobe <b>${i(ganhaZeb)}</b> e o favorito cai ${i(ganhaZeb)}. Por isso vencer
+      um nº 1 vale muito mais do que vencer o 200º do ranking.</p>
+    <p><b>A fórmula.</b> Chance de A vencer B = 1 ÷ (1 + 10<sup>(Elo de B − Elo de A) ÷ 400</sup>). Depois da partida:
+      nova nota = nota + K × (resultado − chance), com resultado 1 na vitória e 0 na derrota. O K diminui com a experiência:
+      K = 250 ÷ (partidas + 5)<sup>0,4</sup>, cerca de ${i(kN)} para quem tem 10 partidas e ${i(kV)} para quem tem 300. Quem está
+      chegando sobe ou desce rápido; um veterano só muda com uma sequência de resultados.</p>
+    <p><b>Por superfície.</b> O mesmo cálculo só com as partidas de cada piso (carpete conta como quadra dura). As previsões usam
+      a média do Elo geral com o da superfície.</p>
+    <p><b>Por que Elo e não o ranking da ATP?</b> O ranking soma os pontos de torneio dos últimos 12 meses, e as regras de
+      pontuação mudaram várias vezes; o Elo só olha <b>quem venceu quem</b>, então dá para comparar épocas. E prevê melhor: acerta
+      o vencedor em <b>${pct(V.acerto_elo)}</b> das partidas, contra ${pct(V.acerto_ranking)} do ranking.</p>
+    <p><b>Cuidados.</b> Usamos só o circuito principal (sem Challengers, qualifying nem Copa Davis), então os valores ficam abaixo
+      dos de sites que usam tudo. ${M.aquecimento[0]}–${M.aquecimento[1]} são aquecimento: todos começam iguais em 1991, e quem já
+      estava no topo leva um tempo para chegar à sua nota. Nas chances mostradas no site a diferença é suavizada (× ${br(M.escala_prob, 2)}),
+      porque o Elo puro exagera um pouco nos extremos.</p>
+    <p>Validação completa (acerto por década e calibração) em <a href="sobre.html#metodos">Sobre os dados → Métodos</a>.
+      Cálculo no código: <a href="https://github.com/gabrielisoton/tenis-atp/blob/main/tenis/elo.py">tenis/elo.py</a>.</p></div>`,
+    `<summary>📖 What Elo is and how we calculate it</summary><div>
+    <p><b>What it is.</b> A strength rating for each player. Everyone starts at ${n0}. In every match the winner takes points from
+      the loser, and how many depends on two things: <b>how expected the win was</b> and <b>how many matches the player already has</b>.</p>
+    <p><b>The maths, with an example.</b> A player rated 1,700 meets one rated 1,500, both with 300 matches. With a 200-point gap,
+      the favourite has a <b>${pct(pFav, 0)}</b> chance. If he wins, he gains only <b>${i(ganhaFav)} points</b> (it was expected) and the
+      other loses ${i(ganhaFav)}. If the underdog wins, he rises <b>${i(ganhaZeb)}</b> and the favourite drops ${i(ganhaZeb)}. That's why
+      beating a No. 1 is worth far more than beating the world No. 200.</p>
+    <p><b>The formula.</b> Chance of A beating B = 1 ÷ (1 + 10<sup>(B's Elo − A's Elo) ÷ 400</sup>). After the match:
+      new rating = rating + K × (result − chance), with result 1 for a win and 0 for a loss. K shrinks with experience:
+      K = 250 ÷ (matches + 5)<sup>0.4</sup>, about ${i(kN)} for a player with 10 matches and ${i(kV)} for one with 300. Newcomers rise
+      or fall fast; a veteran only moves with a run of results.</p>
+    <p><b>By surface.</b> The same calculation using only that surface's matches (carpet counts as hard court). Forecasts use the
+      average of overall and surface Elo.</p>
+    <p><b>Why Elo and not the ATP ranking?</b> The ranking adds up tournament points from the last 12 months, and the points
+      rules have changed several times; Elo only looks at <b>who beat whom</b>, so eras can be compared. And it predicts better: it
+      picks the winner in <b>${pct(V.acerto_elo)}</b> of matches, against ${pct(V.acerto_ranking)} for the ranking.</p>
+    <p><b>Caveats.</b> We use only the main tour (no Challengers, qualifying or Davis Cup), so values sit below those of sites
+      that use everything. ${M.aquecimento[0]}–${M.aquecimento[1]} are a warm-up: everyone starts equal in 1991, and players already at
+      the top take a while to reach their rating. In the probabilities shown on the site the gap is softened (× ${br(M.escala_prob, 2)}),
+      because raw Elo overstates the extremes a little.</p>
+    <p>Full validation (accuracy by decade and calibration) in <a href="sobre.html#metodos">About the data → Methods</a>.
+      The code: <a href="https://github.com/gabrielisoton/tenis-atp/blob/main/tenis/elo.py">tenis/elo.py</a>.</p></div>`);
   placar(document.getElementById("placar"), [
     { rot: T("Elo acerta o vencedor", "Elo picks the winner"), num: pct(V.acerto_elo), sub: T(`ranking da ATP: ${pct(V.acerto_ranking)}`, `ATP ranking: ${pct(V.acerto_ranking)}`) },
     { rot: T("Maior pico", "Highest peak"), num: br(g0.elo, 0), sub: `${g0.jogador} · ${mesAno(g0.data)}` },
