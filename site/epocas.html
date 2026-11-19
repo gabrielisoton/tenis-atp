@@ -6,10 +6,10 @@
 <title data-en="Eras · Tennis by numbers">Épocas · Tênis em números</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/estilo.css?v=7">
+<link rel="stylesheet" href="assets/estilo.css?v=8">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=10"></script>
-<script src="assets/comum.js?v=10"></script>
+<script src="assets/site.js?v=9"></script>
+<script src="assets/comum.js?v=9"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <script src="assets/jogadores.js?v=10"></script>
 <style>
@@ -32,23 +32,25 @@
 </head>
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
-  <span class="etiqueta"><span data-l="pt">Épocas</span><span data-l="en">Eras</span></span>
+  <span class="etiqueta"><span data-l="pt">Épocas · Elo</span><span data-l="en">Eras · Elo</span></span>
   <h1><span data-l="pt">Quem dominou cada época?</span><span data-l="en">Who dominated each era?</span></h1>
-  <p data-l="pt">A força de cada jogador ao longo da carreira, a idade do auge, os Slams por idade, quem ganharia no auge e a jornada
-    dos nº 1.</p>
-  <p data-l="en">Each player's strength over their career, the age of the peak, Slams by age, who would win at their peak and the
-    No. 1s' journey.</p>
+  <p data-l="pt">O <b>Elo</b> é uma nota que sobe quando o jogador vence e desce quando perde, mais ou menos conforme a força do
+    adversário. Vencer um nº 1 vale muito mais do que vencer o 200º. Diferente do ranking da ATP, ele não depende de pontos de
+    torneio nem de regras que mudaram com os anos, só de quem venceu quem.</p>
+  <p data-l="en"><b>Elo</b> is a rating that goes up when a player wins and down when they lose, by more or less depending on the
+    opponent's strength. Beating a No. 1 is worth far more than beating the No. 200. Unlike the ATP ranking, it does not depend on
+    tournament points or rules that changed over the years, only on who beat whom.</p>
 </div></header>
 <main class="conteudo" id="area-e">
   <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
+  <div id="placar" style="margin-top:22px"></div>
   <div class="abas" id="abas-e" style="margin-top:22px"><button class="on" data-a="elo">📈 Elo</button>
+    <button data-a="auge">⭐ <span data-l="pt">O auge</span><span data-l="en">The peak</span></button>
     <button data-a="corrida">🏁 <span data-l="pt">Corrida por idade</span><span data-l="en">Race by age</span></button>
     <button data-a="pxp">🥊 <span data-l="pt">Pico × Pico</span><span data-l="en">Peak vs Peak</span></button>
     <button data-a="n1">🥇 <span data-l="pt">Os nº 1</span><span data-l="en">The No. 1s</span></button></div>
 
   <section class="painel-aba" data-p="elo">
-  <div id="elo-resposta"></div>
-  <div id="placar"></div>
   <details class="como-ler elo-explica" id="elo-explica"></details>
   <h2><span data-l="pt">A carreira em Elo</span><span data-l="en">Careers in Elo</span></h2>
   <div class="filtros" style="position:relative;top:0;z-index:30">
@@ -58,7 +60,7 @@
     <div class="grupo escolhidos" id="f-escolhidos"></div>
   </div>
   <div class="cartao"><div id="g-serie" class="grafico" style="min-height:460px"></div><p class="nota" id="nota-serie"></p></div>
-  <div id="serie-ler"></div>
+  <div id="comoler"></div>
 
   <div class="grade g2" style="margin-top:16px">
     <div class="cartao rolagem"><h3 style="margin-top:0" id="tit-picos"></h3><table class="t" id="t-picos"></table></div>
@@ -70,40 +72,43 @@
   <p class="nota"><span data-l="pt">Entre quem jogou nos 12 meses anteriores. Pode diferir do nº 1 da ATP, que soma pontos de torneio.</span>
     <span data-l="en">Among players active in the previous 12 months. It can differ from the ATP No. 1, which adds up tournament points.</span></p>
 
-  <h2 id="auge"><span data-l="pt">Com que idade se chega ao auge?</span><span data-l="en">At what age do players peak?</span></h2>
-  <div id="cv-resposta"></div>
-  <div class="cartao"><div id="g-cv" class="grafico" style="min-height:400px"></div></div>
-  <div id="cv-ler"></div>
+  <p class="nota"><span data-l="pt">O Elo funciona? Ele acerta o vencedor mais do que o ranking da ATP, em todas as décadas:
+    veja a validação e o método em <a href="sobre.html#metodos">Sobre os dados</a>.</span><span data-l="en">Does Elo work? It picks
+    the winner more often than the ATP ranking, in every decade: see the validation and the method in
+    <a href="sobre.html#metodos">About the data</a>.</span></p>
+  </section>
 
-  <details class="aprofundar"><summary>🔎 <span data-l="pt">Para quem quer aprofundar: a fórmula do Elo, o auge de cada jogador e a curva por época</span><span data-l="en">Go deeper: the Elo formula, each player's peak and the curve by era</span></summary>
-    <div id="elo-formula"></div>
-    <h3><span data-l="pt">O auge de cada jogador</span><span data-l="en">Each player's peak</span></h3>
-    <div id="auge-comoler"></div>
-    <div id="auge-placar"></div>
-    <div class="grade g2" style="margin-top:14px">
-      <div class="cartao"><div id="g-auge" class="grafico" style="min-height:440px"></div></div>
-      <div class="cartao"><div id="g-epoca" class="grafico" style="min-height:440px"></div></div>
-    </div>
-    <div class="cartao rolagem" style="max-height:520px;overflow:auto;margin-top:14px"><table class="t" id="t-auges"></table></div>
-    <p class="nota" id="auge-nota"></p>
-    <h3><span data-l="pt">A curva da carreira por época</span><span data-l="en">The career curve by era</span></h3>
-    <div id="cv-comoler"></div>
-    <div id="cv-placar"></div>
-    <div class="cartao" style="margin-top:14px"><div id="g-cv-epoca" class="grafico" style="min-height:440px"></div></div>
-    <p class="nota" id="cv-nota"></p>
-  </details>
+  <section class="painel-aba" data-p="auge" hidden>
+  <h2><span data-l="pt">O auge: quando e com que idade</span><span data-l="en">The peak: when and at what age</span></h2>
+  <div id="auge-comoler"></div>
+  <div id="auge-placar"></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-auge" class="grafico" style="min-height:440px"></div></div>
+    <div class="cartao"><div id="g-epoca" class="grafico" style="min-height:440px"></div></div>
+  </div>
+  <div class="cartao rolagem" style="max-height:520px;overflow:auto;margin-top:14px"><table class="t" id="t-auges"></table></div>
+  <p class="nota" id="auge-nota"></p>
+
+  <h2><span data-l="pt">A curva da carreira: em que idade se joga melhor?</span><span data-l="en">The career curve: at what age do players peak?</span></h2>
+  <div id="cv-comoler"></div>
+  <div id="cv-placar"></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-cv" class="grafico" style="min-height:440px"></div></div>
+    <div class="cartao"><div id="g-cv-epoca" class="grafico" style="min-height:440px"></div></div>
+  </div>
+  <p class="nota" id="cv-nota"></p>
   </section>
 
   <section class="painel-aba" data-p="corrida" hidden>
   <h2><span data-l="pt">Quem tinha mais títulos na mesma idade?</span><span data-l="en">Who had more titles at the same age?</span></h2>
-  <div id="c-resposta"></div>
+  <div id="c-comoler"></div>
   <div class="filtros" style="position:relative;top:0;z-index:30">
     <div class="grupo"><span class="rot"><span data-l="pt">Contar</span><span data-l="en">Count</span></span><span id="c-tipo"></span></div>
     <div class="grupo"><span class="rot"><span data-l="pt">Adicionar jogador</span><span data-l="en">Add player</span></span>
       <input class="sel busca" id="c-add" placeholder="Digite ou escolha" data-en-placeholder="Type or pick"></div>
     <div class="grupo escolhidos" id="c-escolhidos"></div>
   </div>
-  <div class="cartao"><div id="g-corrida" class="grafico" style="min-height:480px"></div><div id="c-ler"></div><p class="nota" id="c-nota"></p></div>
+  <div class="cartao"><div id="g-corrida" class="grafico" style="min-height:480px"></div><p class="nota" id="c-nota"></p></div>
   <h2><span data-l="pt">Na mesma idade</span><span data-l="en">At the same age</span></h2>
   <div class="filtros" style="position:static"><div class="grupo"><span class="rot"><span data-l="pt">Até os</span><span data-l="en">By age</span></span>
     <select class="sel" id="c-idade"></select><span data-l="pt">anos</span></div></div>
@@ -112,11 +117,15 @@
     <div class="cartao rolagem" style="max-height:520px;overflow:auto"><h3 style="margin-top:0" id="c-tit-tit"></h3><table class="t" id="c-t-tit"></table></div>
   </div>
   <p class="nota" id="c-nota2"></p>
-  <details class="aprofundar"><summary>🔎 <span data-l="pt">Como contamos os títulos</span><span data-l="en">How titles are counted</span></summary><div id="c-comoler"></div></details>
   </section>
   <section class="painel-aba" data-p="pxp" hidden>
   <h2><span data-l="pt">Quem ganharia, cada um no seu auge?</span><span data-l="en">Who would win, each at their peak?</span></h2>
-  <div id="x-resposta"></div>
+  <div class="aviso"><span data-l="pt"><b>É uma brincadeira, com método.</b> O Elo mede o quanto cada jogador estava acima do circuito
+    <b>da sua época</b>. Entre rivais da mesma geração (Federer × Nadal, Sinner × Alcaraz) a comparação faz sentido; entre épocas
+    diferentes, raquetes, cordas, preparo físico e quadras mudaram, e ninguém sabe de verdade quem ganharia.</span><span data-l="en">
+    <b>It is a game, with a method.</b> Elo measures how far above <b>their own era's</b> tour each player was. Between rivals of the
+    same generation (Federer vs Nadal, Sinner vs Alcaraz) the comparison makes sense; across eras, rackets, strings, fitness and courts
+    changed, and nobody really knows who would win.</span></div>
   <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:14px">
     <div class="grupo"><span class="rot"><span data-l="pt">Jogador A</span><span data-l="en">Player A</span></span><input class="sel busca" id="x-a"></div>
     <div class="grupo"><span class="rot"><span data-l="pt">Jogador B</span><span data-l="en">Player B</span></span><input class="sel busca" id="x-b"></div>
@@ -128,14 +137,13 @@
     <div class="cartao rolagem"><h3 style="margin-top:0"><span data-l="pt">O auge de cada um</span><span data-l="en">Each player's peak</span></h3>
       <table class="t" id="x-t"></table></div>
   </div>
-  <details class="aprofundar"><summary>🔎 <span data-l="pt">Como a chance é calculada</span><span data-l="en">How the chance is calculated</span></summary><p class="nota" id="x-nota"></p></details>
+  <p class="nota" id="x-nota"></p>
   </section>
   <section class="painel-aba" data-p="n1" hidden>
-  <div id="n1-resposta"></div>
   <h2><span data-l="pt">A jornada até o nº 1</span><span data-l="en">The journey to No. 1</span></h2>
   <div class="filtros" style="position:relative;top:0;z-index:30">
     <div class="grupo"><span class="rot"><span data-l="pt">Nº 1</span><span data-l="en">No. 1</span></span><input class="sel busca" id="n1-a"></div>
-    <div class="grupo"><span class="rot"><span data-l="pt">Adversários</span><span data-l="en">Opponents</span></span><span id="n1-regua"></span></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Régua</span><span data-l="en">Ruler</span></span><span id="n1-regua"></span></div>
   </div>
   <div id="n1-placar"></div>
   <div class="aviso" id="n1-cobertura" hidden></div>
@@ -143,7 +151,7 @@
     <div class="cartao"><div id="g-n1-fase" class="grafico" style="min-height:420px"></div></div>
     <div class="cartao"><div id="g-n1-temp" class="grafico" style="min-height:420px"></div></div>
   </div>
-  <div id="n1-ler"></div>
+  <div id="n1-comoler"></div>
 
   <h2><span data-l="pt">Comparar jornadas</span><span data-l="en">Compare journeys</span></h2>
   <div class="filtros" style="position:relative;top:0;z-index:29">
@@ -164,8 +172,6 @@
 
   <h2><span data-l="pt">Depois do topo: o que cai primeiro</span><span data-l="en">After the top: what fades first</span></h2>
   <div class="cartao"><div id="g-n1-queda" class="grafico" style="min-height:380px"></div><p class="nota" id="n1-nota-queda"></p></div>
-  <details class="aprofundar"><summary>🔎 <span data-l="pt">Para quem quer aprofundar: como cada conta é feita</span><span data-l="en">Go deeper: how each figure is calculated</span></summary>
-    <div id="n1-comoler"></div><p class="nota" id="n1-metodo"></p></details>
   </section>
 </main>
 <script>
@@ -182,51 +188,55 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const kf = n => 250 / Math.pow(n + 5, 0.4), chance = dif => 1 / (1 + Math.pow(10, -dif / 400));
   const pFav = chance(200), kV = kf(300), kN = kf(10);
   const ganhaFav = kV * (1 - pFav), ganhaZeb = kV * pFav, n0 = br(M.inicial, 0), i = x => br(x, 0);
-  document.getElementById("elo-explica").innerHTML = T(`<summary>📖 O que é o Elo (em 30 segundos)</summary><div>
-    <p>Uma <b>nota de força</b> de cada jogador. Todos começam com ${n0}. A cada partida, quem vence tira pontos de quem perde, e
-      quanto mais forte o adversário, mais pontos vale a vitória.</p>
-    <p><b>Exemplo:</b> um jogador com 1.700 enfrenta um com 1.500. O favorito tem <b>${pct(pFav, 0)}</b> de chance. Se ele vence, ganha
-      só <b>${i(ganhaFav)} pontos</b> (era o esperado). Se o azarão vence, sobe <b>${i(ganhaZeb)}</b>. Por isso vencer um nº 1 vale muito
-      mais do que vencer o 200º do ranking.</p>
-    <p><b>Por que não o ranking da ATP?</b> O ranking soma pontos de torneio, com regras que mudaram ao longo dos anos. O Elo só olha
-      quem venceu quem, então dá para comparar épocas, e ele acerta mais o vencedor (${pct(V.acerto_elo, 0)} contra ${pct(V.acerto_ranking, 0)}).</p></div>`,
-    `<summary>📖 What Elo is (in 30 seconds)</summary><div>
-    <p>A <b>strength rating</b> for each player. Everyone starts at ${n0}. In every match the winner takes points from the loser, and the
-      stronger the opponent, the more the win is worth.</p>
-    <p><b>Example:</b> a player rated 1,700 meets one rated 1,500. The favourite has a <b>${pct(pFav, 0)}</b> chance. If he wins, he gains only
-      <b>${i(ganhaFav)} points</b> (it was expected). If the underdog wins, he rises <b>${i(ganhaZeb)}</b>. That's why beating a No. 1 is
-      worth far more than beating the world No. 200.</p>
-    <p><b>Why not the ATP ranking?</b> The ranking adds up tournament points, under rules that changed over the years. Elo only looks at
-      who beat whom, so eras can be compared, and it picks the winner more often (${pct(V.acerto_elo, 0)} against ${pct(V.acerto_ranking, 0)}).</p></div>`);
-  document.getElementById("elo-formula").innerHTML = T(`<h3>A fórmula do Elo</h3>
-    <p>Chance de A vencer B = 1 ÷ (1 + 10<sup>(Elo de B − Elo de A) ÷ 400</sup>). Depois da partida: nova nota = nota + K × (resultado −
-      chance), com resultado 1 na vitória e 0 na derrota. O K diminui com a experiência: K = 250 ÷ (partidas + 5)<sup>0,4</sup>, cerca de
-      ${i(kN)} para quem tem 10 partidas e ${i(kV)} para quem tem 300. O Elo por superfície usa só as partidas de cada piso (carpete conta
-      como quadra dura), e as previsões usam a média do geral com o da superfície.</p>
-    <p><b>Cuidados.</b> Só o circuito principal (sem Challengers, qualifying nem Copa Davis), então os valores ficam abaixo dos de sites
-      que usam tudo. ${M.aquecimento[0]}–${M.aquecimento[1]} são aquecimento: todos começam iguais em 1991. Nas chances mostradas no site a
-      diferença é suavizada (× ${br(M.escala_prob, 2)}), porque o Elo puro exagera um pouco nos extremos. Validação completa em
-      <a href="sobre.html#metodos">Sobre os dados</a>; o código em <a href="https://github.com/gabrielisoton/tenis-atp/blob/main/tenis/elo.py">tenis/elo.py</a>.</p>`,
-    `<h3>The Elo formula</h3>
-    <p>Chance of A beating B = 1 ÷ (1 + 10<sup>(B's Elo − A's Elo) ÷ 400</sup>). After the match: new rating = rating + K × (result −
-      chance), with result 1 for a win and 0 for a loss. K shrinks with experience: K = 250 ÷ (matches + 5)<sup>0.4</sup>, about ${i(kN)} for a
-      player with 10 matches and ${i(kV)} for one with 300. Surface Elo uses only that surface's matches (carpet counts as hard court), and
-      forecasts average overall and surface Elo.</p>
-    <p><b>Caveats.</b> Main tour only (no Challengers, qualifying or Davis Cup), so values sit below those of sites that use everything.
-      ${M.aquecimento[0]}–${M.aquecimento[1]} are a warm-up: everyone starts equal in 1991. In the probabilities shown on the site the gap is
-      softened (× ${br(M.escala_prob, 2)}), because raw Elo overstates the extremes a little. Full validation in <a href="sobre.html#metodos">About
-      the data</a>; the code in <a href="https://github.com/gabrielisoton/tenis-atp/blob/main/tenis/elo.py">tenis/elo.py</a>.</p>`);
-  const temporadasN1 = {};
-  E.n1_por_ano.forEach(r => { temporadasN1[r.jogador] = (temporadasN1[r.jogador] || 0) + 1; });
-  const maisN1 = Object.entries(temporadasN1).sort((a, b) => b[1] - a[1])[0];
-  resposta("elo-resposta", T(`${g0.jogador} teve o maior auge desde 1991: ${br(g0.elo, 0)} pontos de Elo, em ${mesAno(g0.data)}. Hoje, o mais forte é ${n1.jogador}.`,
-      `${g0.jogador} had the highest peak since 1991: ${br(g0.elo, 0)} Elo points, in ${mesAno(g0.data)}. Today the strongest is ${n1.jogador}.`),
-    T("O Elo é uma nota de força: sobe quando o jogador vence e desce quando perde, mais ainda contra adversários fortes.",
-      "Elo is a strength rating: it goes up when a player wins and down when he loses, more so against strong opponents."));
+  document.getElementById("elo-explica").innerHTML = T(`<summary>📖 O que é o Elo e como calculamos</summary><div>
+    <p><b>O que é.</b> Uma nota de força de cada jogador. Todos começam com ${n0}. A cada partida, quem vence tira pontos de quem
+      perde, e quantos depende de duas coisas: <b>o quanto a vitória era esperada</b> e <b>quantas partidas o jogador já tem</b>.</p>
+    <p><b>A conta, num exemplo.</b> Um jogador com 1.700 enfrenta um com 1.500, os dois com 300 partidas. Pela diferença de 200
+      pontos, o favorito tem <b>${pct(pFav, 0)}</b> de chance. Se ele vence, ganha só <b>${i(ganhaFav)} pontos</b> (era o esperado) e o
+      outro perde ${i(ganhaFav)}. Se o azarão vence, ele sobe <b>${i(ganhaZeb)}</b> e o favorito cai ${i(ganhaZeb)}. Por isso vencer
+      um nº 1 vale muito mais do que vencer o 200º do ranking.</p>
+    <p><b>A fórmula.</b> Chance de A vencer B = 1 ÷ (1 + 10<sup>(Elo de B − Elo de A) ÷ 400</sup>). Depois da partida:
+      nova nota = nota + K × (resultado − chance), com resultado 1 na vitória e 0 na derrota. O K diminui com a experiência:
+      K = 250 ÷ (partidas + 5)<sup>0,4</sup>, cerca de ${i(kN)} para quem tem 10 partidas e ${i(kV)} para quem tem 300. Quem está
+      chegando sobe ou desce rápido; um veterano só muda com uma sequência de resultados.</p>
+    <p><b>Por superfície.</b> O mesmo cálculo só com as partidas de cada piso (carpete conta como quadra dura). As previsões usam
+      a média do Elo geral com o da superfície.</p>
+    <p><b>Por que Elo e não o ranking da ATP?</b> O ranking soma os pontos de torneio dos últimos 12 meses, e as regras de
+      pontuação mudaram várias vezes; o Elo só olha <b>quem venceu quem</b>, então dá para comparar épocas. E prevê melhor: acerta
+      o vencedor em <b>${pct(V.acerto_elo)}</b> das partidas, contra ${pct(V.acerto_ranking)} do ranking.</p>
+    <p><b>Cuidados.</b> Usamos só o circuito principal (sem Challengers, qualifying nem Copa Davis), então os valores ficam abaixo
+      dos de sites que usam tudo. ${M.aquecimento[0]}–${M.aquecimento[1]} são aquecimento: todos começam iguais em 1991, e quem já
+      estava no topo leva um tempo para chegar à sua nota. Nas chances mostradas no site a diferença é suavizada (× ${br(M.escala_prob, 2)}),
+      porque o Elo puro exagera um pouco nos extremos.</p>
+    <p>Validação completa (acerto por década e calibração) em <a href="sobre.html#metodos">Sobre os dados → Métodos</a>.
+      Cálculo no código: <a href="https://github.com/gabrielisoton/tenis-atp/blob/main/tenis/elo.py">tenis/elo.py</a>.</p></div>`,
+    `<summary>📖 What Elo is and how we calculate it</summary><div>
+    <p><b>What it is.</b> A strength rating for each player. Everyone starts at ${n0}. In every match the winner takes points from
+      the loser, and how many depends on two things: <b>how expected the win was</b> and <b>how many matches the player already has</b>.</p>
+    <p><b>The maths, with an example.</b> A player rated 1,700 meets one rated 1,500, both with 300 matches. With a 200-point gap,
+      the favourite has a <b>${pct(pFav, 0)}</b> chance. If he wins, he gains only <b>${i(ganhaFav)} points</b> (it was expected) and the
+      other loses ${i(ganhaFav)}. If the underdog wins, he rises <b>${i(ganhaZeb)}</b> and the favourite drops ${i(ganhaZeb)}. That's why
+      beating a No. 1 is worth far more than beating the world No. 200.</p>
+    <p><b>The formula.</b> Chance of A beating B = 1 ÷ (1 + 10<sup>(B's Elo − A's Elo) ÷ 400</sup>). After the match:
+      new rating = rating + K × (result − chance), with result 1 for a win and 0 for a loss. K shrinks with experience:
+      K = 250 ÷ (matches + 5)<sup>0.4</sup>, about ${i(kN)} for a player with 10 matches and ${i(kV)} for one with 300. Newcomers rise
+      or fall fast; a veteran only moves with a run of results.</p>
+    <p><b>By surface.</b> The same calculation using only that surface's matches (carpet counts as hard court). Forecasts use the
+      average of overall and surface Elo.</p>
+    <p><b>Why Elo and not the ATP ranking?</b> The ranking adds up tournament points from the last 12 months, and the points
+      rules have changed several times; Elo only looks at <b>who beat whom</b>, so eras can be compared. And it predicts better: it
+      picks the winner in <b>${pct(V.acerto_elo)}</b> of matches, against ${pct(V.acerto_ranking)} for the ranking.</p>
+    <p><b>Caveats.</b> We use only the main tour (no Challengers, qualifying or Davis Cup), so values sit below those of sites
+      that use everything. ${M.aquecimento[0]}–${M.aquecimento[1]} are a warm-up: everyone starts equal in 1991, and players already at
+      the top take a while to reach their rating. In the probabilities shown on the site the gap is softened (× ${br(M.escala_prob, 2)}),
+      because raw Elo overstates the extremes a little.</p>
+    <p>Full validation (accuracy by decade and calibration) in <a href="sobre.html#metodos">About the data → Methods</a>.
+      The code: <a href="https://github.com/gabrielisoton/tenis-atp/blob/main/tenis/elo.py">tenis/elo.py</a>.</p></div>`);
   placar(document.getElementById("placar"), [
-    { rot: T("Maior auge desde 1991", "Highest peak since 1991"), num: br(g0.elo, 0), sub: `${g0.jogador} · ${mesAno(g0.data)}` },
-    { rot: T("O mais forte hoje", "Strongest today"), num: br(n1.elo, 0), sub: `${n1.jogador} · ${T("até", "as of")} ${mesAno(M.ultima_data)}` },
-    { rot: T("Mais temporadas como nº 1 pelo Elo", "Most seasons as Elo No. 1"), num: maisN1[1], sub: maisN1[0] },
+    { rot: T("Elo acerta o vencedor", "Elo picks the winner"), num: pct(V.acerto_elo), sub: T(`ranking da ATP: ${pct(V.acerto_ranking)}`, `ATP ranking: ${pct(V.acerto_ranking)}`) },
+    { rot: T("Maior pico", "Highest peak"), num: br(g0.elo, 0), sub: `${g0.jogador} · ${mesAno(g0.data)}` },
+    { rot: T("Melhor Elo hoje", "Best Elo now"), num: br(n1.elo, 0), sub: `${n1.jogador} · ${T("até", "as of")} ${mesAno(M.ultima_data)}` },
+    { rot: T("Partidas avaliadas", "Matches assessed"), num: br(V.n, 0), sub: T("previsão feita antes de cada partida", "forecast made before each match") },
   ]);
 
   // ---------- séries
@@ -291,19 +301,20 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   }
   desenharPicos();
   ligarAbas(document.getElementById("area-e"), "#abas-e", true);
-  desenharAuge();
-  const prontas = new Set(["elo"]), abrir = { corrida: () => carregar("corrida").then(desenharCorrida), pxp: desenharPxP,
+  const prontas = new Set(["elo"]), abrir = { auge: desenharAuge, corrida: () => carregar("corrida").then(desenharCorrida), pxp: desenharPxP,
     n1: () => carregar("numero1").then(desenharN1) };
   document.querySelectorAll("#abas-e button").forEach(b => b.addEventListener("click", () => {
     if (!prontas.has(b.dataset.a)) { prontas.add(b.dataset.a); abrir[b.dataset.a](); } }));
   abrirAbaDoHash("#abas-e");
-  if (location.hash === "#auge") document.getElementById("auge").scrollIntoView();   // o auge agora é uma seção da aba Elo
   document.getElementById("n1").innerHTML = E.n1_por_ano.map(r => `<div><small>${r.ano}</small><b>${r.jogador}</b><small>Elo ${br(r.elo, 0)}</small></div>`).join("");
 
-  document.getElementById("serie-ler").innerHTML = lerCurto(T(`Cada linha é a força do jogador mês a mês: quanto mais alta, mais
-    dominante sobre o circuito da época. Uma diferença de 100 pontos dá cerca de 64% de chance de vitória ao mais forte.`,
-    `Each line is the player's strength month by month: the higher, the more dominant over that era's tour. A 100-point gap gives the
-    stronger player about a 64% chance of winning.`));
+  document.getElementById("comoler").innerHTML = comoLer(T(`Uma diferença de <b>100 pontos</b> de Elo dá cerca de 64% de chance ao mais
+    bem avaliado; 200 pontos, cerca de 76%. O Elo mede <b>o domínio sobre os jogadores da mesma época</b>, não um nível absoluto:
+    raquetes, cordas, preparo físico e quadras mudaram. Por isso um 2.200 dos anos 90 e um 2.200 de hoje significam "tão acima do seu
+    circuito", não "igualmente bons". Comparar épocas é com cuidado: veja as abas O auge e Corrida por idade.`,
+    `A gap of <b>100 Elo points</b> gives the higher-rated player about a 64% chance; 200 points, about 76%. Elo measures <b>dominance
+    over players of the same era</b>, not an absolute level: rackets, strings, fitness and courts changed. So a 2,200 in the 1990s and a
+    2,200 today mean "this far above their tour", not "equally good". Comparing eras needs care: see the Peak and Race by age tabs.`));
 
   function desenharAuge() {
     const A = E.auges, EP = E.idade_auge_por_epoca;
@@ -374,14 +385,6 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       age by age: the "delta method" used in analytics across sports. Only years with at least ${CV.min_partidas} matches at both ages
       count. The band is the 95% CI, from resampling players.`));
     const EPS = Object.entries(CV.por_epoca);
-    const [e0, e1] = [EPS[0], EPS[EPS.length - 1]];
-    resposta("cv-resposta", T(`O jogador típico chega ao seu melhor aos ${D.pico} anos e cai devagar depois dos 30.`,
-        `The typical player reaches his best at ${D.pico} and declines slowly after 30.`),
-      T(`E o auge chega cada vez mais tarde: aos ${e0[1].pico} anos em ${e0[0]}, aos ${e1[1].pico} em ${e1[0]}.`,
-        `And the peak keeps coming later: at ${e0[1].pico} in ${e0[0]}, at ${e1[1].pico} in ${e1[0]}.`));
-    document.getElementById("cv-ler").innerHTML = lerCurto(T(`A linha mostra quanto o jogador típico melhora ou piora a cada ano de idade,
-      comparando cada um com ele mesmo um ano depois. O ponto mais alto é a melhor idade.`, `The line shows how much the typical player
-      improves or declines with each year of age, comparing each player with himself a year later. The highest point is the best age.`));
     placar(document.getElementById("cv-placar"), [
       { rot: T("Melhor idade", "Best age"), num: `${D.pico} ${T("anos", "years")}`, sub: T(`${br(D.jogadores, 0)} jogadores, ${br(D.pares, 0)} pares de anos`, `${br(D.jogadores, 0)} players, ${br(D.pares, 0)} pairs of years`) },
       { rot: T("Dos 20 ao auge", "From 20 to the peak"), num: `+${br(D.nivel[D.idades.indexOf(D.pico)], 0)}`, sub: T("pontos de Elo", "Elo points") },
@@ -393,9 +396,12 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       { x, y: inf, mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: cor, hoverinfo: "skip", showlegend: false }];
     plot(document.getElementById("g-cv"), [
       ...faixa(D.idades, D.ic_inf, D.ic_sup, "rgba(98,80,214,.18)"),
-      { x: D.idades, y: D.nivel, mode: "lines+markers", name: T("jogador típico", "typical player"), line: { color: CORES.pop, width: 3 },
+      { x: D.idades, y: D.nivel, mode: "lines+markers", name: T("mesmo jogador, ano a ano", "same player, year to year"), line: { color: CORES.pop, width: 3 },
         hovertemplate: `${T("idade", "age")} %{x}: %{y:+.0f}<extra></extra>` },
-    ], { height: 400, showlegend: false, title: { text: T("Quanto o jogador típico melhora com a idade (Elo em relação aos 20 anos)", "How much the typical player improves with age (Elo relative to age 20)"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+      { x: I.idades.filter(a => a >= 18 && a <= 36), y: I.idades.map((a, k) => [a, I.elo[k] - ing20]).filter(([a]) => a >= 18 && a <= 36).map(([, v]) => v),
+        mode: "lines", name: T("média por idade (enganosa)", "average by age (misleading)"), line: { color: CORES.neutra, width: 2, dash: "dash" },
+        hovertemplate: `${T("idade", "age")} %{x}: %{y:+.0f}<extra>${T("média simples", "simple average")}</extra>` },
+    ], { height: 440, title: { text: T("Elo ao longo da idade (0 = aos 20 anos)", "Elo across age (0 = at age 20)"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
       xaxis: { title: T("idade (anos)", "age (years)"), dtick: 2 }, yaxis: { title: T("Elo em relação aos 20 anos", "Elo relative to age 20"), gridcolor: "rgba(137,135,129,.22)", zeroline: true },
       legend: { orientation: "h", y: -0.2, yanchor: "top", x: 0 }, margin: { l: 70, r: 10, t: 50, b: 110 } });
     const coresEp = [CORES.sup.Grama, CORES.pop, CORES.top], fundos = ["rgba(27,175,122,.15)", "rgba(98,80,214,.15)", "rgba(213,81,129,.15)"];
@@ -440,11 +446,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       modo = b.dataset.v; modoEl.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); desenhar(); }));
     function desenhar() {
       const res = SUP3.map(sup => { const p3 = chance3(nota(A, sup), nota(B, sup)); return { sup, p3, p5: md5(p3) }; });
-      const dura = res[0], favorito = dura.p5 >= .5 ? A : B, pf = Math.max(dura.p5, 1 - dura.p5), outro = favorito === A ? B : A;
-      resposta("x-resposta", T(`No auge, ${favorito} venceria ${outro} em ${pct(pf, 0)} das vezes numa final de Slam em quadra dura.`,
-          `At their peaks, ${favorito} would beat ${outro} ${pct(pf, 0)} of the time in a hard-court Slam final.`),
-        T("É uma brincadeira, com método: o Elo mede quanto cada um dominava a sua época. Entre gerações diferentes, ninguém sabe de verdade quem ganharia.",
-          "It's a game, with a method: Elo measures how much each player dominated his own era. Across generations, nobody really knows who would win."));
+      const dura = res[0], favorito = dura.p5 >= .5 ? A : B, pf = Math.max(dura.p5, 1 - dura.p5);
       placar(document.getElementById("x-placar"), [
         { rot: T("Final de Slam em quadra dura", "Hard-court Slam final"), num: `${favorito.split(" ").slice(-1)[0]} ${pct(pf, 0)}`, sub: T("melhor de 5", "best of 5") },
         ...res.map(r => ({ rot: `${tr(r.sup)} · ${T("melhor de 3", "best of 3")}`, num: `${pct(r.p3, 0)} × ${pct(1 - r.p3, 0)}`, sub: `${A.split(" ").slice(-1)[0]} × ${B.split(" ").slice(-1)[0]}` })),
@@ -492,23 +494,14 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     const cores = { A: CORES.pop, B: CORES.top };
     const dt = d => d ? mesAno(d.slice(0, 7) + "-01") : "—";
     const reguaEl = document.getElementById("n1-regua");
-    reguaEl.innerHTML = [["todos", T("Todos", "Everyone")], ["top10", T("Só Top 10", "Top 10 only")]]
+    reguaEl.innerHTML = [["todos", T("Contra todos", "Against everyone")], ["top10", T("Só contra Top 10", "Only against the Top 10")]]
       .map(([v, r]) => `<button class="chip ${v === regua ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
     reguaEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
       regua = b.dataset.v; reguaEl.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); jornada(); }));
     const cbA = combobox(document.getElementById("n1-a"), NOMES, i => J[NOMES[i]].marcos.n1 ? T(`nº 1 em ${String(J[NOMES[i]].marcos.n1).slice(0, 4)}`, `No. 1 in ${String(J[NOMES[i]].marcos.n1).slice(0, 4)}`) : "", n => { A = n; jornada(); comparar(); });
     const cbB = combobox(document.getElementById("n1-b"), NOMES, i => T(`${J[NOMES[i]].marcos.slams} Slams`, `${J[NOMES[i]].marcos.slams} Slams`), n => { B = n; comparar(); });
     cbA.definir(A); cbB.definir(B);
-    const nN = NOMES.length, quantos = k => Math.round((N.em_comum.find(r => r.crit === k)?.pct_acima_1 || 0) * nN);
-    const QD = N.depois_do_topo?.media.find(r => r.ind === "devolucao");
-    resposta("n1-resposta", T(`Nº 1 não se faz com ace: ${quantos("ganhos_2")} dos ${nN} nº 1 desde 1991 são muito melhores que o circuito no 2º saque, e ${quantos("devolucao")} na devolução. Em aces, só ${quantos("aces_game")}.`,
-        `No. 1s aren't made by aces: ${quantos("ganhos_2")} of the ${nN} No. 1s since 1991 are far better than the tour on the 2nd serve, and ${quantos("devolucao")} on return. In aces, only ${quantos("aces_game")}.`),
-      QD ? T(`E no fim da carreira, o que cai primeiro é a devolução (em ${QD.caiu_em} dos ${N.depois_do_topo.n} que já pararam).`,
-        `And at the end of a career, the return is what fades first (for ${QD.caiu_em} of the ${N.depois_do_topo.n} who have retired).`) : "");
-    document.getElementById("n1-ler").innerHTML = lerCurto(T(`Cada ponto mostra o jogador numa fase da carreira, pelo ranking que ele tinha: de fora
-      do top 50 até nº 1. Escolha "Só Top 10" para comparar só contra os mais fortes.`, `Each point shows the player at a stage of his career, by
-      the ranking he had: from outside the top 50 up to No. 1. Pick "Top 10 only" to compare only against the strongest.`));
-    document.getElementById("n1-comoler").innerHTML = (T(`A <b>fase de ranking</b> é o ranking com que o jogador entrou em cada partida: o mesmo
+    document.getElementById("n1-comoler").innerHTML = comoLer(T(`A <b>fase de ranking</b> é o ranking com que o jogador entrou em cada partida: o mesmo
       jogador passa por > 50, 11–50, 4–10, 2–3 e nº 1 ao longo da carreira. No topo os adversários são mais fortes, então a régua
       <b>"só contra Top 10"</b> é a comparação justa entre as fases. O <b>ano da virada</b> é a temporada com o maior salto de vitórias contra o
       Top 10 em relação à anterior (pelo menos 6 jogos contra Top 10 nas duas). A mudança na subida mistura técnica, físico, idade e confiança:
@@ -517,7 +510,6 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       is the fair comparison across phases. The <b>breakthrough year</b> is the season with the biggest jump in wins against the Top 10 compared
       with the previous one (at least 6 matches against the Top 10 in both). The change during the climb mixes technique, fitness, age and
       confidence: it shows what changed, not a recipe.`));
-    document.getElementById("n1-comoler").innerHTML = `<p class="nota">${document.getElementById("n1-comoler").innerHTML}</p>`;
 
     function jornada() {
       const j = J[A], fases = N.fases.filter(f => j.fases[f] && j.fases[f][regua] && j.fases[f][regua].n >= 5);
@@ -581,30 +573,28 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     }
 
     function comum() {
+      const C = N.em_comum;
+      plot(document.getElementById("g-n1-comum"), [{ type: "bar", orientation: "h", y: C.map(r => nomeI(r.crit)).reverse(), x: C.map(r => r.z).reverse(),
+        error_x: { type: "data", array: C.map(r => r.ic).reverse(), color: CORES.neutra, thickness: 1.5 }, marker: { color: C.map(r => r.z >= 1 ? CORES.pop : CORES.demais).reverse() },
+        customdata: C.map(r => r.pct_acima_1).reverse(), hovertemplate: `%{y}: z %{x:.2f} · ${T("acima de +1 em", "above +1 in")} %{customdata:.0%} ${T("dos nº 1", "of No. 1s")}<extra></extra>` }],
+        { height: 420, title: { text: T(`Distância dos nº 1 para o circuito<br><sup>em desvios-padrão (z), contra ${N.n_referencia} jogadores com 100+ partidas · traço = IC 95%</sup>`,
+            `How far the No. 1s sit above the tour<br><sup>in standard deviations (z), against ${N.n_referencia} players with 100+ matches · bar = 95% CI</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          xaxis: { title: "z", zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 200, r: 20, t: 70, b: 50 } });
+      document.getElementById("n1-t-assin").innerHTML = `<tr><th>${T("Nº 1", "No. 1")}</th><th>${T("Mais forte em", "Strongest at")}</th><th>${T("Depois", "Then")}</th></tr>` +
+        NOMES.map(n => { const z = Object.entries(J[n].z); return `<tr><td>${n}</td>${z.slice(0, 2).map(([k, v]) => `<td>${nomeI(k)} <span class="nota">+${br(v, 1)}</span></td>`).join("")}</tr>`; }).join("");
       const PR = k => { const v = NOMES.map(n => J[n].pressao?.[k]).filter(x => x != null); return { acima: v.filter(x => x > 0).length, n: v.length, media: v.reduce((a, x) => a + x, 0) / v.length }; };
       const dec = PR("dec_ae"), tb = PR("tb_ae"), bps = PR("bp_salvos_ae"), bpc = PR("bp_conv_ae");
       const sp = x => `${x >= 0 ? "+" : "−"}${br(100 * Math.abs(x), 1)} ${T("p.p.", "pp")}`;
-      const C = [...N.em_comum].sort((a, b) => b.pct_acima_1 - a.pct_acima_1), nN = NOMES.length;
-      plot(document.getElementById("g-n1-comum"), [{ type: "bar", orientation: "h", y: C.map(r => nomeI(r.crit)).reverse(), x: C.map(r => Math.round(r.pct_acima_1 * nN)).reverse(),
-        marker: { color: C.map(r => r.pct_acima_1 >= .5 ? CORES.pop : CORES.demais).reverse() }, text: C.map(r => Math.round(r.pct_acima_1 * nN)).reverse(), textposition: "outside", cliponaxis: false,
-        hovertemplate: `%{y}: %{x} ${T("de", "of")} ${nN}<extra></extra>` }],
-        { height: 460, title: { text: T(`Em quantos dos ${nN} nº 1 cada aspecto é bem melhor que o circuito`, `In how many of the ${nN} No. 1s each aspect is far better than the tour`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
-          xaxis: { title: T("nº 1", "No. 1s"), range: [0, nN + 2], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 220, r: 20, t: 50, b: 50 } });
-      document.getElementById("n1-t-assin").innerHTML = `<tr><th>${T("Nº 1", "No. 1")}</th><th>${T("Mais forte em", "Strongest at")}</th><th>${T("Depois", "Then")}</th></tr>` +
-        NOMES.map(n => { const z = Object.entries(J[n].z); return `<tr><td>${n}</td>${z.slice(0, 2).map(([k]) => `<td>${nomeI(k)}</td>`).join("")}</tr>`; }).join("");
-      document.getElementById("n1-nota-comum").innerHTML = T(`<b>Leitura:</b> o que mais une os nº 1 é ganhar os pontos em que o saque não ajuda
-        (2º saque e devolução) e vencer os sets decisivos. Aces e acertar o 1º saque quase não os separam do circuito.`,
-        `<b>Reading:</b> what unites the No. 1s most is winning the points where the serve doesn't help (2nd serve and return) and winning
-        deciding sets. Aces and landing the 1st serve barely set them apart from the tour.`);
-      document.getElementById("n1-metodo").innerHTML = T(`<b>"Bem melhor que o circuito"</b> = mais de 1 desvio-padrão acima da média dos ${N.n_referencia}
-        jogadores com 100+ partidas. <b>Frieza de verdade?</b> Descontando o que os pontos de cada partida previam ("acima do esperado"), os nº 1 seguem
-        acima em sets decisivos (${dec.acima} de ${dec.n}, ${sp(dec.media)} em média), um pouco em tie-breaks (${sp(tb.media)}) e quase nada em break points
-        (salvos ${sp(bps.media)}, convertidos ${sp(bpc.media)}). <b>Depois do topo:</b> do ano do auge (melhor média de 12 meses do Elo) às duas últimas
-        temporadas com 15+ jogos; o traço em cada barra é a margem de erro.`, `<b>"Far better than the tour"</b> = more than 1 standard deviation
-        above the average of the ${N.n_referencia} players with 100+ matches. <b>Real clutch?</b> Discounting what each match's points predicted ("above
-        expected"), the No. 1s stay ahead in deciding sets (${dec.acima} of ${dec.n}, ${sp(dec.media)} on average), slightly in tie-breaks (${sp(tb.media)}) and
-        barely on break points (saved ${sp(bps.media)}, converted ${sp(bpc.media)}). <b>After the top:</b> from the peak year (best 12-month Elo average) to
-        the last two seasons with 15+ matches; the line on each bar is the margin of error.`);
+      document.getElementById("n1-nota-comum").innerHTML = T(`<b>Leitura:</b> o que une os nº 1 é ganhar os pontos em que o saque não dá vantagem (2º saque e
+        devolução) e decidir bem; saque grande (aces, 1º saque dentro) quase não os separa do circuito. <b>Frieza de verdade?</b> Sets decisivos, tie-breaks
+        e break points crus são em parte consequência de ser melhor. Descontando o que os pontos de cada partida previam ("acima do esperado"), os nº 1
+        seguem bem acima em <b>sets decisivos</b> (${dec.acima} de ${dec.n}, ${sp(dec.media)} em média), um pouco em tie-breaks (${sp(tb.media)}) e quase nada
+        em break points (salvos ${sp(bps.media)}, convertidos ${sp(bpc.media)}). Ficam de fora vitórias e títulos, que já definem quem é nº 1.`,
+        `<b>Reading:</b> what unites the No. 1s is winning the points where the serve gives no edge (2nd serve and return) and closing out well; a big serve
+        (aces, 1st serve in) barely sets them apart from the tour. <b>Real clutch?</b> Raw deciding sets, tie-breaks and break points partly follow from being
+        better. Discounting what each match's points predicted ("above expected"), the No. 1s stay well ahead in <b>deciding sets</b> (${dec.acima} of
+        ${dec.n}, ${sp(dec.media)} on average), slightly in tie-breaks (${sp(tb.media)}) and barely on break points (saved ${sp(bps.media)}, converted
+        ${sp(bpc.media)}). Wins and titles are left out, since they already define who is No. 1.`);
     }
 
     function queda() {
@@ -613,14 +603,19 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       plot(document.getElementById("g-n1-queda"), [{ type: "bar", x: L.map(r => nomeI(r.ind)), y: L.map(r => 100 * r.media),
         error_y: { type: "data", array: L.map(r => 196 * r.ep), color: CORES.neutra, thickness: 1.5 }, marker: { color: L.map(r => r.media + 1.96 * r.ep < 0 ? CORES.top : CORES.demais) },
         customdata: L.map(r => r.caiu_em), hovertemplate: `%{x}: %{y:+.1f} ${T("p.p.", "pp")} · ${T("caiu em", "fell in")} %{customdata} ${T("de", "of")} ${Q.n}<extra></extra>` }],
-        { height: 380, title: { text: T(`Do auge ao fim da carreira: o que cai (${Q.n} nº 1 que já pararam)<br><sup>variação média, em pontos a cada 100 · rosa = queda clara</sup>`,
-            `From the peak to the end of the career: what fades (${Q.n} No. 1s who have retired)<br><sup>mean change, in points per 100 · pink = clear drop</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
-          yaxis: { title: T("pontos a cada 100", "points per 100"), zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 56, r: 10, t: 70, b: 90 } });
+        { height: 380, title: { text: T(`Do auge às duas últimas temporadas (${Q.n} nº 1 que já pararam)<br><sup>variação média em pontos percentuais · traço = IC 95% · rosa = queda clara (IC todo abaixo de zero)</sup>`,
+            `From the peak to the last two seasons (${Q.n} No. 1s who have retired)<br><sup>mean change in percentage points · bar = 95% CI · pink = clear drop (whole CI below zero)</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          yaxis: { title: T("p.p.", "pp"), zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 56, r: 10, t: 70, b: 90 } });
       const g = k => Q.media.find(r => r.ind === k);
-      document.getElementById("n1-nota-queda").innerHTML = T(`<b>Leitura:</b> no fim da carreira o que cai primeiro é a <b>devolução</b> (em ${g("devolucao").caiu_em}
-        de ${Q.n}) e os <b>pontos com o 1º saque</b> (${g("ganhos_1").caiu_em} de ${Q.n}): pernas e potência. Acertar o 1º saque quase não muda.`,
-        `<b>Reading:</b> at the end of a career what fades first is the <b>return</b> (for ${g("devolucao").caiu_em} of ${Q.n}) and <b>points behind the 1st serve</b>
-        (${g("ganhos_1").caiu_em} of ${Q.n}): legs and power. Landing the 1st serve barely changes.`);
+      document.getElementById("n1-nota-queda").innerHTML = T(`<b>Leitura:</b> no fim da carreira o que cai primeiro é a <b>devolução</b> (caiu em ${g("devolucao").caiu_em} de ${Q.n})
+        e os <b>pontos com o 1º saque</b> (${g("ganhos_1").caiu_em} de ${Q.n}): pernas e potência. A consistência quase não muda: o 1º saque dentro e os pontos
+        com o 2º saque ficam perto do auge. Os break points convertidos têm a maior queda média, mas oscilam muito (caíram em ${g("bp_convertidos").caiu_em} de ${Q.n}): não dá para
+        separar do acaso. As vitórias caem ${br(-100 * g("vitorias").media, 0)} pontos. O auge é o ano da melhor média de 12 meses do Elo; o fim, as
+        duas últimas temporadas com 15+ jogos.`, `<b>Reading:</b> at the end of a career what fades first is the <b>return</b> (down for ${g("devolucao").caiu_em} of ${Q.n})
+        and <b>points behind the 1st serve</b> (${g("ganhos_1").caiu_em} of ${Q.n}): legs and power. Consistency barely changes: 1st serves in and points on the
+        2nd serve stay close to the peak. Break points converted show the biggest average drop, but they swing a lot (down for ${g("bp_convertidos").caiu_em} of ${Q.n}): it can't be told
+        apart from chance. Wins drop ${br(-100 * g("vitorias").media, 0)} points. The peak is the year of the best 12-month Elo average; the end,
+        the last two seasons with 15+ matches.`);
     }
     jornada(); comparar(); comum(); queda();
   }
@@ -632,13 +627,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     const nivel = { G: "Grand Slam", F: "ATP Finals", M: "Masters 1000", "5": "ATP 500", "2": "ATP 250" };
     let tipo = "G", esc = ["Novak Djokovic", "Roger Federer", "Rafael Nadal", "Pete Sampras", "Carlos Alcaraz", "Jannik Sinner"].filter(n => J[n]);
     const cores = ["#6250d6", "#d55181", "#eb6834", "#1baf7a", "#c98500", "#2a78d6", "#4b5650", "#8c5a3c"];
-    const aos22 = NOMES.map(n => [n, slams(n, 23)]).sort((a, b) => b[1] - a[1]).slice(0, 3), ult = n => n.split(" ").slice(-1)[0];
-    resposta("c-resposta", T(`Aos 22 anos, ${ult(aos22[0][0])} tinha ${aos22[0][1]} Slams; ${ult(aos22[1][0])}, ${aos22[1][1]}; ${ult(aos22[2][0])}, ${aos22[2][1]}.`,
-        `By age 22, ${ult(aos22[0][0])} had ${aos22[0][1]} Slams; ${ult(aos22[1][0])}, ${aos22[1][1]}; ${ult(aos22[2][0])}, ${aos22[2][1]}.`),
-      T("Comparar na mesma idade é o jeito justo de comparar gerações.", "Comparing at the same age is the fair way to compare generations."));
-    document.getElementById("c-ler").innerHTML = lerCurto(T("Cada degrau é um título, na idade em que o jogador o conquistou. Toque ou passe o mouse num degrau para ver o torneio.",
-      "Each step is a title, at the age the player won it. Tap or hover over a step to see the tournament."));
-    document.getElementById("c-comoler").innerHTML = (T(`Cada degrau é um título, colocado na <b>idade</b> do jogador naquele
+    document.getElementById("c-comoler").innerHTML = comoLer(T(`Cada degrau é um título, colocado na <b>idade</b> do jogador naquele
       torneio. Comparar por idade é a forma mais justa de comparar épocas: "quantos Slams cada um tinha aos 22" não depende de Elo,
       raquete ou nível do circuito. Os Slams contam desde ${C.slams_desde}, então lendas como Borg, McEnroe e Lendl entram na corrida de
       Slams. Os demais títulos só contam a partir de 1991: quem jogou antes disso aparece com a corrida de títulos incompleta (marcado com
@@ -646,7 +635,6 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       the fairest way to compare eras: "how many Slams each had at 22" does not depend on Elo, rackets or the level of the tour. Slams count
       from ${C.slams_desde}, so legends like Borg, McEnroe and Lendl join the Slam race. Other titles only count from 1991: players active
       before then have an incomplete titles race (marked ¹). No Olympics or Davis Cup.`));
-    document.getElementById("c-comoler").innerHTML = `<p class="nota">${document.getElementById("c-comoler").innerHTML}</p>`;
     const tipoEl = document.getElementById("c-tipo");
     tipoEl.innerHTML = [["G", "Grand Slams"], ["T", T("Todos os títulos", "All titles")]].map(([v, r]) => `<button class="chip ${v === tipo ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
     tipoEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
@@ -677,10 +665,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
         xaxis: { title: T("idade (anos)", "age (years)"), dtick: 2, gridcolor: "rgba(137,135,129,.22)", showgrid: true },
         yaxis: { title: tipo === "G" ? "Grand Slams" : T("títulos", "titles"), gridcolor: "rgba(137,135,129,.22)", rangemode: "tozero" },
         legend: { orientation: "h", y: -0.24, yanchor: "top", x: 0 }, margin: { l: 60, r: 20, t: 50, b: 130 } });
-      document.getElementById("c-nota").innerHTML = T(`Até 8 jogadores (clique num nome para tirar). ¹ jogou antes
+      document.getElementById("c-nota").innerHTML = T(`Até 8 jogadores (clique num nome para tirar). Toque ou passe o mouse sobre cada degrau para ver o torneio. ¹ jogou antes
         de 1991: na contagem de todos os títulos faltam os de antes de 1991 (os Slams estão completos).` +
         (fora.length ? ` Fora deste gráfico (só os Slams estão na base): ${fora.join(", ")}.` : ""), `Up to 8 players (click a name to
-        remove it). ¹ played before 1991: the all-titles count misses titles before 1991 (Slams
+        remove it). Tap or hover over each step to see the tournament. ¹ played before 1991: the all-titles count misses titles before 1991 (Slams
         are complete).` + (fora.length ? ` Not in this chart (only their Slams are in the data): ${fora.join(", ")}.` : ""));
     }
     desenharEsc(); grafico();

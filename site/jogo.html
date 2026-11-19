@@ -6,10 +6,10 @@
 <title data-en="The game · Tennis by numbers">O jogo · Tênis em números</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/estilo.css?v=7">
+<link rel="stylesheet" href="assets/estilo.css?v=8">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=10"></script>
-<script src="assets/comum.js?v=10"></script>
+<script src="assets/site.js?v=9"></script>
+<script src="assets/comum.js?v=9"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <style>
   .guia { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-top: 14px; }
@@ -28,27 +28,29 @@
 </head>
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
-  <span class="etiqueta"><span data-l="pt">O jogo</span><span data-l="en">The game</span></span>
-  <h1><span data-l="pt">O que decide uma partida de tênis?</span><span data-l="en">What decides a tennis match?</span></h1>
-  <p data-l="pt">Curiosidades das <span data-meta="N"></span> partidas do circuito desde 1991, e o que elas dizem para quem joga.</p>
-  <p data-l="en">Curiosities from the <span data-meta="N"></span> tour matches since 1991, and what they mean for those who play.</p>
+  <span class="etiqueta">Tie-break · <span data-l="pt">O jogo</span><span data-l="en">The game</span></span>
+  <h1><span data-l="pt">O que separa os melhores do resto?</span><span data-l="en">What sets the best apart from the rest?</span></h1>
+  <p data-l="pt">Análises descritivas com a <b>população inteira</b> (<span data-meta="N"></span> partidas do circuito principal, <span data-meta="periodo"></span>). Ajudam a
+    entender o jogo.</p>
+  <p data-l="en">Descriptive analyses of the <b>whole population</b> (<span data-meta="N"></span> main-tour matches, <span data-meta="periodo"></span>). They help explain
+    the game.</p>
 </div></header>
 <main class="conteudo" id="area">
-  <div class="abas" id="abas-x" style="margin-top:22px"><button class="on" data-a="pontos" id="venceu-perdendo">🎭 <span data-l="pt">Vencer perdendo</span><span data-l="en">Winning while losing</span></button>
-    <button data-a="rank">🎯 <span data-l="pt">Favoritos e zebras</span><span data-l="en">Favourites and upsets</span></button>
-    <button data-a="tempo">📈 <span data-l="pt">Como o jogo mudou</span><span data-l="en">How the game changed</span></button>
-    <button data-a="top">🏆 <span data-l="pt">A elite × o resto</span><span data-l="en">The elite vs the rest</span></button>
+  <div class="abas" id="abas-x" style="margin-top:22px"><button class="on" data-a="top">🏆 <span data-l="pt">Top N × demais</span><span data-l="en">Top N vs the rest</span></button>
+    <button data-a="rank">🎯 <span data-l="pt">Ranking e zebras</span><span data-l="en">Ranking and upsets</span></button>
+    <button data-a="tempo">📈 <span data-l="pt">Linha do tempo</span><span data-l="en">Timeline</span></button>
+    <button data-a="pontos" id="venceu-perdendo">🎭 <span data-l="pt">Venceu perdendo</span><span data-l="en">Won while losing</span></button>
+    <button data-a="ganhar">🧩 <span data-l="pt">O que faz ganhar</span><span data-l="en">What wins a match</span></button>
     <button data-a="guia">🎾 <span data-l="pt">Para quem treina</span><span data-l="en">For players who train</span></button></div>
 
-  <section class="painel-aba" data-p="top" hidden>
-    <div id="top-resposta"></div>
+  <section class="painel-aba" data-p="top">
     <div class="filtros" style="position:static">
       <div class="grupo"><span class="rot"><span data-l="pt">Comparar o</span><span data-l="en">Compare the</span></span><span id="sel-n"></span></div>
       <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="sel-sup"></span></div></div>
     <div id="top-comoler"></div>
     <div id="top-placar"></div>
     <div class="cartao" style="margin-top:14px"><div id="top-g" class="grafico" style="min-height:420px"></div>
-      <p class="nota" id="top-leitura"></p></div>
+      <div class="aula" id="top-leitura" style="margin:6px 0 0"></div></div>
     <div class="grade g2" style="margin-top:16px">
       <div class="cartao rolagem"><h3><span data-l="pt">Métricas lado a lado</span><span data-l="en">Metrics side by side</span></h3><table class="t" id="top-t"></table></div>
       <div class="cartao rolagem"><h3 id="top-jog-tit"></h3><table class="t" id="top-jog"></table></div></div>
@@ -63,7 +65,6 @@
   <section class="painel-aba" data-p="rank" hidden>
     <h2 style="margin-top:6px"><span data-l="pt">Quanto maior a diferença de ranking, maior a chance de o favorito vencer?</span>
       <span data-l="en">Does a bigger ranking gap mean a better chance for the favourite?</span></h2>
-    <div id="rank-resposta"></div>
     <div class="cartao"><div id="rank-g" class="grafico" style="min-height:460px"></div>
       <p class="nota"><span class="leg"><i style="background:var(--pop)"></i><span data-l="pt">população (linha contínua = todas · pontilhada = melhor de 5 · tracejada = melhor de 3)</span>
         <span data-l="en">population (solid line = all · dotted = best of 5 · dashed = best of 3)</span></span></p></div>
@@ -71,7 +72,6 @@
   </section>
 
   <section class="painel-aba" data-p="tempo" hidden>
-    <div id="tempo-resposta"></div>
     <div class="filtros" style="position:static"><div class="grupo"><span class="rot"><span data-l="pt">Indicador</span><span data-l="en">Indicator</span></span>
       <select class="sel" id="sel-tempo"></select></div></div>
     <div class="cartao"><div id="tempo-g" class="grafico" style="min-height:420px"></div><p class="nota" id="tempo-txt"></p></div>
@@ -97,10 +97,9 @@
       <li>The favourite's win rate <b>peaked during the Big 3's dominance</b> (68–69% in 2014–15) and <b>went back to about
         64%</b>, the same level as the 1990s. <b>Left-handers</b> fell from 20% of wins in 1991 to 12% in 2025.</li></ul></div>
   </section>
-  <section class="painel-aba" data-p="pontos">
+  <section class="painel-aba" data-p="pontos" hidden>
     <h2 style="margin-top:6px"><span data-l="pt">Dá para vencer ganhando menos pontos que o adversário?</span>
       <span data-l="en">Can you win while winning fewer points than your opponent?</span></h2>
-    <div id="vp-resposta"></div>
     <div id="vp-comoler"></div>
     <div id="vp-placar"></div>
     <div class="grade g2" style="margin-top:14px">
@@ -123,10 +122,31 @@
     <div class="cartao rolagem" style="max-height:520px;overflow:auto"><table class="t" id="vp-t"></table></div>
     <p class="nota" id="vp-nota"></p>
   </section>
+  <section class="painel-aba" data-p="ganhar" hidden>
+    <h2 style="margin-top:6px"><span data-l="pt">O que mais pesa para ganhar uma partida?</span>
+      <span data-l="en">What matters most to win a match?</span></h2>
+    <div id="gn-comoler"></div>
+    <div class="filtros" style="position:static">
+      <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="gn-sup"></span></div>
+      <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><span id="gn-niv"></span></div>
+      <div class="grupo"><span class="rot"><span data-l="pt">Época</span><span data-l="en">Era</span></span><span id="gn-ep"></span></div>
+    </div>
+    <div class="aviso" id="gn-aviso" hidden></div>
+    <div id="gn-placar"></div>
+    <div class="grade g2" style="margin-top:14px">
+      <div class="cartao"><div id="g-gn-leitura" class="grafico" style="min-height:430px"></div></div>
+      <div class="cartao"><div id="g-gn-modelo" class="grafico" style="min-height:430px"></div></div>
+    </div>
+    <h2><span data-l="pt">Para quem treina: quanto vale um ponto</span><span data-l="en">For players who train: what a point is worth</span></h2>
+    <div class="grade g2">
+      <div class="cartao rolagem"><table class="t" id="gn-t"></table><p class="nota" id="gn-nota-t"></p></div>
+      <div class="cartao"><div id="g-gn-estavel" class="grafico" style="min-height:400px"></div></div>
+    </div>
+    <p class="nota" id="gn-nota"></p>
+  </section>
   <section class="painel-aba" data-p="guia" hidden>
     <h2 style="margin-top:6px"><span data-l="pt">Para quem treina: onde investir o tempo de quadra</span>
       <span data-l="en">For players who train: where to spend your court time</span></h2>
-    <div id="gu-resposta"></div>
     <p data-l="pt">Seis prioridades tiradas das partidas do circuito e da carreira dos nº 1. Em cada uma, <b>o dado</b> é o que a base mostra;
       <b>na quadra</b> é a nossa tradução para o treino, uma hipótese que os números apoiam, mas não provam.</p>
     <p data-l="en">Six priorities drawn from tour matches and the careers of the No. 1s. In each one, <b>the data</b> is what the numbers show;
@@ -141,27 +161,6 @@
       <div class="cartao rolagem"><table class="t" id="gu-t"></table></div>
       <div class="cartao"><p class="nota" id="gu-nota-sup" style="margin-top:0"></p></div>
     </div>
-    <details class="aprofundar" id="gn-detalhes"><summary>🔎 <span data-l="pt">De onde vêm esses números: o que mais pesa para ganhar uma partida, por piso, nível e época</span>
-      <span data-l="en">Where these numbers come from: what matters most to win a match, by surface, level and era</span></summary>
-    <div id="gn-comoler"></div>
-    <div class="filtros" style="position:static">
-      <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="gn-sup"></span></div>
-      <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><span id="gn-niv"></span></div>
-      <div class="grupo"><span class="rot"><span data-l="pt">Época</span><span data-l="en">Era</span></span><span id="gn-ep"></span></div>
-    </div>
-    <div class="aviso" id="gn-aviso" hidden></div>
-    <div id="gn-placar"></div>
-    <div class="grade g2" style="margin-top:14px">
-      <div class="cartao"><div id="g-gn-leitura" class="grafico" style="min-height:430px"></div></div>
-      <div class="cartao"><div id="g-gn-modelo" class="grafico" style="min-height:430px"></div></div>
-    </div>
-    <h3><span data-l="pt">Quanto vale um ponto</span><span data-l="en">What a point is worth</span></h3>
-    <div class="grade g2">
-      <div class="cartao rolagem"><table class="t" id="gn-t"></table><p class="nota" id="gn-nota-t"></p></div>
-      <div class="cartao"><div id="g-gn-estavel" class="grafico" style="min-height:400px"></div></div>
-    </div>
-    <p class="nota" id="gn-nota"></p>
-    </details>
   </section>
 </main>
 <script>
@@ -174,9 +173,7 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
   const PP = T("p.p.", "pp");
   let N = "10", SUP = "Todas";
 
-  document.getElementById("top-comoler").innerHTML = lerCurto(T("Compara quem estava no Top N do ranking com os demais. As porcentagens são de pontos: 75% = ganhou 75 de cada 100.",
-    "Compares players in the Top N of the ranking with everyone else. Percentages are of points: 75% = won 75 out of every 100.")) +
-    aprof(T("Como a comparação é feita", "How the comparison is made"), T(`Cada partida tem dois jogadores. Aqui olhamos <b>cada jogador
+  document.getElementById("top-comoler").innerHTML = comoLer(T(`Cada partida tem dois jogadores. Aqui olhamos <b>cada jogador
     em cada partida</b> (por isso há mais linhas do que partidas) e o classificamos como <b>Top N</b> se ele estava entre os N
     primeiros do ranking no início daquele torneio. Um mesmo jogador pode estar no Top N num ano e fora em outro. As
     porcentagens são <b>somas de pontos</b>: "pontos ganhos no saque" = todos os pontos que o grupo venceu sacando ÷ todos os
@@ -199,6 +196,8 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
         sub: T(`${br(r.duelo.n, 0)} partidas Top × não-Top`, `${br(r.duelo.n, 0)} Top vs non-Top matches`) },
       { rot: T(`Vitórias do Top ${N}`, `Top ${N} win rate`), num: pct(t.vitorias), sub: T("no geral", "overall") },
       { rot: T("Vitórias dos demais", "Win rate of the rest"), num: pct(d.vitorias) },
+      { rot: T(`Jogador-partidas do Top ${N}`, `Top ${N} player-matches`), num: br(t.n, 0),
+        sub: T(`${t.n_jogadores} jogadores diferentes`, `${t.n_jogadores} different players`) },
     ]);
     const pcts = M.filter(m => m.unidade === "%" && !["vitorias", "canhoto"].includes(m.chave))
       .map(m => [tr(m.nome), 100 * (t[m.chave] - d[m.chave])]).sort((a, b) => a[1] - b[1]);
@@ -211,9 +210,6 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
         xaxis: { title: T(`Top ${N} − demais (pontos percentuais)`, `Top ${N} − rest (percentage points)`), zeroline: true, zerolinecolor: "rgba(137,135,129,.6)" },
         margin: { l: 210, r: 60, t: 50, b: 50 } });
     const maior = pcts[pcts.length - 1];
-    resposta("top-resposta", T(`Em cada 100 pontos, o Top ${N} ganha só ${br(100 * (t.tpw - d.tpw), 1)} a mais que os demais, e isso basta para vencer ${pct(r.duelo.vitorias_top, 0)} dos jogos contra eles.`,
-        `Out of every 100 points, the Top ${N} win only ${br(100 * (t.tpw - d.tpw), 1)} more than the rest, and that is enough to win ${pct(r.duelo.vitorias_top, 0)} of matches against them.`),
-      T(`A maior diferença está em ${maior[0].toLowerCase()}. O tênis é decidido nas margens.`, `The biggest gap is in ${maior[0].toLowerCase()}. Tennis is decided at the margins.`));
     document.getElementById("top-leitura").innerHTML = T(`<strong>Leitura</strong>A maior vantagem do Top ${N} está em
       <b>${maior[0].toLowerCase()}</b> (+${br(maior[1], 1)} p.p.). Diferenças de 3 a 5 pontos percentuais por ponto parecem
       pequenas, mas num jogo com mais de 150 pontos viram vários games e, no fim, a vitória. O tênis é decidido nas margens.`,
@@ -246,10 +242,6 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
     annotations: [{ xref: "paper", x: 0, y: .5, yanchor: "bottom", xanchor: "left", text: T("50% = moeda", "50% = coin flip"), showarrow: false, font: { color: "#4b5650" } }],
     yaxis: { tickformat: ".0%", title: T("% de vitórias do favorito", "favourite's win %"), range: [.3, 1], gridcolor: "rgba(137,135,129,.22)" },
     xaxis: { title: T("Diferença de posições no ranking", "Gap in ranking places") }, margin: { l: 70, r: 20, t: 80, b: 60 } });
-  { const f0 = fx[0], fN = fx[fx.length - 1];
-    resposta("rank-resposta", T(`Com ranking parecido (${f0.faixa} posições de diferença), o favorito vence ${pct(f0.pop_taxa, 0)}: quase cara ou coroa. Com ${fN.faixa} posições, vence ${pct(fN.pop_taxa, 0)}.`,
-        `With similar rankings (${f0.faixa} places apart), the favourite wins ${pct(f0.pop_taxa, 0)}: almost a coin flip. With ${fN.faixa} places, he wins ${pct(fN.pop_taxa, 0)}.`),
-      T("E em jogos melhor de 5 a zebra é mais rara: mais pontos dão menos espaço para o acaso.", "And upsets are rarer in best-of-5 matches: more points leave less room for luck.")); }
   document.getElementById("rank-comoler").innerHTML = comoLer(T(`Cada ponto é a % de partidas vencidas pelo jogador mais bem
     ranqueado, para jogos com aquela diferença de posições. Quando os dois estão próximos no ranking (1–5 posições), o favorito
     vence pouco mais que uma moeda. Com mais de 200 posições de diferença, vence quase 4 em cada 5. As linhas tracejada e
@@ -260,10 +252,6 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
 
   // linha do tempo
   const lt = ex.linha_tempo, rot = ex.linha_tempo_rotulos, sel = document.getElementById("sel-tempo");
-  { const a = lt[0], b = lt[lt.length - 1];
-    resposta("tempo-resposta", T(`Hoje há ${br(100 * (b.aces_media / a.aces_media - 1), 0)}% mais aces que em ${a.ano}, mas os jogos duram ${br(b.minutos_bo3_media - a.minutos_bo3_media, 0)} minutos a mais.`,
-        `There are ${br(100 * (b.aces_media / a.aces_media - 1), 0)}% more aces than in ${a.ano}, yet matches last ${br(b.minutos_bo3_media - a.minutos_bo3_media, 0)} minutes longer.`),
-      T("Escolha um indicador para ver como ele mudou de 1991 até hoje.", "Pick an indicator to see how it changed from 1991 to today.")); }
   sel.innerHTML = Object.entries(rot).map(([k, [nome]]) => `<option value="${k}">${tr(nome)}</option>`).join("");
   const desenharTempo = () => {
     const k = sel.value, [nomePt, un] = rot[k], nome = tr(nomePt), ehPct = un === "%";
@@ -290,21 +278,20 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
     desenharVP(await carregar("venceu_perdendo"));
   };
   document.querySelector('#abas-x button[data-a="pontos"]').addEventListener("click", abrirVP);
+  // o que faz ganhar: modelos por recorte (~100 KB), carregados só quando a aba é aberta
+  let gnPronto = false;
+  document.querySelector('#abas-x button[data-a="ganhar"]').addEventListener("click", async () => {
+    if (gnPronto) return; gnPronto = true;
+    desenharGanhar(await carregar("ganhar"), chips);
+  });
   // guia para quem treina: usa os números do "o que faz ganhar" e dos nº 1
   let guPronto = false;
   document.querySelector('#abas-x button[data-a="guia"]').addEventListener("click", async () => {
     if (guPronto) return; guPronto = true;
     const [G, N] = await Promise.all([carregar("ganhar"), carregar("numero1")]);
     desenharGuia(G, N, chips);
-    desenharGanhar(G, chips);   // o modelo fica recolhido no fim do guia
   });
   abrirAbaDoHash("#abas-x");
-  if (document.querySelector("#abas-x button.on")?.dataset.a === "pontos") abrirVP();
-  // endereço antigo da aba "O que faz ganhar": abre o guia com o modelo à mostra
-  if (location.hash === "#ganhar") {
-    document.querySelector('#abas-x button[data-a="guia"]').click();
-    const d = document.getElementById("gn-detalhes"); d.open = true; setTimeout(() => d.scrollIntoView(), 900);
-  }
 })();
 
 function desenharGanhar(G, chips) {
@@ -411,9 +398,6 @@ function desenharGuia(G, N, chips) {
   const PR = k => { const v = Object.values(N.jogadores).map(j => j.pressao?.[k]).filter(x => x != null); return { acima: v.filter(x => x > 0).length, n: v.length, media: v.reduce((a, x) => a + x, 0) / v.length }; };
   const sp = x => `${x >= 0 ? "+" : "−"}${br(100 * Math.abs(x), 1)} ${PP}`;
   let S = "Todas";
-  resposta("gu-resposta", T("Ganhe pontos, venham de onde vierem: trate o 2º saque como um golpe, ataque o 2º saque do adversário e treine com placar.",
-      "Win points, wherever they come from: treat your 2nd serve as a shot, attack your opponent's 2nd serve and practise with a score."),
-    T("Abaixo, as seis prioridades, cada uma com o dado e a tradução para a quadra.", "Below are the six priorities, each with the data and what it means on court."));
   document.getElementById("gu-nao-diz").innerHTML = T(`<b>O que os dados não dizem</b><ul>
     <li><b>São profissionais.</b> No nível amador quem decide a maioria dos pontos são os erros não forçados, e a base não os mede.</li>
     <li><b>Não há erros, winners, troca de bola nem subida à rede:</b> só o total de cada partida (saque, devolução, break points).</li>
@@ -441,19 +425,19 @@ function desenharGuia(G, N, chips) {
           `Train to win points, not to look good: an ugly point is worth as much as an ace. Small edges add up.`), link: irPara(null, "ganhar") },
       { cor: "var(--top)", t: T("2º saque: o ponto mais disputado", "2nd serve: the most contested point"), g: `${pct(c.dev_2, 0)}<small>${T("para quem devolve", "to the returner")}</small>`,
         dado: T(`${ondeQ[0].toUpperCase() + ondeQ.slice(1)}, quem devolve ganha ${pct(c.dev_2, 0)} dos pontos no 2º saque, contra ${pct(c.dev_1, 0)} no 1º: é cara ou coroa.
-          É o 2º aspecto que mais pesa na vitória e um dos aspectos em que os nº 1 mais se destacam: ${de(zN.ganhos_2)} de ${nN} estão bem acima do circuito.`,
+          É o 2º aspecto que mais pesa (z ${br(z.ganhos_2.z, 1)}) e um dos aspectos em que os nº 1 mais se destacam: ${de(zN.ganhos_2)} de ${nN} estão bem acima do circuito.`,
           `${ondeQ[0].toUpperCase() + ondeQ.slice(1)}, the returner wins ${pct(c.dev_2, 0)} of 2nd-serve points, against ${pct(c.dev_1, 0)} on the 1st: a coin flip.
-          It is the 2nd most important aspect for winning and one of the aspects where the No. 1s stand out most: ${de(zN.ganhos_2)} of ${nN} are well above the tour.`),
+          It is the 2nd most important aspect (z ${br(z.ganhos_2.z, 1)}) and one of the aspects where the No. 1s stand out most: ${de(zN.ganhos_2)} of ${nN} are well above the tour.`),
         quadra: T(`Trate o 2º saque como um golpe: segurança com efeito, profundidade e colocação antes de velocidade. Treine-o cansado e sob placar apertado.`,
           `Treat the 2nd serve as a shot of its own: safety with spin, depth and placement before pace. Practise it tired and under scoreboard pressure.`), link: irPara(null, "ganhar") },
       { cor: "var(--pop)", t: T("Devolução: ataque o 2º saque", "Return: attack the 2nd serve"), g: `${de(zN.devolucao)} ${T("de", "of")} ${nN}<small>${T("nº 1", "No. 1s")}</small>`,
-        dado: T(`${de(zN.devolucao)} dos ${nN} nº 1 desde 1991 ganham muito mais pontos devolvendo que o circuito. Contra o 1º saque
+        dado: T(`${de(zN.devolucao)} dos ${nN} nº 1 desde 1991 ganham muito mais pontos devolvendo que o circuito (z ${br(zN.devolucao.z, 1)}). Contra o 1º saque
           o devolvedor ganha ${pct(c.dev_1, 0)}; contra o 2º, ${pct(c.dev_2, 0)}: a chance está no 2º saque.`,
-          `${de(zN.devolucao)} of the ${nN} No. 1s since 1991 win far more return points than the tour. Against the 1st serve
+          `${de(zN.devolucao)} of the ${nN} No. 1s since 1991 win far more return points than the tour (z ${br(zN.devolucao.z, 1)}). Against the 1st serve
           the returner wins ${pct(c.dev_1, 0)}; against the 2nd, ${pct(c.dev_2, 0)}: the chance is on the 2nd serve.`),
         quadra: T(`No 1º saque, devolva para dentro e fundo, no meio. No 2º, suba na quadra e tome a iniciativa logo na primeira bola.`,
           `Against the 1st serve, get it back deep and central. Against the 2nd, step in and take charge from the first ball.`), link: irPara("epocas.html", "n1") },
-      { cor: "var(--top)", t: T("1º saque: vale o ponto, não o ace", "1st serve: it's the point, not the ace"), g: `${de(zN.aces_game)} ${T("de", "of")} ${nN}<small>${T("nº 1 se destacam em aces", "No. 1s stand out in aces")}</small>`,
+      { cor: "var(--top)", t: T("1º saque: vale o ponto, não o ace", "1st serve: it's the point, not the ace"), g: `z ${br(z.ganhos_1.z, 1)}`,
         dado: T(`Pontos ganhos com o 1º saque são o que mais pesa na vitória. Mas acertar mais 1º saques e fazer mais aces quase não separa os nº 1 do
           circuito (só ${de(zN.primeiro_dentro)} e ${de(zN.aces_game)} de ${nN} bem acima). ${ondeQ[0].toUpperCase() + ondeQ.slice(1)}: ${br(c.aces_game, 2)} aces por game de saque.`,
           `Points won behind the 1st serve weigh most on winning. But landing more 1st serves and hitting more aces barely sets the No. 1s apart from
@@ -484,7 +468,6 @@ function desenharGuia(G, N, chips) {
       <span class="num">${T("Prioridade", "Priority")} ${i + 1}</span><h3>${k.t}</h3><div class="grande">${k.g}</div>
       <p><b>${T("O dado", "The data")}:</b> ${k.dado}</p><p class="quadra"><b>${T("Na quadra (hipótese)", "On court (hypothesis)")}:</b> ${k.quadra}</p>${k.link}</div>`).join("");
     document.querySelectorAll("#gu-cards [data-aba]").forEach(a => a.addEventListener("click", () => {
-      if (a.dataset.aba === "ganhar") { const d = document.getElementById("gn-detalhes"); d.open = true; d.scrollIntoView({ behavior: "smooth" }); return; }
       document.querySelector(`#abas-x button[data-a="${a.dataset.aba}"]`).click(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
   }
 
@@ -495,6 +478,8 @@ function desenharGuia(G, N, chips) {
     linha(T("Devolvedor ganha contra o 2º saque", "Returner wins vs the 2nd serve"), sups.map(x => CI[x].dev_2), v => pct(v, 1)) +
     linha(T("1º saque dentro", "1st serves in"), sups.map(x => CI[x].primeiro_dentro), v => pct(v, 1)) +
     linha(T("Aces por game de saque", "Aces per service game"), sups.map(x => CI[x].aces_game), v => br(v, 2)) +
+    linha(T("Peso dos pontos com o 1º saque (z)", "Weight of 1st serve points (z)"), zs("ganhos_1"), v => br(v, 1)) +
+    linha(T("Peso dos pontos com o 2º saque (z)", "Weight of 2nd serve points (z)"), zs("ganhos_2"), v => br(v, 1)) +
     linha(T("Partidas", "Matches"), sups.map(x => CI[x].n), v => br(v, 0));
   document.getElementById("gu-nota-sup").innerHTML = T(`<b>Leitura:</b> no saibro o devolvedor ganha ${pct(CI.Saibro.dev_1, 0)} contra o 1º saque, contra
     ${pct(CI.Grama.dev_1, 0)} na grama, e os aces caem quase pela metade (${br(CI.Saibro.aces_game, 2)} × ${br(CI.Grama.aces_game, 2)} por game): no saibro
@@ -510,11 +495,6 @@ function desenharGuia(G, N, chips) {
 
 function desenharVP(V) {
   const R = V.resumo, PT = T("pts", "pts");
-  { const w = V.finais_gs.find(f => f.ano === 2019 && f.torneio === "Wimbledon");
-    resposta("vp-resposta", T(`Em ${pct(R.pct)} das partidas vence quem fez menos pontos: cerca de 1 em cada ${Math.round(1 / R.pct)}.`,
-        `In ${pct(R.pct)} of matches the player with fewer points wins: about 1 in every ${Math.round(1 / R.pct)}.`),
-      T(`${V.finais_gs.length} finais de Grand Slam terminaram assim${w ? `, como ${w.vencedor} × ${w.perdedor} em Wimbledon 2019 (${w.pontos_vencedor} pontos contra ${w.pontos_perdedor})` : ""}.`,
-        `${V.finais_gs.length} Grand Slam finals ended this way${w ? `, like ${w.vencedor} vs ${w.perdedor} at Wimbledon 2019 (${w.pontos_vencedor} points to ${w.pontos_perdedor})` : ""}.`)); }
   document.getElementById("vp-comoler").innerHTML = comoLer(T(`No tênis o placar é contado em games e sets, não em pontos: quem
     vence os pontos importantes (break points, games longos, tie-breaks) pode ganhar a partida mesmo somando menos pontos. Aqui os
     pontos de cada jogador são os ganhos no próprio saque mais os ganhos devolvendo. Ganhar assim não prova "frieza": parte é acaso,

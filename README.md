@@ -16,19 +16,13 @@ links diretos e compartilhamento.
 
 | Página | Pergunta | Abas |
 |---|---|---|
-| **Início** (`index.html`) | O que há de mais legal? | 6 curiosidades em linguagem de fã, a chamada "Joga tênis? Veja o que treinar" e os atalhos para cada página (números de `data/achados.json`) |
-| **Épocas** | Quem foi o melhor de cada época? | Elo (o que é, a carreira em Elo, maiores picos, o mais forte hoje, nº 1 por temporada e, na mesma aba, a idade do auge) · Corrida por idade · Pico × Pico · Os nº 1 |
-| **Jogadores** | Quão bom é o meu jogador? | Rivalidades (H2H com a regra oficial) · Perfil do jogador · Os melhores em cada fundamento (pódio e medalhas) · Ranking completo (22 critérios com margem de erro, inclusive a pressão acima do esperado) |
-| **O jogo** | O que decide uma partida? | Vencer perdendo · Favoritos e zebras · Como o jogo mudou · A elite × o resto · Para quem treina (com o modelo "o que faz ganhar" recolhido no fim) |
-| **Sobre os dados** | Dá para confiar? | A base e a população · Métodos e validação (checagens, Elo × ranking, regras de cada contagem) |
+| **Achados** (`index.html`) | O que há de mais interessante? | 9 achados com o número, um mini gráfico e o link para a análise (números tirados de `data/achados.json`) |
+| **Épocas** | Quem foi o melhor de cada época? | O que é o Elo e como calculamos · Elo (carreiras, picos, Elo atual, nº 1 por temporada) · O auge (pico, melhor média de 12 meses, idade, curva de envelhecimento pelo método delta) · Corrida por idade (títulos e Slams, Slams desde 1968) · Pico × Pico · Os nº 1 (a jornada por fase de ranking, ano da virada, comparar jornadas, o que todos têm em comum, depois do topo) |
+| **Jogadores** | Quão bom é o meu jogador? | Líderes de cada critério (pódio e quadro de medalhas) · Ranking por critério com IC de Wilson · Perfil do jogador · Rivalidades (H2H com a regra oficial). Inclui a pressão **acima do esperado** (break points, tie-breaks e sets decisivos comparados com o que os pontos da própria partida previam) |
+| **O jogo** | O que faz ganhar no tênis? | Top N × demais · Ranking e zebras · Linha do tempo · Venceu perdendo nos pontos · O que faz ganhar (leitura simples e modelo logístico por superfície, nível e época; quanto vale um ponto) · Para quem treina (6 prioridades com o dado e a tradução para a quadra, por superfície, e o que os dados não dizem) |
+| **Sobre os dados** | Dá para confiar? | A base e a população · O circuito (descritiva com filtros) · Métodos e validação (checagens, Elo × ranking, regras de cada contagem) |
 
 Endereços antigos (`explorar.html`, `circuito.html`, `elo.html`, `rivalidades.html`) redirecionam para o lugar novo.
-
-**Como o site fala** (depois de um teste com dois usuários simulados, um fã no celular e um tenista amador):
-- cada aba começa com **a resposta em uma frase**, citando jogadores;
-- o **"📖 Como ler"** tem uma ou duas linhas, com exemplo e sem fórmula;
-- tudo que é técnico (margem de erro, desvio-padrão, fórmulas, métodos) fica recolhido em **"🔎 Para quem quer aprofundar"**;
-- nada de jargão na parte visível: "pontos em cada 100" em vez de p.p., "margem de erro" em vez de IC.
 Uma sexta página, **Torneios**, entra quando o item de páginas de torneio for feito.
 
 ## Como funciona

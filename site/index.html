@@ -9,10 +9,10 @@
 <meta property="og:description" content="96 mil partidas da ATP desde 1991: o auge de cada jogador, rivalidades e o que separa a elite.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/estilo.css?v=7">
+<link rel="stylesheet" href="assets/estilo.css?v=8">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=10"></script>
-<script src="assets/comum.js?v=10"></script>
+<script src="assets/site.js?v=9"></script>
+<script src="assets/comum.js?v=9"></script>
 <style>
   .achados { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; margin-top: 8px; }
   .achado { display: flex; flex-direction: column; text-decoration: none; color: inherit; position: relative; padding-top: 18px; }
@@ -34,40 +34,36 @@
     <span class="etiqueta"><span data-l="pt">Analytics de tênis</span><span data-l="en">Tennis analytics</span> · ATP <span data-meta="periodo"></span></span>
     <h1 data-l="pt">Tênis em números<br><em>o que os dados contam</em> sobre o circuito</h1>
     <h1 data-l="en">Tennis by numbers<br><em>what the data says</em> about the tour</h1>
-    <p data-l="pt">Todas as <b><span data-meta="N"></span> partidas</b> da ATP desde 1991. Aqui vão as curiosidades mais legais; clique em
-      qualquer uma para ver mais.</p>
-    <p data-l="en">All <b><span data-meta="N"></span> ATP matches</b> since 1991. Here are the coolest findings; click any of them to see more.</p>
+    <p data-l="pt"><b><span data-meta="N"></span> partidas</b> da ATP desde 1991, com saque, devolução e pontos de cada jogador. Alguns
+      achados, cada um levando à análise completa.</p>
+    <p data-l="en"><b><span data-meta="N"></span> ATP matches</b> since 1991, with every player's serve, return and points. A few findings,
+      each leading to the full analysis.</p>
   </div>
 </header>
 
 <main class="conteudo">
-  <a class="chamada-treino" href="jogo.html#guia"><span style="font-size:2rem">🎾</span>
-    <span><b><span data-l="pt">Joga tênis? Veja o que treinar</span><span data-l="en">Play tennis? See what to practise</span></b>
-      <span data-l="pt">Seis prioridades tiradas do que decide as partidas no circuito.</span>
-      <span data-l="en">Six priorities drawn from what decides matches on tour.</span></span>
-    <span class="seta"><span data-l="pt">Ver o guia →</span><span data-l="en">See the guide →</span></span></a>
-  <h2><span data-l="pt">Curiosidades</span><span data-l="en">Findings</span></h2>
+  <h2><span data-l="pt">Achados</span><span data-l="en">Findings</span></h2>
   <div class="achados" id="achados"></div>
 
   <div class="rede"></div>
   <h2><span data-l="pt">Explore</span><span data-l="en">Explore</span></h2>
   <div class="paginas">
     <a class="cartao set" href="epocas.html"><span class="faixa" style="background:var(--top)"></span>
-      <h3><span data-l="pt">Épocas</span><span data-l="en">Eras</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Quem dominou cada época? A carreira dos craques, a idade do auge, Slams por idade, quem ganharia no auge e a jornada dos nº 1.</span>
-        <span data-l="en">Who dominated each era? The greats' careers, the age of the peak, Slams by age, who would win at their peak and the No. 1s' journey.</span></div></a>
+      <div class="n">Elo · <span data-l="pt">auge</span><span data-l="en">peak</span></div><h3><span data-l="pt">Épocas</span><span data-l="en">Eras</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">O que é o Elo, quem dominou cada época, o auge e a idade, corrida por idade, Pico × Pico e a jornada dos nº 1.</span>
+        <span data-l="en">What Elo is, who dominated each era, peak and age, race by age, Peak vs Peak and the No. 1s' journey.</span></div></a>
     <a class="cartao set" href="jogadores.html"><span class="faixa" style="background:var(--pop)"></span>
-      <h3><span data-l="pt">Jogadores</span><span data-l="en">Players</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">O confronto entre dois jogadores, o perfil do seu ídolo e os melhores em cada fundamento.</span>
-        <span data-l="en">Head-to-head between any two players, your idol's profile and the best at each part of the game.</span></div></a>
+      <div class="n"><span data-l="pt">Vestiário</span><span data-l="en">Locker room</span></div><h3><span data-l="pt">Jogadores</span><span data-l="en">Players</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Líderes de cada critério, ranking, perfil completo e rivalidades.</span>
+        <span data-l="en">Leaders in every category, ranking, full profile and rivalries.</span></div></a>
     <a class="cartao set" href="jogo.html"><span class="faixa" style="background:var(--top)"></span>
-      <h3><span data-l="pt">O jogo</span><span data-l="en">The game</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">Vencer perdendo nos pontos, zebras, como o jogo mudou e o que treinar.</span>
-        <span data-l="en">Winning while losing on points, upsets, how the game changed and what to practise.</span></div></a>
+      <div class="n">Tie-break</div><h3><span data-l="pt">O jogo</span><span data-l="en">The game</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">Elite × resto, ranking e zebras, como o jogo mudou, quem vence perdendo nos pontos, o que faz ganhar e um guia para quem treina.</span>
+        <span data-l="en">Elite vs the rest, ranking and upsets, how the game changed, who wins while losing on points, what wins a match and a guide for players who train.</span></div></a>
     <a class="cartao set" href="sobre.html"><span class="faixa" style="background:var(--pop)"></span>
-      <h3><span data-l="pt">Sobre os dados</span><span data-l="en">About the data</span></h3>
-      <div style="color:var(--tinta-2)"><span data-l="pt">De onde vêm os números e como cada um é conferido.</span>
-        <span data-l="en">Where the numbers come from and how each one is checked.</span></div></a>
+      <div class="n"><span data-l="pt">Bastidores</span><span data-l="en">Behind the scenes</span></div><h3><span data-l="pt">Sobre os dados</span><span data-l="en">About the data</span></h3>
+      <div style="color:var(--tinta-2)"><span data-l="pt">A base, a visão geral do circuito e como cada número é conferido.</span>
+        <span data-l="en">The data, an overview of the tour and how every number is checked.</span></div></a>
   </div>
 </main>
 
@@ -77,54 +73,88 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const A = await carregar("achados");
   const sobre = n => n.split(" ").slice(-1)[0];
   const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
-  const R = A.rivalidade, N1 = A.numero1, VP = A.venceu_perdendo, EL = A.elite, TP = A.tempo, ult = TP.anos.length - 1;
-  const V10 = A.vantagem["10"], V5 = A.vantagem["5"], v10 = V10[0], bp5 = V5.find(r => r.chave === "bp_salvos");
-  const n = x => br(100 * x, 0);   // proporção como "em 100"
+  const P = A.pico, AU = A.auge, R = A.rivalidade, N1 = A.numero1, PRS = A.pressao;
+  const eps = Object.entries(AU.por_epoca);
   const card = (cor, tema, grande, texto, link, mini) => ({ cor, tema, grande, texto, link, mini });
+  const ASP = { primeiro_dentro: ["1º saque dentro", "1st serves in"], ganhos_1: ["Pontos com o 1º saque", "1st serve points won"],
+    ganhos_2: ["Pontos com o 2º saque", "2nd serve points won"], devolucao: ["Pontos na devolução", "Return points won"],
+    bp_salvos: ["Break points salvos", "Break points saved"], bp_convertidos: ["Break points convertidos", "Break points converted"] };
+  const ASC = { primeiro_dentro: ["1º dentro", "1st in"], ganhos_1: ["1º saque", "1st serve"], ganhos_2: ["2º saque", "2nd serve"],
+    devolucao: ["devolução", "return"], bp_salvos: ["BP salvos", "BP saved"], bp_convertidos: ["BP conv.", "BP conv."] };
+  const nomeA = k => T(ASP[k][0], ASP[k][1]), curtoA = k => T(ASC[k][0], ASC[k][1]), PPv = T("p.p.", "pp");
+  const vant = n => { const V = A.vantagem[n], m = V[0], s = V[1];
+    return card(n === "5" ? "var(--top)" : "var(--pop)", T(`A maior vantagem do Top ${n}`, `The Top ${n}'s biggest edge`),
+      `+${br(100 * m.dif, 1)}<small>${PPv} · ${nomeA(m.chave).toLowerCase()}</small>`,
+      T(`Quem está no Top ${n} tem ${pct(m.top)} em ${nomeA(m.chave).toLowerCase()}; os demais, ${pct(m.demais)}. É a maior diferença entre os aspectos do jogo,
+        logo à frente de ${nomeA(s.chave).toLowerCase()} (+${br(100 * s.dif, 1)}).` + (m.chave === "bp_salvos" ? " Boa parte vem do saque: quem saca bem salva mais break points." : ""),
+        `Top ${n} players have ${pct(m.top)} in ${nomeA(m.chave).toLowerCase()}; the rest, ${pct(m.demais)}. It is the biggest gap among the aspects of the game,
+        just ahead of ${nomeA(s.chave).toLowerCase()} (+${br(100 * s.dif, 1)}).` + (m.chave === "bp_salvos" ? " Much of it comes from the serve: good servers save more break points." : "")),
+      "jogo.html#top", `top${n}`); };
+  const TP = A.tempo, ult = TP.anos.length - 1;
+
   const cards = [
-    card("var(--top)", T("Dá para vencer fazendo menos pontos?", "Can you win with fewer points?"), VP.federer ? `${VP.federer.perdeu_mais}<small>${T("derrotas do Federer", "Federer losses")}</small>` : pct(VP.pct),
-      T(`Sim, em 1 de cada 20 jogos. Federer perdeu ${VP.federer.perdeu_mais} partidas fazendo mais pontos que o rival, inclusive a final de Wimbledon 2019 (${VP.wimbledon_2019 ? `${VP.wimbledon_2019.pp} pontos contra ${VP.wimbledon_2019.pv}` : ""}).`,
-        `Yes, in 1 match in 20. Federer lost ${VP.federer.perdeu_mais} matches while winning more points than his opponent, including the 2019 Wimbledon final (${VP.wimbledon_2019 ? `${VP.wimbledon_2019.pp} points to ${VP.wimbledon_2019.pv}` : ""}).`),
-      "jogo.html#venceu-perdendo", null),
-    card("var(--pop)", T("A maior rivalidade", "The biggest rivalry"), `${R.va}–${R.vb}`,
-      T(`${R.a} × ${R.b}: ${R.n} jogos, o confronto mais repetido desde 1991. Escolha quaisquer dois jogadores e veja o placar entre eles.`,
-        `${R.a} vs ${R.b}: ${R.n} matches, the most-played head-to-head since 1991. Pick any two players and see their record.`),
-      "jogadores.html#rivalidades", null),
-    card("var(--top)", T("Quem tinha mais Slams aos 22?", "Who had the most Slams at 22?"), `${A.aos22[0][1]}<small>Slams · ${sobre(A.aos22[0][0])}</small>`,
-      T(`${A.aos22.slice(0, 3).map(([nm, v]) => `${sobre(nm)} ${v}`).join(", ")}. Comparar na mesma idade é o jeito justo de comparar gerações.`,
-        `${A.aos22.slice(0, 3).map(([nm, v]) => `${sobre(nm)} ${v}`).join(", ")}. Comparing at the same age is the fair way to compare generations.`),
+    card("var(--pop)", T("O maior auge", "The highest peak"), `${br(P.elo, 0)}<small>Elo</small>`,
+      T(`${P.jogador} em ${mesAno(P.data)}, aos ${Math.floor(P.idade)} anos: o maior Elo da base. ${P.segundo.jogador} vem depois (${br(P.segundo.elo, 0)}, ${String(P.segundo.data).slice(0, 4)}).`,
+        `${P.jogador} in ${mesAno(P.data)}, aged ${Math.floor(P.idade)}: the highest Elo in the data. ${P.segundo.jogador} comes next (${br(P.segundo.elo, 0)}, ${String(P.segundo.data).slice(0, 4)}).`),
+      "epocas.html#elo", "pico"),
+    card("var(--pop)", T("A idade do auge", "The age of the peak"), `${AU.idade}<small>${T("anos", "years")}</small>`,
+      T(`É a idade em que o jogador típico está no seu melhor. O auge ficou mais tardio: ${eps.map(([, v]) => v).join(" → ")} anos, dos anos 90 até hoje.`,
+        `The age at which the typical player is at his best. The peak came later over time: ${eps.map(([, v]) => v).join(" → ")} years, from the 1990s to today.`),
+      "epocas.html#auge", "auge"),
+    card("var(--top)", T("A corrida por idade", "The race by age"), `${A.aos22.slice(0, 3).map(([, v]) => v).join(" · ")}<small>Slams</small>`,
+      T(`Até os 22 anos: ${A.aos22.slice(0, 3).map(([n, v]) => `${sobre(n)} ${v}`).join(", ")}. Comparar por idade é o jeito justo de comparar épocas.`,
+        `By age 22: ${A.aos22.slice(0, 3).map(([n, v]) => `${sobre(n)} ${v}`).join(", ")}. Comparing by age is the fair way to compare eras.`),
       "epocas.html#corrida", "aos22"),
-    card("var(--pop)", T("O jogo ficou mais rápido?", "Has the game got faster?"), `+${br(TP.minutos[ult] - TP.minutos[0], 0)}<small>${T("minutos por jogo", "minutes per match")}</small>`,
-      T(`No saque, sim: hoje há ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% mais aces que em ${TP.anos[0]}. Mas os jogos ficaram mais longos: de ${br(TP.minutos[0], 0)} para ${br(TP.minutos[ult], 0)} minutos (melhor de 3).`,
-        `On serve, yes: there are ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% more aces than in ${TP.anos[0]}. But matches got longer: from ${br(TP.minutos[0], 0)} to ${br(TP.minutos[ult], 0)} minutes (best of 3).`),
+    vant("5"),
+    card("var(--top)", T("A maior rivalidade", "The biggest rivalry"), `${R.va}–${R.vb}`,
+      T(`${R.a} × ${R.b}: ${R.n} jogos, a rivalidade com mais partidas desde 1991. Veja o saldo ao longo do tempo e por superfície.`,
+        `${R.a} vs ${R.b}: ${R.n} matches, the most-played rivalry since 1991. See the balance over time and by surface.`),
+      "jogadores.html#rivalidades", null),
+    vant("10"),
+    card("var(--pop)", T("Frieza existe?", "Is clutch real?"), `${PRS.n1_dec_acima} ${T("de", "of")} ${PRS.n1}<small>${T("nº 1", "No. 1s")}</small>`,
+      T(`Descontando o que os pontos de cada partida previam, "frieza" em break point e tie-break é quase sorte: muda de um ano para outro. No set decisivo é diferente: se repete (barras: quanto se repete, de 0 a 1), e ${PRS.n1_dec_acima} dos ${PRS.n1} nº 1 vencem mais do que o esperado (+${br(100 * PRS.n1_dec_media, 1)} p.p. em média).`,
+        `Discounting what each match's points predicted, "clutch" on break points and tie-breaks is mostly luck: it changes from year to year. The deciding set is different: it repeats (bars: how much it repeats, 0 to 1), and ${PRS.n1_dec_acima} of the ${PRS.n1} No. 1s win more than expected (+${br(100 * PRS.n1_dec_media, 1)} pp on average).`),
+      "jogadores.html#rank", "pressao"),
+    card("var(--top)", T("O jogo está ficando mais rápido?", "Is the game getting faster?"), `+${br(TP.minutos[ult] - TP.minutos[0], 0)}<small>${T("min por partida", "min per match")}</small>`,
+      T(`No saque, sim: os aces por partida subiram ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% (${br(TP.aces[0], 1)} em ${TP.anos[0]}, ${br(TP.aces[ult], 1)} em ${TP.anos[ult]}). Mas as partidas ficaram mais longas: o melhor de 3 foi de ${br(TP.minutos[0], 0)} para ${br(TP.minutos[ult], 0)} minutos em média. As linhas mostram os dois desde ${TP.anos[0]} (${TP.anos[0]} = 100).`,
+        `On serve, yes: aces per match rose ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% (${br(TP.aces[0], 1)} in ${TP.anos[0]}, ${br(TP.aces[ult], 1)} in ${TP.anos[ult]}). But matches got longer: best of 3 went from ${br(TP.minutos[0], 0)} to ${br(TP.minutos[ult], 0)} minutes on average. The lines show both since ${TP.anos[0]} (${TP.anos[0]} = 100).`),
       "jogo.html#tempo", "tempo"),
-    card("var(--top)", T("O que separa os melhores?", "What sets the best apart?"), `${n(v10.top)} × ${n(v10.demais)}`,
-      T(`Em cada 100 pontos com o 1º saque, o Top 10 ganha ${n(v10.top)}; os demais, ${n(v10.demais)}. É a maior diferença do jogo (no Top 5, empata com os break points salvos: ${n(bp5.top)} × ${n(bp5.demais)}). Parece pouco, mas basta para o Top 10 vencer ${pct(EL.vitorias_top10, 0)} dos jogos contra o resto.`,
-        `Out of every 100 points on the 1st serve, the Top 10 win ${n(v10.top)}; the rest, ${n(v10.demais)}. It is the biggest gap in the game (for the Top 5, level with break points saved: ${n(bp5.top)} vs ${n(bp5.demais)}). It looks small, but it is enough for the Top 10 to win ${pct(EL.vitorias_top10, 0)} of matches against the rest.`),
-      "jogo.html#top", null),
-    card("var(--pop)", T("O que todo nº 1 tem?", "What does every No. 1 have?"), `${N1.acima.ganhos_2} ${T("de", "of")} ${N1.n}<small>${T("nº 1", "No. 1s")}</small>`,
-      T(`${N1.acima.ganhos_2} dos ${N1.n} nº 1 desde 1991 são muito melhores que o circuito no 2º saque, e ${N1.acima.devolucao} na devolução. Em aces, só ${N1.acima.aces_game}. Nº 1 não se faz com ace: se faz ganhando os pontos em que o saque não ajuda.`,
-        `${N1.acima.ganhos_2} of the ${N1.n} No. 1s since 1991 are far better than the tour on the 2nd serve, and ${N1.acima.devolucao} on return. In aces, only ${N1.acima.aces_game}. No. 1s aren't made by aces: they're made by winning the points where the serve doesn't help.`),
+    card("var(--pop)", T("O que todo nº 1 tem", "What every No. 1 has"), `${N1.acima.ganhos_2} ${T("de", "of")} ${N1.n}<small>${T("nº 1", "No. 1s")}</small>`,
+      T(`${N1.acima.ganhos_2} dos ${N1.n} nº 1 desde 1991 ganham muito mais pontos com o 2º saque que o circuito, e ${N1.acima.devolucao} na devolução. Em aces, só ${N1.acima.aces_game}. O que une os melhores é ganhar os pontos em que o saque não ajuda.`,
+        `${N1.acima.ganhos_2} of the ${N1.n} No. 1s since 1991 win far more points on their 2nd serve than the tour, and ${N1.acima.devolucao} on return. In aces, only ${N1.acima.aces_game}. What unites the best is winning the points where the serve doesn't help.`),
       "epocas.html#n1", "n1"),
   ];
-  document.getElementById("achados").innerHTML = cards.map(c => `<a class="cartao achado" href="${c.link}"><span class="faixa" style="background:${c.cor}"></span>
+  document.getElementById("achados").innerHTML = cards.map((c, i) => `<a class="cartao achado" href="${c.link}"><span class="faixa" style="background:${c.cor}"></span>
     <span class="tema">${c.tema}</span><div class="grande">${c.grande}</div><p>${c.texto}</p>
-    ${c.mini ? `<div class="mini" id="mini-${c.mini}"></div>` : ""}<span class="ver">${T("Ver mais →", "See more →")}</span></a>`).join("");
+    ${c.mini ? `<div class="mini" id="mini-${c.mini}"></div>` : ""}<span class="ver">${T("Ver a análise →", "See the analysis →")}</span></a>`).join("");
 
   // mini gráficos (sem eixos, só a forma)
   const mini = { displayModeBar: false, staticPlot: true, responsive: true };
   const base = extra => Object.assign({ margin: { l: 4, r: 4, t: 4, b: 18 }, height: 120, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
     showlegend: false, font: { family: "Barlow", size: 11, color: "#4b5650" }, xaxis: { showgrid: false, zeroline: false, showline: false },
     yaxis: { visible: false } }, extra);
-  Plotly.newPlot("mini-aos22", [{ type: "bar", x: A.aos22.slice(0, 5).map(([nm]) => sobre(nm)), y: A.aos22.slice(0, 5).map(([, v]) => v),
+  Plotly.newPlot("mini-pico", [{ x: P.serie.meses.map(m => m + "-15"), y: P.serie.elo, mode: "lines", line: { color: CORES.pop, width: 2 } },
+    { x: [P.data.slice(0, 7) + "-15"], y: [P.elo], mode: "markers", marker: { symbol: "star", size: 14, color: CORES.pop } }], base({ xaxis: { type: "date", showgrid: false, dtick: "M60", tickformat: "%Y" } }), mini);
+  const coresEp = [CORES.sup.Grama, CORES.pop, CORES.top];
+  Plotly.newPlot("mini-auge", Object.values(AU.curvas).map((c, k) => ({ x: c.idades, y: c.nivel, mode: "lines", line: { color: coresEp[k], width: 2 } })),
+    base({ xaxis: { showgrid: false, dtick: 4, ticksuffix: T("a", "y") } }), mini);
+  Plotly.newPlot("mini-aos22", [{ type: "bar", x: A.aos22.slice(0, 5).map(([n]) => sobre(n)), y: A.aos22.slice(0, 5).map(([, v]) => v),
     marker: { color: A.aos22.slice(0, 5).map((_, i) => i < 3 ? CORES.top : CORES.demais) }, text: A.aos22.slice(0, 5).map(([, v]) => v), textposition: "inside" }],
     base({ bargap: .3, xaxis: { showgrid: false } }), mini);
+  // a maior vantagem do Top N: diferença em p.p. em cada aspecto, do maior para o menor
+  ["5", "10"].forEach(n => { const V = A.vantagem[n];
+    Plotly.newPlot(`mini-top${n}`, [{ type: "bar", x: V.map(r => curtoA(r.chave)), y: V.map(r => 100 * r.dif), marker: { color: V.map((_, i) => i === 0 ? CORES.pop : CORES.demais) },
+      text: V.map(r => `+${br(100 * r.dif, 1)}`), textposition: "inside", constraintext: "none" }], base({ bargap: .3, xaxis: { showgrid: false } }), mini); });
+  // aces × duração da partida, as duas em índice (primeiro ano = 100)
   Plotly.newPlot("mini-tempo", [
     { x: TP.anos, y: TP.aces.map(v => 100 * v / TP.aces[0]), mode: "lines", line: { color: CORES.pop, width: 2 }, name: "aces" },
-    { x: TP.anos, y: TP.minutos.map(v => 100 * v / TP.minutos[0]), mode: "lines", line: { color: CORES.top, width: 2 }, name: T("duração do jogo", "match length") }],
+    { x: TP.anos, y: TP.minutos.map(v => 100 * v / TP.minutos[0]), mode: "lines", line: { color: CORES.top, width: 2 }, name: T("duração", "duration") }],
     base({ xaxis: { showgrid: false, dtick: 10 }, showlegend: true, legend: { orientation: "h", x: 0, y: 1.15, font: { size: 10 } }, margin: { l: 4, r: 4, t: 18, b: 18 } }), mini);
+  const pk = ["bp_salvos", "tie_breaks", "decisivos"], prt = { bp_salvos: T("break point", "break point"), tie_breaks: "tie-break", decisivos: T("set decisivo", "deciding set") };
+  Plotly.newPlot("mini-pressao", [{ type: "bar", x: pk.map(k => prt[k]), y: pk.map(k => PRS.conf[k]), marker: { color: pk.map(k => k === "decisivos" ? CORES.pop : CORES.demais) },
+    text: pk.map(k => br(PRS.conf[k], 2)), textposition: "inside" }], base({ bargap: .3, xaxis: { showgrid: false }, yaxis: { visible: false, range: [0, 0.6] } }), mini);
   const n1k = ["ganhos_2", "devolucao", "ganhos_1", "aces_game", "primeiro_dentro"];
-  const n1r = { ganhos_2: T("2º saque", "2nd serve"), devolucao: T("devolução", "return"), ganhos_1: T("1º saque", "1st serve"), aces_game: "aces", primeiro_dentro: T("acertar o 1º", "1st in") };
+  const n1r = { ganhos_2: T("2º saque", "2nd serve"), devolucao: T("devolução", "return"), ganhos_1: T("1º saque", "1st serve"), aces_game: "aces", primeiro_dentro: T("1º dentro", "1st in") };
   Plotly.newPlot("mini-n1", [{ type: "bar", x: n1k.map(k => n1r[k]), y: n1k.map(k => N1.acima[k]), marker: { color: n1k.map((_, i) => i < 2 ? CORES.pop : CORES.demais) },
     text: n1k.map(k => N1.acima[k]), textposition: "inside" }], base({ bargap: .3, xaxis: { showgrid: false } }), mini);
 })();

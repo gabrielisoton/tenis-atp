@@ -6,10 +6,10 @@
 <title data-en="About the data · Tennis by numbers">Sobre os dados · Tênis em números</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/estilo.css?v=7">
+<link rel="stylesheet" href="assets/estilo.css?v=8">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=10"></script>
-<script src="assets/comum.js?v=10"></script>
+<script src="assets/site.js?v=9"></script>
+<script src="assets/comum.js?v=9"></script>
 <script src="assets/base.js?v=5"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <style>
@@ -19,15 +19,14 @@
 </head>
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
-  <span class="etiqueta"><span data-l="pt">Sobre os dados</span><span data-l="en">About the data</span></span>
+  <span class="etiqueta"><span data-l="pt">Bastidores · Sobre os dados</span><span data-l="en">Behind the scenes · About the data</span></span>
   <h1><span data-l="pt">De onde vêm os números, e por que confiar neles</span><span data-l="en">Where the numbers come from, and why trust them</span></h1>
-  <p data-l="pt">A base, o recorte usado e as checagens que o projeto faz a cada atualização. Os títulos e os confrontos batem com os
-    números oficiais da ATP.</p>
-  <p data-l="en">The data, the scope used and the checks the project runs on every update. Titles and head-to-heads match the official
-    ATP figures.</p>
+  <p data-l="pt">A base, o recorte usado, a visão geral do circuito e as checagens que o projeto faz a cada atualização.</p>
+  <p data-l="en">The data, the scope used, an overview of the tour and the checks the project runs on every update.</p>
 </div></header>
 <main class="conteudo" id="area-s">
   <div class="abas" id="abas-s" style="margin-top:22px"><button class="on" data-a="base">📚 <span data-l="pt">A base</span><span data-l="en">The data</span></button>
+    <button data-a="circuito">📊 <span data-l="pt">O circuito</span><span data-l="en">The tour</span></button>
     <button data-a="metodos">🔬 <span data-l="pt">Métodos e validação</span><span data-l="en">Methods and validation</span></button></div>
 
   <section class="painel-aba" data-p="base">
@@ -40,6 +39,14 @@
     <p class="nota" data-l="en">Of the 50 raw columns in the database, the only ones left out are identifiers (tournament, match and
       player ids), seeding, entry type (qualifier, wild card, lucky loser), ranking points and draw size.</p>
     <div id="termos"></div>
+  </section>
+
+  <section class="painel-aba" data-p="circuito" hidden>
+    <p class="nota" style="margin-top:14px"><span data-l="pt">Todas as partidas da base, com filtros: superfícies, duração, aces, ranking e mais.</span>
+      <span data-l="en">Every match in the data, with filters: surfaces, duration, aces, ranking and more.</span></p>
+    <div id="filtros"></div>
+    <div id="c-placar"></div>
+    <div id="painel"></div>
   </section>
 
   <section class="painel-aba" data-p="metodos" hidden>
@@ -172,7 +179,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     document.getElementById("regras").innerHTML = `<table class="t">${regras.map(([a, b]) => `<tr><td><b>${a}</b></td><td>${b}</td></tr>`).join("")}</table>`;
   }
 
-  const prontas = new Set(["base"]), abrir = { metodos: abrirMetodos };
+  const prontas = new Set(["base"]), abrir = { circuito: abrirCircuito, metodos: abrirMetodos };
   document.querySelectorAll("#abas-s button").forEach(b => b.addEventListener("click", () => {
     if (!prontas.has(b.dataset.a)) { prontas.add(b.dataset.a); abrir[b.dataset.a](); } }));
   abrirAbaDoHash("#abas-s");
