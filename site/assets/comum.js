@@ -138,17 +138,45 @@ function layoutBase(extra = {}) {
     bargap: 0.25, barcornerradius: 4,
   }, extra);
 }
+/* no celular (tela estreita) os gráficos ficavam compridos e espremidos: margens fixas de até 220 px para os rótulos
+   sobravam pouco espaço para as barras. Aqui, um ajuste só para todos: margens menores, rótulos longos abreviados,
+   fonte e título menores, legenda embaixo e altura um pouco menor. */
+const CELULAR = () => window.innerWidth < 600;
+const abreviar = (t, n = 18) => typeof t === "string" && t.length > n ? t.slice(0, n - 1).trimEnd() + "…" : t;
+function paraCelular(L, dados) {
+  const m = L.margin || {};
+  L.margin = { ...m, l: Math.min(m.l ?? 56, 96), r: Math.min(m.r ?? 18, 14), t: Math.min(m.t ?? 46, 64), b: Math.min(m.b ?? 52, 96) };
+  L.font = { ...(L.font || {}), size: 12 };
+  if (L.height) L.height = Math.max(280, Math.round(L.height * 0.85));
+  if (L.title) L.title = { ...(typeof L.title === "string" ? { text: L.title } : L.title), font: { size: 14, family: "Barlow Condensed" } };
+  if (L.legend) L.legend = { ...L.legend, font: { size: 11 } };
+  // rótulos de categoria compridos (barras horizontais): abrevia só o texto do eixo, o dado e o hover continuam inteiros
+  const cats = [...new Set(dados.filter(t => t.orientation === "h" && Array.isArray(t.y)).flatMap(t => t.y))];
+  if (cats.some(c => typeof c === "string" && c.length > 18))
+    L.yaxis = { ...(L.yaxis || {}), tickmode: "array", tickvals: cats, ticktext: cats.map(c => abreviar(c)), tickfont: { size: 11 } };
+  return L;
+}
 function plot(el, dados, layout = {}) {
+  let L = layoutBase(layout);
+  if (CELULAR()) L = paraCelular(L, dados);
   // com responsive: true o Plotly não estica a caixa do gráfico até a altura pedida: ela fica no min-height do CSS e
   // o fim do gráfico (eixo x) vazava por baixo do texto seguinte. A caixa passa a ter a altura do próprio gráfico.
-  if (layout.height) (typeof el === "string" ? document.getElementById(el) : el).style.minHeight = layout.height + "px";
-  return Plotly.react(el, dados, layoutBase(layout), PLOTLY_CONFIG);
+  if (L.height) (typeof el === "string" ? document.getElementById(el) : el).style.minHeight = L.height + "px";
+  return Plotly.react(el, dados, L, PLOTLY_CONFIG);
 }
+/* a resposta da pergunta da aba em uma frase, logo abaixo do título */
+function resposta(el, frase, sub = "") {
+  (typeof el === "string" ? document.getElementById(el) : el).innerHTML = `<div class="resposta">${frase}${sub ? `<small>${sub}</small>` : ""}</div>`;
+}
+/* como ler em uma ou duas frases, sempre visível */
+const lerCurto = texto => `<p class="ler">📖 ${texto}</p>`;
 
 
 function rodape() {
   const f = document.createElement("footer");
-  f.innerHTML = `${SITE.rodape ? L(SITE.rodape) + "<br>" : ""}
+  const A = SITE.autor;
+  f.innerHTML = `${A ? `<span class="autor">${T("Desenvolvido por", "Built by")} <b>${A.nome}</b>${A.linkedin ? ` · <a href="${A.linkedin}">LinkedIn</a>` : ""} · <a href="${A.github}">GitHub</a></span><br>` : ""}
+    ${SITE.rodape ? L(SITE.rodape) + "<br>" : ""}
     ${T("Dados", "Data")}: <a href="https://github.com/Tennismylife/TML-Database">TML-Database (Tennismylife)</a>, ATP <span data-meta="periodo"></span>, ${T("uso educacional", "educational use")}.
     <span class="selo-dados">${T("Dados até", "Data up to")} <b data-meta="data_corte"></b> (<span data-meta="ultimos_torneios"></span>)</span>`;
   document.body.append(f);

@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎾</text></svg>">
 <title data-en="Players · Tennis by numbers">Jogadores · Tênis em números</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/estilo.css?v=8">
+<link rel="stylesheet" href="assets/estilo.css?v=12">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="assets/site.js?v=9"></script>
-<script src="assets/comum.js?v=9"></script>
+<script src="assets/site.js?v=12"></script>
+<script src="assets/comum.js?v=11"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <script src="assets/jogadores.js?v=10"></script>
 <style>
@@ -53,21 +54,23 @@
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
   <span class="etiqueta"><span data-l="pt">Vestiário · Jogadores</span><span data-l="en">Locker room · Players</span></span>
-  <h1><span data-l="pt">Quem é o melhor em cada aspecto do jogo?</span><span data-l="en">Who is the best at each part of the game?</span></h1>
-  <p data-l="pt">Todas as partidas do circuito principal da ATP entre <span data-meta="ano_min"></span> e <span data-meta="ano_max"></span>. Os números cobrem só esse recorte, <b>sem
-    Challengers, qualificatórios, Copa Davis nem Olimpíadas</b>, então diferem das estatísticas oficiais de carreira.</p>
-  <p data-l="en">Every match on the main ATP tour between <span data-meta="ano_min"></span> and <span data-meta="ano_max"></span>. The numbers cover only that scope, <b>without
-    Challengers, qualifying, Davis Cup or the Olympics</b>, so they differ from official career statistics.</p>
+  <h1><span data-l="pt">Os jogadores, um a um e frente a frente</span><span data-l="en">The players, one by one and head to head</span></h1>
+  <p data-l="pt">Partidas do circuito principal desde <span data-meta="ano_min"></span>, sem Challengers nem qualifying. No confronto direto também
+    entram Copa Davis e Olimpíadas, como na contagem oficial da ATP.</p>
+  <p data-l="en">Main-tour matches since <span data-meta="ano_min"></span>, without Challengers or qualifying. Head-to-heads also include Davis Cup
+    and the Olympics, as in the official ATP count.</p>
 </div></header>
 <main class="conteudo" id="area">
-  <div class="abas" id="abas-j" style="margin-top:22px"><button class="on" data-a="lid">🏆 <span data-l="pt">Líderes de cada critério</span><span data-l="en">Leaders in every category</span></button>
-    <button data-a="rank">🏅 <span data-l="pt">Ranking por critério</span><span data-l="en">Ranking by category</span></button>
-    <button data-a="perfil">🎾 <span data-l="pt">Perfil do jogador</span><span data-l="en">Player profile</span></button>
-    <button data-a="rivalidades">⚔️ <span data-l="pt">Rivalidades</span><span data-l="en">Rivalries</span></button></div>
+  <div class="abas" id="abas-j" style="margin-top:22px"><button class="on" data-a="perfil">🎾 <span data-l="pt">Perfil do jogador</span><span data-l="en">Player profile</span></button>
+    <button data-a="rivalidades">⚔️ <span data-l="pt">Frente a frente</span><span data-l="en">Head to head</span></button>
+    <button data-a="n1">🥇 <span data-l="pt">Os nº 1</span><span data-l="en">The No. 1s</span></button>
+    <button data-a="lid">🏆 <span data-l="pt">Os melhores em cada aspecto</span><span data-l="en">The best at each aspect</span></button></div>
   <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando os dados de todos os jogadores…</span><span
     data-l="en">Loading the data for every player…</span></div>
 
-  <section class="painel-aba" data-p="lid">
+  <section class="painel-aba" data-p="lid" hidden>
+    <h2 style="margin-top:6px"><span data-l="pt">Quem é o jogador mais completo?</span><span data-l="en">Who is the most complete player?</span></h2>
+    <div id="l-resposta"></div>
     <div class="filtros" style="position:static">
       <div class="grupo"><span class="rot"><span data-l="pt">Anos</span><span data-l="en">Years</span></span><select class="sel" id="l-a0"></select>–<select class="sel" id="l-a1"></select></div>
       <div class="grupo"><span class="rot"><span data-l="pt">Mínimo de partidas</span><span data-l="en">Minimum matches</span></span><input class="sel" id="l-min" type="number" value="100" min="1" step="10" style="width:90px"
@@ -77,25 +80,15 @@
       <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><span id="l-niv"></span></div>
     </div>
     <div id="l-placar"></div>
-    <h2><span data-l="pt">Pódio de cada critério</span><span data-l="en">Podium for every category</span></h2>
-    <div class="cartao rolagem" style="overflow:auto"><table class="t" id="l-podio"></table></div>
-    <div id="l-comoler"></div>
-    <h2><span data-l="pt">Quadro de medalhas · quem domina mais critérios</span><span data-l="en">Medal table · who dominates the most categories</span></h2>
-    <div class="cartao"><div id="l-g" class="grafico" style="min-height:560px"></div></div>
+    <div class="cartao" style="margin-top:14px"><div id="l-g" class="grafico" style="min-height:560px"></div></div>
     <div class="cartao rolagem" style="max-height:520px;overflow:auto;margin-top:14px"><table class="t" id="l-med"></table></div>
     <p class="nota" id="l-nota"></p>
-  </section>
-
-  <section class="painel-aba" data-p="rank" hidden>
+    <h2><span data-l="pt">Quem são os 3 melhores em cada aspecto?</span><span data-l="en">Who are the top 3 at each aspect?</span></h2>
+    <div id="l-comoler"></div>
+    <div class="cartao rolagem" style="overflow:auto"><table class="t" id="l-podio"></table></div>
+    <h2><span data-l="pt">E num aspecto específico, quem é o melhor?</span><span data-l="en">And at one specific aspect, who is the best?</span></h2>
     <div class="filtros" style="position:static">
-      <div class="grupo"><span class="rot"><span data-l="pt">Critério</span><span data-l="en">Category</span></span><select class="sel" id="r-crit"></select></div>
-      <div class="grupo"><span class="rot"><span data-l="pt">Anos</span><span data-l="en">Years</span></span><select class="sel" id="r-a0"></select>–<select class="sel" id="r-a1"></select></div>
-      <div class="grupo"><span class="rot"><span data-l="pt">Mínimo de partidas</span><span data-l="en">Minimum matches</span></span><input class="sel" id="r-min" type="number" value="100" min="1" step="10" style="width:90px"
-        title="Ajusta sozinho quando você muda os anos (10 por temporada, entre 20 e 100), mas pode ser editado."
-        data-en-title="Adjusts itself when you change the years (10 per season, between 20 and 100), but you can edit it."></div>
-      <div class="grupo"><span class="rot"><span data-l="pt">Superfície</span><span data-l="en">Surface</span></span><span id="r-sup"></span></div>
-      <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><span id="r-niv"></span></div>
-    </div>
+      <div class="grupo"><span class="rot"><span data-l="pt">Aspecto</span><span data-l="en">Aspect</span></span><select class="sel" id="r-crit"></select></div></div>
     <div id="r-placar"></div>
     <div class="cartao" style="margin-top:14px"><div id="r-g" class="grafico" style="min-height:640px"></div>
       <p class="nota" id="r-desc"></p></div>
@@ -103,7 +96,7 @@
     <div class="cartao rolagem" style="max-height:480px;overflow:auto"><table class="t" id="r-t"></table></div>
   </section>
 
-  <section class="painel-aba" data-p="perfil" hidden>
+  <section class="painel-aba" data-p="perfil">
     <div class="filtros" style="position:relative;top:0;z-index:30">
       <div class="grupo"><span class="rot"><span data-l="pt">Jogador</span><span data-l="en">Player</span></span><input class="sel busca" id="p-nome" value="Roger Federer"
         placeholder="Digite ou escolha um jogador" aria-label="Jogador"
@@ -113,11 +106,37 @@
     </div>
     <div id="p-corpo"></div>
   </section>
+  <section class="painel-aba" data-p="n1" hidden>
+  <h2 style="margin-top:6px"><span data-l="pt">Como cada um chegou ao topo?</span><span data-l="en">How did each one reach the top?</span></h2>
+  <div id="n1-resposta"></div>
+  <div class="filtros" style="position:relative;top:0;z-index:30">
+    <div class="grupo"><span class="rot"><span data-l="pt">Nº 1</span><span data-l="en">No. 1</span></span><input class="sel busca" id="n1-a"></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Adversários</span><span data-l="en">Opponents</span></span><span id="n1-regua"></span></div>
+  </div>
+  <div id="n1-placar"></div>
+  <div class="aviso" id="n1-cobertura" hidden></div>
+  <div class="grade g2" style="margin-top:14px">
+    <div class="cartao"><div id="g-n1-fase" class="grafico" style="min-height:420px"></div></div>
+    <div class="cartao"><div id="g-n1-temp" class="grafico" style="min-height:420px"></div></div>
+  </div>
+  <div id="n1-comoler"></div>
+
+  <h2><span data-l="pt">Quão cedo cada um chegou lá?</span><span data-l="en">How early did each one get there?</span></h2>
+  <p class="ler">📖 <span data-l="pt">Idade em cada marco. Toque no título de uma coluna para ordenar.</span><span data-l="en">Age at each milestone. Tap a column title to sort.</span></p>
+  <div class="cartao rolagem" style="overflow:auto"><table class="t" id="n1-t-marcos"></table><p class="nota" id="n1-nota-marcos"></p></div>
+
+  <h2><span data-l="pt">O que todos os nº 1 têm em comum?</span><span data-l="en">What do all the No. 1s have in common?</span></h2>
+  <div class="cartao"><div id="g-n1-comum" class="grafico" style="min-height:460px"></div></div>
+  <p class="nota" id="n1-nota-comum"></p>
+
+  <h2><span data-l="pt">O que cai primeiro depois do auge?</span><span data-l="en">What fades first after the peak?</span></h2>
+  <div class="cartao"><div id="g-n1-queda" class="grafico" style="min-height:380px"></div><p class="nota" id="n1-nota-queda"></p></div>
+  </section>
   <section class="painel-aba" data-p="rivalidades" id="rivalidades-sec" hidden>
-  <p class="nota" style="margin-top:14px"><span data-l="pt">Todos os confrontos entre dois jogadores desde 1991, com a mesma regra do H2H
-    oficial da ATP: circuito principal, Copa Davis, Olimpíadas e ATP Cup/United Cup; partidas com abandono contam, W/O não.</span>
-    <span data-l="en">Every match between two players since 1991, with the same rule as the official ATP head-to-head: main tour,
-    Davis Cup, Olympics and ATP Cup/United Cup; retirements count, walkovers do not.</span></p>
+  <h2 style="margin-top:6px"><span data-l="pt">Quem leva a melhor no confronto direto?</span><span data-l="en">Who comes out on top head to head?</span></h2>
+  <div id="h-resposta"></div>
+  <p class="ler">📖 <span data-l="pt">Escolha dois jogadores. Conta como no confronto oficial da ATP: abandono conta, W.O. não.</span>
+    <span data-l="en">Pick two players. It counts like the official ATP head-to-head: retirements count, walkovers don't.</span></p>
   <div class="aviso" id="h-carregando"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
 
   <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:14px">
@@ -129,13 +148,25 @@
     <div class="cartao"><div id="g-linha" class="grafico" style="min-height:380px"></div></div>
     <div class="cartao"><div id="g-sup" class="grafico" style="min-height:380px"></div></div>
   </div>
-  <div class="cartao rolagem" style="margin-top:14px"><h3 style="margin-top:0"><span data-l="pt">Como cada um jogou no confronto × na carreira</span>
+  <div class="cartao rolagem" style="margin-top:14px"><h3 style="margin-top:0"><span data-l="pt">Quem joga melhor quando se enfrentam?</span>
     <span data-l="en">How each played in the head to head vs over their career</span></h3><table class="t" id="h-stats"></table>
     <p class="nota" id="h-stats-nota"></p></div>
+  <h2><span data-l="pt">E se os dois jogassem no auge?</span><span data-l="en">And if both played at their peak?</span></h2>
+  <div id="x-resposta"></div>
+  <div id="x-corpo">
+    <div class="filtros" style="position:static"><div class="grupo"><span class="rot"><span data-l="pt">Auge</span><span data-l="en">Peak</span></span><span id="x-modo"></span></div></div>
+    <div id="x-placar"></div>
+    <div class="grade g2" style="margin-top:14px">
+      <div class="cartao"><div id="g-pxp" class="grafico" style="min-height:360px"></div></div>
+      <div class="cartao rolagem"><h3 style="margin-top:0"><span data-l="pt">O auge de cada um</span><span data-l="en">Each player's peak</span></h3>
+        <table class="t" id="x-t"></table></div>
+    </div>
+    <p class="nota" id="x-nota"></p>
+  </div>
   <h2><span data-l="pt">Todas as partidas</span><span data-l="en">Every match</span></h2>
   <div class="cartao rolagem" style="max-height:560px;overflow:auto"><table class="t" id="h-t"></table></div>
   <p class="nota" id="h-nota"></p>
-  <h2><span data-l="pt">As maiores rivalidades</span><span data-l="en">The biggest rivalries</span></h2>
+  <h2><span data-l="pt">Quais são as maiores rivalidades?</span><span data-l="en">What are the biggest rivalries?</span></h2>
   <div class="riv" id="h-riv"></div>
 
   </section>
@@ -147,6 +178,8 @@ ligarAbas(document.getElementById("area"), "#abas-j", true);
 let rivalidadesProntas = false;
 const abrirRivalidades = () => { if (!rivalidadesProntas) { rivalidadesProntas = true; iniciarRivalidades(); } };
 document.querySelector('#abas-j button[data-a="rivalidades"]').addEventListener("click", abrirRivalidades);
+// endereços antigos: o ranking por aspecto agora fica em "Os melhores em cada aspecto"
+if (location.hash === "#rank") history.replaceState(null, "", location.pathname + location.search + "#lid");
 abrirAbaDoHash("#abas-j");
 (async () => {
   const J = await carregar("jogadores");
@@ -160,7 +193,7 @@ abrirAbaDoHash("#abas-j");
     console[erros.length ? "error" : "info"](erros.length ? `Divergências com o Python: ${erros.join(" | ")}` : "Jogadores: cálculos conferidos com o Python (OK)");
     window.__checagemJogadores = erros;
   });
-  // daqui em diante nome, grupo e descrição dos critérios só servem para exibir: já no idioma escolhido
+  // daqui em diante nome, grupo e descrição dos aspectos só servem para exibir: já no idioma escolhido
   CR.forEach(c => { c.nome = tr(c.nome); c.grupo = tr(c.grupo); c.desc = tr(c.desc); });
   const PP = T("p.p.", "pp"), PART = T("partidas", "matches");
 
@@ -199,21 +232,9 @@ abrirAbaDoHash("#abas-j");
   const COR_MED = { ouro: "#c98500", prata: "#a8a6a0", bronze: "#8c5a3c" }, ICO = { ouro: "🥇", prata: "🥈", bronze: "🥉" };
   const TOPN = 10;
   document.getElementById("l-a0").innerHTML = opAnos(A0); document.getElementById("l-a1").innerHTML = opAnos(A1);
-  document.getElementById("l-comoler").innerHTML = comoLer(T(`Cada linha é um critério, com os <b>três melhores</b> jogadores do
-    recorte (entre os que têm o mínimo de partidas) e o valor de cada um. Em duplas faltas por game, o melhor é quem comete
-    <b>menos</b>.<br><br><b>Vantagem do 1º</b> é a distância para o 2º colocado (em pontos percentuais nas proporções).<br><br>
-    <b>Liderança isolada × empate técnico:</b> nas proporções, comparamos os <b>IC 95% de Wilson</b> do 1º e do 2º. Se os
-    intervalos <b>não se tocam</b>, a liderança é <i>isolada</i>: dificilmente é fruto do acaso das partidas que cada um jogou. Se
-    eles se sobrepõem, é um <i>empate técnico</i>: com esses dados não dá para afirmar quem é melhor. É um critério conservador
-    (intervalos que se tocam um pouco ainda podem indicar diferença num teste formal), mas mostra a ideia de variabilidade
-    amostral.`, `Each row is a category, with the <b>top three</b> players in the selection (among those with the minimum number
-    of matches) and each one's value. For double faults per game, the best is whoever commits the <b>fewest</b>.<br><br>
-    <b>Lead over 2nd</b> is the gap to the runner-up (in percentage points for proportions).<br><br>
-    <b>Clear lead vs statistical tie:</b> for proportions, we compare the <b>95% Wilson CIs</b> of 1st and 2nd. If the
-    intervals <b>do not touch</b>, the lead is <i>clear</i>: it is unlikely to be a fluke of the matches each one happened to
-    play. If they overlap, it is a <i>statistical tie</i>: with this data we cannot say who is better. It is a conservative rule
-    (intervals that overlap slightly can still show a difference in a formal test), but it captures the idea of sampling
-    variability.`));
+  document.getElementById("l-comoler").innerHTML = lerCurto(T(`Os três melhores em cada aspecto. "Isolada" quer dizer que o 1º está à frente mesmo
+    contando a margem de erro; "empate técnico", que os dois estão próximos demais para cravar.`, `The top three at each aspect. "Clear" means the
+    leader stays ahead even counting the margin of error; "statistical tie" means the two are too close to call.`));
   const fmtVant = (c, v) => v === undefined || v === null ? "—" : temIC(c) ? `+${br(100 * v, 1)} ${PP}`
     : "+" + (c.tipo === "taxa" ? br(v, 3) : c.tipo === "razao" ? br(v, 2) : br(v, 0));
 
@@ -225,18 +246,19 @@ abrirAbaDoHash("#abas-j");
     document.querySelectorAll("#l-podio, #l-med").forEach(t => t.innerHTML = "");
     if (vazio) { document.getElementById("l-placar").innerHTML = avisoVazio(minimo, maxPartidas(J, [LD.a0, LD.a1], LD.sup, LD.niv));
       Plotly.purge("l-g"); document.getElementById("l-nota").innerHTML = ""; return; }
-    const d = med[0], comIC = podio.filter(p => p.lideranca);
+    const d = med[0];
     placar(document.getElementById("l-placar"), [
       { rot: T("Mais dominante", "Most dominant"), num: d.nome,
         sub: T("mais pontos no quadro de medalhas (1º = 3, 2º = 2, 3º = 1)", "most points in the medal table (1st = 3, 2nd = 2, 3rd = 1)") },
       { rot: T("Pontos", "Points"), num: br(d.pontos, 0),
-        sub: `${d.ouro} 🥇 · ${d.prata} 🥈 · ${d.bronze} 🥉 ${T("em", "in")} ${podio.length} ${T("critérios", "categories")}` },
-      { rot: T(`Vezes no top ${TOPN}`, `Times in the top ${TOPN}`), num: br(d.top, 0), sub: `${T("em", "in")} ${podio.length} ${T("critérios", "categories")}` },
-      { rot: T("Lideranças isoladas", "Clear leads"), num: `${comIC.filter(p => p.lideranca === "isolada").length} ${T("de", "of")} ${comIC.length}`,
-        sub: T("IC 95% do 1º não toca o do 2º", "1st's 95% CI does not touch 2nd's") },
+        sub: `${d.ouro} 🥇 · ${d.prata} 🥈 · ${d.bronze} 🥉 ${T("em", "in")} ${podio.length} ${T("aspectos", "aspects")}` },
+      { rot: T(`Vezes no top ${TOPN}`, `Times in the top ${TOPN}`), num: br(d.top, 0), sub: `${T("em", "in")} ${podio.length} ${T("aspectos", "aspects")}` },
     ]);
+    resposta("l-resposta", T(`${d.nome}: está entre os ${TOPN} melhores em ${d.top} dos ${podio.length} aspectos do jogo e é o 1º em ${d.ouro}.`,
+        `${d.nome}: in the top ${TOPN} at ${d.top} of the ${podio.length} aspects of the game and 1st at ${d.ouro}.`),
+      T("Mude os anos, o piso e o nível para ver os melhores de cada recorte.", "Change years, surface and level to see the best in each selection."));
     const cel = (p, m) => p[m] ? `<span class="medalha">${p[m]}<small>${fmtC(p.c, p[m + "_valor"])}</small></span>` : "—";
-    document.getElementById("l-podio").innerHTML = `<tr><th>${T("Grupo", "Group")}</th><th>${T("Critério", "Category")}</th>
+    document.getElementById("l-podio").innerHTML = `<tr><th>${T("Grupo", "Group")}</th><th>${T("Aspecto", "Aspect")}</th>
       <th>🥇 ${ordinal(1)}</th><th>🥈 ${ordinal(2)}</th><th>🥉 ${ordinal(3)}</th>
       <th>${T("Vantagem do 1º", "Lead over 2nd")}</th><th>${T("Liderança", "Lead")}</th></tr>` + podio.map(p => `<tr><td>${p.c.grupo}</td><td><b>${p.c.nome}</b></td>
       <td>${cel(p, "ouro")}</td><td>${cel(p, "prata")}</td><td>${cel(p, "bronze")}</td><td class="n">${fmtVant(p.c, p.vantagem)}</td>
@@ -248,65 +270,41 @@ abrirAbaDoHash("#abas-j");
       hovertemplate: `<b>%{y}</b> · %{x} ${tr(m)}<br>• %{customdata}<extra></extra>` })),
       { height: 560, barmode: "stack", legend: { traceorder: "normal", orientation: "h", y: 1.02, yanchor: "bottom", x: 0 },
         title: titulo(T("Medalhas por jogador (15 com mais pontos)", "Medals by player (top 15 by points)")),
-        xaxis: { title: T("critérios (1º, 2º e 3º lugares)", "categories (1st, 2nd and 3rd places)"), dtick: 1, showgrid: true, gridcolor: "rgba(137,135,129,.22)" },
+        xaxis: { title: T("aspectos (1º, 2º e 3º lugares)", "aspects (1st, 2nd and 3rd places)"), dtick: 1, showgrid: true, gridcolor: "rgba(137,135,129,.22)" },
         yaxis: { showgrid: false, automargin: true }, margin: { l: 150, r: 20, t: 90, b: 50 } });
     const comDica = (n, titulo, lista) => !n ? `<span class="zero">0</span>` :
       `<span class="tem-dica" tabindex="0" data-dica="<b>${titulo}</b><ul>${lista.map(x => `<li>${x}</li>`).join("")}</ul>">${n}</span>`;
     document.getElementById("l-med").innerHTML = `<tr><th>${T("Jogador", "Player")}</th><th>${T("Pontos", "Points")}</th><th>🥇</th><th>🥈</th><th>🥉</th>
-      <th title="${T(`Em quantos dos ${podio.length} critérios o jogador fica entre os ${TOPN} melhores`, `In how many of the ${podio.length} categories the player is in the top ${TOPN}`)}">${T(`Critérios no top ${TOPN}`, `Categories in the top ${TOPN}`)}</th>
+      <th title="${T(`Em quantos dos ${podio.length} aspectos o jogador fica entre os ${TOPN} melhores`, `In how many of the ${podio.length} aspects the player is in the top ${TOPN}`)}">${T(`Aspectos no top ${TOPN}`, `Aspects in the top ${TOPN}`)}</th>
       <th>${T("Partidas", "Matches")}</th><th>${T("Lidera em", "Leads in")}</th></tr>` + med.map(r => `<tr><td>${r.nome}</td><td class="n"><b>${r.pontos}</b></td>
       <td class="n">${comDica(r.ouro, T(`🥇 ${r.nome} é 1º em`, `🥇 ${r.nome} is 1st in`), r.ouro_criterios)}</td>
       <td class="n">${comDica(r.prata, T(`🥈 ${r.nome} é 2º em`, `🥈 ${r.nome} is 2nd in`), r.prata_criterios)}</td>
       <td class="n">${comDica(r.bronze, T(`🥉 ${r.nome} é 3º em`, `🥉 ${r.nome} is 3rd in`), r.bronze_criterios)}</td>
       <td class="n">${comDica(r.top, T(`${r.nome} no top ${TOPN} (posição)`, `${r.nome} in the top ${TOPN} (place)`), r.top_criterios)}</td>
       <td class="n">${br(r.partidas, 0)}</td><td>${r.criterios.join("; ")}</td></tr>`).join("");
-    document.getElementById("l-nota").innerHTML = T(`<b>Pontos:</b> 1º lugar vale 3, 2º vale 2 e 3º vale 1; empates se desfazem por
-      mais 1º lugares. Assim, quem é forte em muitos critérios passa à frente de um especialista imbatível em poucos (na base inteira,
-      Karlović lidera 4 critérios, todos de saque). Toque ou passe o mouse sobre os números de medalhas para ver os critérios de cada uma. A coluna <b>Critérios no top ${TOPN}</b>
-      conta em quantos dos ${podio.length} critérios o
-      jogador fica entre os ${TOPN} melhores: é a medida de quem é bom em <b>tudo</b>. Nas contagens (títulos, finais), quem tem zero
-      não recebe medalha.`, `<b>Points:</b> 1st place is worth 3, 2nd 2 and 3rd 1; ties are broken by more 1st places. That way,
-      someone strong in many categories ranks ahead of a specialist who is unbeatable in a few (over the whole database, Karlović
-      leads 4 categories, all of them on serve). Tap or hover over the medal counts to see the categories behind each one. The
-      <b>Categories in the top ${TOPN}</b> column counts in how many of the ${podio.length} categories the player is among the
-      ${TOPN} best: it measures who is good at <b>everything</b>. In the counts (titles, finals), players with zero get no medal.`);
+    document.getElementById("l-nota").innerHTML = T(`<b>Pontos:</b> 1º lugar vale 3, 2º vale 2, 3º vale 1. Quem é bom em muitos aspectos passa
+      à frente de quem é imbatível em poucos. Toque nos números para ver os aspectos de cada medalha.`, `<b>Points:</b> 1st place is worth 3, 2nd 2,
+      3rd 1. Someone good at many aspects ranks ahead of someone unbeatable at a few. Tap the numbers to see the aspects behind each medal.`);
   }
-  chips(document.getElementById("l-sup"), SUPS, LD.sup, CORES.sup, desenharLideres);
-  chips(document.getElementById("l-niv"), NIVS, LD.niv, null, desenharLideres);
-  document.getElementById("l-min").addEventListener("change", desenharLideres);
+  // os filtros de cima valem para o quadro de medalhas, o pódio e o ranking de um aspecto
+  const desenharMelhores = () => { desenharLideres(); desenharRanking(); };
+  chips(document.getElementById("l-sup"), SUPS, LD.sup, CORES.sup, desenharMelhores);
+  chips(document.getElementById("l-niv"), NIVS, LD.niv, null, desenharMelhores);
+  document.getElementById("l-min").addEventListener("change", desenharMelhores);
   ["l-a0", "l-a1"].forEach(id => document.getElementById(id).addEventListener("change", e => {
-    LD[id.slice(2)] = +e.target.value; mudarAnos(LD, "l", id.slice(2)); desenharLideres(); }));
+    LD[id.slice(2)] = +e.target.value; mudarAnos(LD, "l", id.slice(2)); desenharMelhores(); }));
   ligarDicas(document.getElementById("l-med"));
 
   /* ================= ranking ================= */
-  const R = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]), niv: new Set([0, 1, 2, 3, 4]) };
+  const R = LD;   // mesmo recorte do quadro de medalhas
   const rc = document.getElementById("r-crit");
   rc.innerHTML = CR.map(c => `<option value="${c.chave}">${c.grupo} · ${c.nome}</option>`).join("");
-  document.getElementById("r-a0").innerHTML = opAnos(A0); document.getElementById("r-a1").innerHTML = opAnos(A1);
-  document.getElementById("r-comoler").innerHTML = comoLer(T(`Cada linha é um jogador com pelo menos o mínimo de partidas no
-    recorte. Os valores são <b>razões de somas</b>: em "pontos ganhos no saque", somamos todos os pontos que ele venceu sacando e
-    dividimos por todos os pontos que sacou.<br><br><b>Por que o mínimo de partidas importa?</b> O valor de cada jogador é uma
-    estimativa feita com as partidas que ele jogou, e o <b>traço</b> é o <b>intervalo de confiança de 95% de Wilson</b>. Com
-    poucas partidas o intervalo fica largo e o "1º lugar" pode ser só sorte: baixe o mínimo para 10 e veja aparecerem líderes
-    desconhecidos, com intervalos enormes. É a ideia de variabilidade amostral: cada temporada é uma "amostra" do nível de um jogador. Usamos o IC de <b>Wilson</b> em
-    vez do de Wald (p̂ ± z·EP) porque ele continua válido perto de 0% ou 100% e com n pequeno, e nunca sai do intervalo [0, 1].
-    <br><br>Quando dois intervalos se sobrepõem bastante, os dados não permitem dizer com segurança quem é melhor. Taxas por game,
-    o dominance ratio e as contagens não têm IC de proporção.<br><br><b>Nos critérios de pontos</b> (saque, devolução, pontos ganhos
-    no total), o IC trata cada ponto como independente. Pontos da mesma partida não são (dia bom, adversário forte), então a incerteza
-    real é um pouco maior do que o traço mostra.`, `Each row is a player with at least the minimum number of matches
-    in the selection. Values are <b>ratios of sums</b>: for "service points won", we add up every point the player won on serve
-    and divide by every point they served.<br><br><b>Why does the minimum number of matches matter?</b> Each player's value is
-    an estimate based on the matches they played, and the <b>bar</b> is the <b>95% Wilson confidence interval</b>. With few
-    matches the interval gets wide and "1st place" may be pure luck: lower the minimum to 10 and watch unknown leaders appear,
-    with huge intervals. This is the idea of sampling variability: each season is a "sample" of a player's level. We use the
-    <b>Wilson</b> CI instead of the Wald one (p̂ ± z·SE) because it stays valid near 0% or 100% and with small n, and never leaves
-    the [0, 1] range.<br><br>When two intervals overlap a lot, the data cannot say with confidence who is better. Per-game rates,
-    the dominance ratio and the counts have no proportion CI.<br><br><b>For point-based categories</b> (serve, return, total points
-    won), the CI treats each point as independent. Points in the same match are not (a good day, a strong opponent), so the real
-    uncertainty is somewhat larger than the bar shows.`));
+  document.getElementById("r-comoler").innerHTML = lerCurto(T(`Cada ponto é um jogador; o traço é a margem de erro: quanto menos partidas, mais
+    largo. <a href="sobre.html#metodos">Como calculamos →</a>`, `Each dot is a player; the line is the margin of error: the fewer the matches, the
+    wider. <a href="sobre.html#metodos">How we calculate it →</a>`));
 
   function desenharRanking() {
-    const c = CRIT[rc.value], minimo = Math.max(1, +document.getElementById("r-min").value || 1);
+    const c = CRIT[rc.value], minimo = Math.max(1, +document.getElementById("l-min").value || 1);
     const { tab, medias } = tabelaJogadores(J, [R.a0, R.a1], R.sup, R.niv, minimo);
     const rk = rankear(tab, c);
     if (!rk.length) { document.getElementById("r-placar").innerHTML = avisoVazio(minimo, maxPartidas(J, [R.a0, R.a1], R.sup, R.niv));
@@ -349,11 +347,7 @@ abrirAbaDoHash("#abas-j");
         `<td><div class="barra-pct" title="${br(r.percentil, 0)}"><i style="width:${r.percentil}%;background:${CORES.pop}"></i></div></td>
         <td class="n">${r.melhor_rank ? ordinal(r.melhor_rank) : "—"}</td></tr>`).join("");
   }
-  chips(document.getElementById("r-sup"), SUPS, R.sup, CORES.sup, desenharRanking);
-  chips(document.getElementById("r-niv"), NIVS, R.niv, null, desenharRanking);
-  ["r-crit", "r-min"].forEach(id => document.getElementById(id).addEventListener("change", desenharRanking));
-  ["r-a0", "r-a1"].forEach(id => document.getElementById(id).addEventListener("change", e => {
-    R[id.slice(2)] = +e.target.value; mudarAnos(R, "r", id.slice(2)); desenharRanking(); }));
+  document.getElementById("r-crit").addEventListener("change", desenharRanking);
 
   /* ================= perfil ================= */
   const P = { a0: A0, a1: A1, sup: new Set([0, 1, 2, 3]) };
@@ -374,58 +368,51 @@ abrirAbaDoHash("#abas-j");
     const recorte = (P.a0 === A0 && P.a1 === A1 ? T("toda a base", "whole database") : `${P.a0}–${P.a1}`) +
       (P.sup.size === 4 ? "" : " · " + [...P.sup].map(s => tr(SUPS[s]).toLowerCase()).join(", "));
     corpo.innerHTML = `
+      <div id="p-resposta"></div>
       <div id="p-placar"></div>
-      ${e.com_pontos ? `<p class="nota">🎭 ${T(
-        `<b>Venceu perdendo nos pontos:</b> ${e.venceu_menos} de ${br(e.v_com_pontos, 0)} vitórias (${pct(e.venceu_menos / e.v_com_pontos)}) vieram
-        com menos pontos que o adversário; e ${e.perdeu_mais} de ${br(e.com_pontos - e.v_com_pontos, 0)} derrotas
-        (${e.com_pontos > e.v_com_pontos ? pct(e.perdeu_mais / (e.com_pontos - e.v_com_pontos)) : "—"}) vieram ganhando mais pontos.`,
-        `<b>Won while losing on points:</b> ${e.venceu_menos} of ${br(e.v_com_pontos, 0)} wins (${pct(e.venceu_menos / e.v_com_pontos)}) came
-        with fewer points than the opponent; and ${e.perdeu_mais} of ${br(e.com_pontos - e.v_com_pontos, 0)} losses
-        (${e.com_pontos > e.v_com_pontos ? pct(e.perdeu_mais / (e.com_pontos - e.v_com_pontos)) : "—"}) came while winning more points.`)}
-        <a href="jogo.html#venceu-perdendo">${T("Ver todas", "See them all")}</a></p>` : ""}
-      <p class="nota">${T(`Recorte: <b>${recorte}</b> (${p.anos[0]}–${p.anos[1]} em quadra). Percentil e posição comparam ${nome} aos
-        <b>${p.nRef} jogadores</b> com pelo menos 100 partidas na base que têm 20 ou mais partidas nesse recorte.`,
-        `Selection: <b>${recorte}</b> (on court ${p.anos[0]}–${p.anos[1]}). Percentile and rank compare ${nome} with the
-        <b>${p.nRef} players</b> who have at least 100 matches in the database and 20 or more in this selection.`)}</p>
-      <h2>${T("Pontos fortes e fracos", "Strengths and weaknesses")}</h2>
+      ${e.com_pontos ? `<p class="ler">🎭 ${T(`Venceu <b>${e.venceu_menos}</b> partidas fazendo menos pontos que o adversário e perdeu
+        <b>${e.perdeu_mais}</b> fazendo mais.`, `Won <b>${e.venceu_menos}</b> matches with fewer points than the opponent and lost
+        <b>${e.perdeu_mais}</b> with more.`)}</p>` : ""}
+      <h2>${T("Onde ele é melhor e pior?", "Where is he best and worst?")}</h2>
+      <p class="nota">${T(`Comparado a ${p.nRef} jogadores com carreira longa · ${recorte}.`, `Compared with ${p.nRef} players with long careers · ${recorte}.`)}</p>
       ${jogo.length >= 6 ? `<div class="fortes"><div class="cartao"><b>💪 ${T("Pontos fortes", "Strengths")}</b><ul>${jogo.slice(-3).reverse().map(li).join("")}</ul></div>
         <div class="cartao"><b>🔧 ${T("Pontos fracos (relativos)", "Weaknesses (relative)")}</b><ul>${jogo.slice(0, 3).map(li).join("")}</ul></div></div>` : ""}
       <div class="cartao" style="margin-top:14px"><div id="p-pctl" class="grafico" style="min-height:520px"></div></div>
-      ${comoLer(T(`O <b>percentil</b> diz que fração dos outros jogadores de referência ele supera naquele critério: 90 significa melhor
-        que 90% deles; 50 é o jogador típico. Barras <b>magenta</b> ficam acima da mediana; <b>cinza</b>, abaixo. Em duplas faltas por
-        game, menor é melhor, então o percentil já vem invertido. "Pontos fracos" são relativos: até um campeão tem aspectos em que é
-        apenas mediano.`, `The <b>percentile</b> says what share of the other reference players they beat in that category: 90 means
-        better than 90% of them; 50 is the typical player. <b>Magenta</b> bars are above the median; <b>grey</b> ones, below. For double
-        faults per game, lower is better, so the percentile is already flipped. "Weaknesses" are relative: even a champion has
-        aspects in which they are merely average.`))}
-      <h2>${T("Ficha completa · critério a critério", "Full record · category by category")}</h2>
-      <div class="cartao rolagem"><table class="t"><tr><th>${T("Grupo", "Group")}</th><th>${T("Critério", "Category")}</th><th>${T("Valor", "Value")}</th>
+      ${lerCurto(T("Cada barra diz quantos % dos outros jogadores ele supera: 90 = melhor que 90% deles; 50 = o jogador típico.",
+        "Each bar says what % of the other players he beats: 90 = better than 90% of them; 50 = the typical player."))}
+      <h2>${T("Todos os números", "All the numbers")}</h2>
+      <div class="cartao rolagem"><table class="t"><tr><th>${T("Grupo", "Group")}</th><th>${T("Aspecto", "Aspect")}</th><th>${T("Valor", "Value")}</th>
         <th>${T("IC 95% (Wilson)", "95% CI (Wilson)")}</th><th>${T("Média do circuito", "Tour average")}</th><th>${T("Percentil", "Percentile")}</th><th>${T("Posição", "Rank")}</th></tr>
         ${fic.map(f => `<tr><td>${f.c.grupo}</td><td>${f.c.nome}</td><td class="n"><b>${fmtC(f.c, f.valor)}</b></td>
           <td class="n">${fmtIC(f.c, f.ic_inf, f.ic_sup)}</td><td class="n">${f.c.tipo === "n" ? br(f.media, 1) : fmtC(f.c, f.media)}</td>
           <td>${f.percentil === null ? "—" : `<div class="barra-pct" title="${br(f.percentil, 0)}"><i style="width:${f.percentil}%;background:${f.percentil >= 50 ? CORES.top : CORES.demais}"></i></div>`}</td>
           <td class="n">${f.posicao ? de(f.posicao, f.total) : "—"}</td></tr>`).join("")}</table>
-        <p class="nota">${T(`Média do circuito: razão das somas de todos os jogadores no recorte (vitórias = 50% e dominance ratio = 1 por
-          construção); nas contagens, média por jogador de referência. O IC só existe para proporções.`, `Tour average: ratio of the
-          sums over every player in the selection (wins = 50% and dominance ratio = 1 by construction); for counts, the mean per
-          reference player. The CI only exists for proportions.`)}</p></div>
-      <h2>${T("Cada aspecto por superfície", "Each aspect by surface")}</h2>
+        <p class="nota">${T("Margem de erro (IC 95%): onde o valor verdadeiro provavelmente está. <a href=\"sobre.html#metodos\">Como calculamos →</a>",
+          "Margin of error (95% CI): where the true value probably lies. <a href=\"sobre.html#metodos\">How we calculate it →</a>")}</p></div>
+      <h2>${T("Muda conforme o piso?", "Does it change with the surface?")}</h2>
       <div class="grade g2"><div class="cartao"><div id="p-sup-g" class="grafico" style="min-height:380px"></div></div>
         <div class="cartao rolagem" style="max-height:440px;overflow:auto"><table class="t">
-          <tr><th>${T("Critério", "Category")}</th>${p.porSup.map(s => `<th>${tr(s.sup)}</th>`).join("")}</tr>
+          <tr><th>${T("Aspecto", "Aspect")}</th>${p.porSup.map(s => `<th>${tr(s.sup)}</th>`).join("")}</tr>
           <tr><td>${T("Partidas", "Matches")}</td>${p.porSup.map(s => `<td class="n">${br(s.partidas, 0)}</td>`).join("")}</tr>
           <tr><td>${T("V–D", "W–L")}</td>${p.porSup.map(s => `<td class="n">${s.V}–${s.D}</td>`).join("")}</tr>
           ${CR.map(c => `<tr><td>${c.nome}</td>${p.porSup.map(s => `<td class="n">${fmtC(c, s[c.chave])}</td>`).join("")}</tr>`).join("")}
         </table></div></div>
-      <h2>${T("Evolução por temporada", "Season by season")}</h2>
-      <div class="filtros" style="position:static"><div class="grupo"><span class="rot">${T("Critério", "Category")}</span><select class="sel" id="p-crit">
+      <h2>${T("Como foi a carreira, ano a ano?", "How did the career go, year by year?")}</h2>
+      <div class="filtros" style="position:static"><div class="grupo"><span class="rot">${T("Aspecto", "Aspect")}</span><select class="sel" id="p-crit">
         ${CR.map(c => `<option value="${c.chave}" ${c.chave === critAnual ? "selected" : ""}>${c.grupo} · ${c.nome}</option>`).join("")}</select></div></div>
       <div class="cartao"><div id="p-anual" class="grafico" style="min-height:400px"></div></div>
       <div class="grade g2" style="margin-top:14px"><div class="cartao"><div id="p-part" class="grafico" style="min-height:320px"></div></div>
         <div class="cartao"><div id="p-rank" class="grafico" style="min-height:320px"></div>
           <p class="nota">${T(`O ranking é o do início de cada torneio, por isso o "melhor ranking do ano" é o melhor que ele tinha ao entrar em quadra naquela temporada.`,
             `The ranking is the one at the start of each tournament, so the "best ranking of the year" is the best one the player held when stepping on court that season.`)}</p></div></div>
-      <h2>${T("Títulos e finais", "Titles and finals")}</h2><div id="p-tit"></div>`;
+      <h2>${T("Quais títulos ele ganhou?", "Which titles did he win?")}</h2><div id="p-tit"></div>`;
+    const FUND = ["saque_ganhos", "primeiro_dentro", "ganhos_1", "ganhos_2", "aces_game", "df_game", "devolucao", "bp_convertidos", "bp_salvos", "tie_breaks", "decisivos"];
+    const fund = jogo.filter(f => FUND.includes(f.c.chave));
+    if (fund.length >= 6) {
+      const forte = fund[fund.length - 1], fraco = fund[0];
+      resposta("p-resposta", T(`${nome}: ${pct(e.vitorias, 0)} de vitórias e ${e.titulos} títulos. O ponto mais forte é ${forte.c.nome.toLowerCase()} (melhor que ${fmtPctl(forte.percentil)} dos jogadores); o menos forte, ${fraco.c.nome.toLowerCase()}.`,
+        `${nome}: ${pct(e.vitorias, 0)} wins and ${e.titulos} titles. His strongest point is ${forte.c.nome.toLowerCase()} (better than ${fmtPctl(forte.percentil)} of players); the weakest, ${fraco.c.nome.toLowerCase()}.`));
+    }
 
     placar(document.getElementById("p-placar"), [
       { rot: T("Partidas", "Matches"), num: br(e.partidas, 0), sub: `${p.anos[0]}–${p.anos[1]}` },
@@ -491,12 +478,193 @@ abrirAbaDoHash("#abas-j");
     P[id.slice(2)] = +e.target.value; mudarAnos(P, "p", id.slice(2), false); desenharPerfil(); }));
 
   /* cada aba só é desenhada quando é aberta pela primeira vez (antes as três eram desenhadas na carga) */
-  const desenhar = { lid: desenharLideres, rank: desenharRanking, perfil: desenharPerfil }, prontas = new Set();
+  const desenhar = { lid: desenharMelhores, perfil: desenharPerfil, n1: () => carregar("numero1").then(desenharN1) }, prontas = new Set();
   const abrir = a => { if (desenhar[a] && !prontas.has(a)) { prontas.add(a); desenhar[a](); } };
   document.querySelectorAll("#abas-j button").forEach(b => b.addEventListener("click", () => abrir(b.dataset.a)));
   abrir(document.querySelector("#abas-j button.on").dataset.a);
   console.info(`Jogadores: primeira tela em ${Math.round(performance.now())} ms`);
 })();
+
+/* ================= e se jogassem no auge? (o antigo Pico × Pico, agora guiado pelo par do Frente a frente) ================= */
+let SIMUL = null, modoAuge = "auge";
+async function noAuge(A, B) {
+  if (!SIMUL) SIMUL = (await carregar("elo")).simulador;
+  const S = SIMUL, J = S.jogadores, esc = S.escala_md3, corpo = document.getElementById("x-corpo");
+  const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
+  if (!J[A] || !J[B]) {
+    corpo.hidden = true;
+    resposta("x-resposta", T("A simulação no auge existe para os grandes de cada época: quem chegou a 2.050 pontos de Elo. Escolha dois deles acima.",
+      "The peak simulation covers the greats of each era: players who reached 2,050 Elo points. Pick two of them above."));
+    return;
+  }
+  corpo.hidden = false;
+  const SUP3 = ["Dura", "Saibro", "Grama"];
+  const chance3 = (ra, rb) => 1 / (1 + Math.pow(10, -esc * (ra - rb) / 400));
+  const set = p => { let lo = 0, hi = 1; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (m * m * (3 - 2 * m) < p) lo = m; else hi = m; } return (lo + hi) / 2; };
+  const md5 = p => { const q = set(p); return q ** 3 * (10 - 15 * q + 6 * q * q); };
+  const nota = (n, sup) => { const g = J[n].geral[modoAuge], x = J[n][sup]; return x ? (g + x[modoAuge]) / 2 : g; };
+  const periodo = x => modoAuge === "auge" ? `${mesAno(x.ini + "-01")}–${mesAno(x.fim + "-01")}` : mesAno(x.pico_data + "-01");
+  const ult = n => n.split(" ").slice(-1)[0];
+  const modoEl = document.getElementById("x-modo");
+  modoEl.innerHTML = [["auge", T("Melhor temporada", "Best season")], ["pico", T("Melhor semana", "Best week")]]
+    .map(([v, r]) => `<button class="chip ${v === modoAuge ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
+  modoEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { modoAuge = b.dataset.v; noAuge(A, B); }));
+  const res = SUP3.map(sup => { const p3 = chance3(nota(A, sup), nota(B, sup)); return { sup, p3, p5: md5(p3) }; });
+  const dura = res[0], fav = dura.p5 >= .5 ? A : B, pf = Math.max(dura.p5, 1 - dura.p5), outro = fav === A ? B : A;
+  resposta("x-resposta", T(`No auge, ${fav} venceria ${outro} em ${pct(pf, 0)} das vezes numa final de Slam em quadra dura.`,
+      `At their peaks, ${fav} would beat ${outro} ${pct(pf, 0)} of the time in a hard-court Slam final.`),
+    T("É uma brincadeira, com método: o Elo mede quanto cada um dominava a sua época.", "It's a game, with a method: Elo measures how much each one dominated his own era."));
+  placar(document.getElementById("x-placar"), res.map(r => ({ rot: `${tr(r.sup)} · ${T("melhor de 3", "best of 3")}`, num: `${pct(r.p3, 0)} × ${pct(1 - r.p3, 0)}`, sub: `${ult(A)} × ${ult(B)}` })));
+  const y = res.flatMap(r => [`${tr(r.sup)} · ${T("MD3", "Bo3")}`, `${tr(r.sup)} · ${T("MD5", "Bo5")}`]), pa = res.flatMap(r => [r.p3, r.p5]);
+  plot(document.getElementById("g-pxp"), [
+    { type: "bar", orientation: "h", y, x: pa, name: A, marker: { color: CORES.pop }, text: pa.map(v => pct(v, 0)), textposition: "inside", insidetextanchor: "start", hovertemplate: `${A}: %{x:.0%}<extra></extra>` },
+    { type: "bar", orientation: "h", y, x: pa.map(v => 1 - v), name: B, marker: { color: CORES.top }, text: pa.map(v => pct(1 - v, 0)), textposition: "inside", insidetextanchor: "end", hovertemplate: `${B}: %{x:.0%}<extra></extra>` },
+  ], { height: 360, barmode: "stack", title: { text: T("Chance de vitória, por superfície e formato", "Win probability, by surface and format"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+    xaxis: { tickformat: ".0%", range: [0, 1], showgrid: false }, yaxis: { autorange: "reversed" },
+    shapes: [{ type: "line", x0: .5, x1: .5, yref: "paper", y0: 0, y1: 1, line: { color: "#fff", width: 2, dash: "dot" } }],
+    legend: { orientation: "h", y: -0.12, yanchor: "top", x: 0 }, margin: { l: 120, r: 10, t: 50, b: 70 } });
+  const linha = (n, chave, rot) => { const x = J[n][chave]; return x ? `<tr><td>${rot}</td><td class="n"><b>${br(x[modoAuge], 0)}</b></td><td>${periodo(x)}</td></tr>`
+    : `<tr><td>${rot}</td><td class="n">—</td><td class="nota">${T(`menos de ${S.min_partidas_sup} partidas`, `fewer than ${S.min_partidas_sup} matches`)}</td></tr>`; };
+  document.getElementById("x-t").innerHTML = [A, B].map((n, k) => `<tr><th colspan="3" style="color:${k ? CORES.top : CORES.pop}">${n}</th></tr>` +
+    linha(n, "geral", T("Geral", "Overall")) + SUP3.map(s => linha(n, s, tr(s))).join("")).join("");
+  document.getElementById("x-nota").innerHTML = T(`Cada um no seu ${modoAuge === "auge" ? "melhor ano (melhor média de 12 meses do Elo)" : "pico (maior Elo)"}, com o Elo da
+    superfície. <a href="sobre.html#metodos">Como calculamos →</a>`, `Each at his ${modoAuge === "auge" ? "best year (best 12-month Elo average)" : "peak (highest Elo)"},
+    with surface Elo. <a href="sobre.html#metodos">How we calculate it →</a>`);
+}
+
+
+function desenharN1(N) {
+    const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
+    const J = N.jogadores, NOMES = Object.keys(J).sort((a, b) => (J[b].auge?.auge || 0) - (J[a].auge?.auge || 0));
+    const IND = { vitorias: ["Vitórias", "Wins"], tpw: ["Pontos ganhos (total)", "Total points won"], saque: ["Pontos no saque", "Service points won"],
+      devolucao: ["Pontos na devolução", "Return points won"], primeiro_dentro: ["1º saque dentro", "1st serve in"], ganhos_1: ["Ganhos com o 1º saque", "1st serve points won"],
+      ganhos_2: ["Ganhos com o 2º saque", "2nd serve points won"], bp_salvos: ["Break points salvos", "Break points saved"], bp_convertidos: ["Break points convertidos", "Break points converted"],
+      aces_game: ["Aces por game", "Aces per game"], df_game: ["Duplas faltas por game (menos)", "Double faults per game (fewer)"], tie_breaks: ["Tie-breaks vencidos", "Tie-breaks won"],
+      decisivos: ["Sets decisivos vencidos", "Deciding sets won"], bp_salvos_ae: ["BP salvos acima do esperado", "BP saved above expected"],
+      bp_conv_ae: ["BP convertidos acima do esperado", "BP converted above expected"], tb_ae: ["Tie-breaks acima do esperado", "Tie-breaks above expected"],
+      dec_ae: ["Sets decisivos acima do esperado", "Deciding sets above expected"] };
+    const nomeI = k => T(IND[k][0], IND[k][1]);
+    const FASE_EN = { "> 50": "> 50", "11–50": "11–50", "4–10": "4–10", "2–3": "2–3", "nº 1": "No. 1" };
+    const nomeF = f => EM_INGLES ? FASE_EN[f] : f;
+    let A = "Novak Djokovic", B = "Carlos Alcaraz", regua = "todos";
+    const cores = { A: CORES.pop, B: CORES.top };
+    const dt = d => d ? mesAno(d.slice(0, 7) + "-01") : "—";
+    const reguaEl = document.getElementById("n1-regua");
+    reguaEl.innerHTML = [["todos", T("Todos", "Everyone")], ["top10", T("Só Top 10", "Top 10 only")]]
+      .map(([v, r]) => `<button class="chip ${v === regua ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
+    reguaEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+      regua = b.dataset.v; reguaEl.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); jornada(); }));
+    const cbA = combobox(document.getElementById("n1-a"), NOMES, i => J[NOMES[i]].marcos.n1 ? T(`nº 1 em ${String(J[NOMES[i]].marcos.n1).slice(0, 4)}`, `No. 1 in ${String(J[NOMES[i]].marcos.n1).slice(0, 4)}`) : "", n => { A = n; jornada(); });
+    cbA.definir(A);
+    const nN = NOMES.length, quantos = k => Math.round((N.em_comum.find(r => r.crit === k)?.pct_acima_1 || 0) * nN);
+    const maisNovo = NOMES.filter(n => J[n].marcos.n1_idade).sort((a, b) => J[a].marcos.n1_idade - J[b].marcos.n1_idade)[0];
+    resposta("n1-resposta", T(`${maisNovo} chegou a nº 1 mais jovem que todos: aos ${br(J[maisNovo].marcos.n1_idade, 1)} anos. E nº 1 não se faz com ace: ${quantos("ganhos_2")} dos ${nN} são muito melhores que o circuito no 2º saque; em aces, só ${quantos("aces_game")}.`,
+        `${maisNovo} became No. 1 younger than anyone: at ${br(J[maisNovo].marcos.n1_idade, 1)}. And No. 1s aren't made by aces: ${quantos("ganhos_2")} of the ${nN} are far better than the tour on the 2nd serve; in aces, only ${quantos("aces_game")}.`));
+    document.getElementById("n1-comoler").innerHTML = lerCurto(T(`Cada ponto mostra o jogador numa fase da carreira, pelo ranking que ele tinha: de
+      fora do top 50 até nº 1. Escolha "Só Top 10" para comparar só contra os mais fortes.`, `Each point shows the player at a stage of his career,
+      by the ranking he had: from outside the top 50 up to No. 1. Pick "Top 10 only" to compare only against the strongest.`));
+
+    function jornada() {
+      const j = J[A], fases = N.fases.filter(f => j.fases[f] && j.fases[f][regua] && j.fases[f][regua].n >= 5);
+      const v = (f, k) => j.fases[f][regua][k];
+      const prim = fases[0], ult = fases[fases.length - 1];
+      const mud = ["tpw", "saque", "devolucao", "ganhos_1", "ganhos_2", "bp_salvos"].filter(k => v(prim, k) != null && v(ult, k) != null)
+        .map(k => [k, v(ult, k) - v(prim, k)]).sort((a, b) => b[1] - a[1]);
+      const vir = j.virada;
+      placar(document.getElementById("n1-placar"), [
+        { rot: T("Chegou a nº 1", "Reached No. 1"), num: j.marcos.n1 ? String(j.marcos.n1).slice(0, 4) : "—", sub: j.marcos.n1_idade ? T(`aos ${br(j.marcos.n1_idade, 1)} anos`, `aged ${br(j.marcos.n1_idade, 1)}`) : "" },
+        { rot: T("Ano da virada", "Breakthrough year"), num: vir ? String(vir.ano) : "—", sub: vir ? T(`vitórias contra Top 10: ${pct(vir.antes, 0)} → ${pct(vir.depois, 0)}`, `wins vs Top 10: ${pct(vir.antes, 0)} → ${pct(vir.depois, 0)}`) : T("sem salto claro na base", "no clear jump in the data") },
+        { rot: T("O que mais cresceu na subida", "What grew most on the way up"), num: mud.length ? `+${br(100 * mud[0][1], 0)}<small style="font-size:.9rem"> ${T("em 100", "in 100")}</small>` : "—", sub: mud.length ? nomeI(mud[0][0]) : "" },
+        { rot: T("Títulos · Slams", "Titles · Slams"), num: `${j.marcos.titulos} · ${j.marcos.slams}`, sub: j.marcos.slam ? T(`1º Slam: ${j.marcos.slam.torneio} ${j.marcos.slam.data.slice(0, 4)}`, `1st Slam: ${j.marcos.slam.torneio} ${j.marcos.slam.data.slice(0, 4)}`) : "" },
+      ]);
+      const cob = document.getElementById("n1-cobertura");
+      cob.hidden = j.cobertura === "completa";
+      cob.innerHTML = j.cobertura === "ja_no_topo" ? T(`${A} já estava no Top 30 quando a base começa (1991): o começo da subida não está aqui.`, `${A} was already in the Top 30 when the data starts (1991): the start of the climb is not here.`)
+        : j.cobertura === "antes_1991" ? T(`${A} já tinha carreira antes de 1991: a jornada e os títulos daquela época não estão na base (os Slams sim).`, `${A} already had a career before 1991: that part of the journey and those titles are not in the data (Slams are).`) : "";
+      const ks = ["tpw", "saque", "devolucao", "ganhos_2"], cs = [CORES.pop, CORES.sup.Dura, CORES.sup.Saibro, CORES.top];
+      plot(document.getElementById("g-n1-fase"), ks.map((k, i) => ({ x: fases.map(nomeF), y: fases.map(f => v(f, k)), mode: "lines+markers", name: nomeI(k),
+        line: { color: cs[i], width: 3 }, marker: { size: 8 }, customdata: fases.map(f => v(f, "n")),
+        hovertemplate: `${nomeI(k)} · %{x}: %{y:.1%} (%{customdata} ${T("jogos", "matches")})<extra></extra>` })),
+        { height: 420, title: { text: T(`${A}: do ranking baixo ao nº 1<br><sup>${regua === "top10" ? "só jogos contra Top 10" : "contra todos"} · fases com 5+ jogos</sup>`,
+            `${A}: from low rankings to No. 1<br><sup>${regua === "top10" ? "only matches vs the Top 10" : "against everyone"} · phases with 5+ matches</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          xaxis: { title: { text: T("fase de ranking", "ranking phase"), standoff: 6 } }, yaxis: { tickformat: ".0%", gridcolor: "rgba(137,135,129,.22)" },
+          legend: { orientation: "h", y: -0.3, yanchor: "top", x: 0 }, margin: { l: 56, r: 10, t: 70, b: 120 } });
+      const t = j.temporadas.filter(r => r.elo != null);
+      const marcos = [[j.cobertura === "completa" ? j.marcos.titulo?.data : null, T("1º título", "1st title")], [j.marcos.slam?.data, T("1º Slam", "1st Slam")], [j.marcos.n1, T("nº 1", "No. 1")],
+        [vir ? `${vir.ano}-07-01` : null, T("virada", "breakthrough")]].filter(([d]) => d && +d.slice(0, 4) >= t[0]?.ano);
+      plot(document.getElementById("g-n1-temp"), [
+        { x: t.map(r => r.ano), y: t.map(r => r.elo), mode: "lines+markers", name: T("Elo no fim da temporada", "Elo at season end"), line: { color: CORES.pop, width: 3 },
+          hovertemplate: `%{x}: Elo %{y:.0f}<extra></extra>` },
+        { x: t.map(r => r.ano), y: t.map(r => r.vit_top10), yaxis: "y2", type: "bar", name: T("vitórias contra Top 10", "wins vs Top 10"), marker: { color: "rgba(213,81,129,.16)", line: { color: "rgba(213,81,129,.45)", width: 1 } },
+          customdata: t.map(r => r.n_top10), hovertemplate: `%{x}: %{y:.0%} (%{customdata} ${T("jogos", "matches")})<extra></extra>` }],
+        { height: 420, title: { text: T("Temporada a temporada", "Season by season"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          shapes: marcos.map(([d]) => ({ type: "line", xref: "x", yref: "paper", x0: +d.slice(0, 4) + (+d.slice(5, 7) - 1) / 12, x1: +d.slice(0, 4) + (+d.slice(5, 7) - 1) / 12, y0: 0, y1: 1, line: { color: CORES.neutra, dash: "dot" } })),
+          annotations: marcos.map(([d, r], i) => ({ x: +d.slice(0, 4) + (+d.slice(5, 7) - 1) / 12, y: 1 - 0.07 * i, yref: "paper", text: r, showarrow: false, xanchor: "left", font: { size: 11, color: "#4b5650" } })),
+          yaxis: { title: "Elo", gridcolor: "rgba(137,135,129,.22)" }, yaxis2: { overlaying: "y", side: "right", tickformat: ".0%", range: [0, 1], showgrid: false },
+          xaxis: { dtick: 2 }, legend: { orientation: "h", y: -0.12, yanchor: "top", x: 0 }, margin: { l: 56, r: 50, t: 50, b: 80 } });
+    }
+
+    function marcos() {
+      const idade = x => x == null ? "—" : br(x, 1);
+      const COLS = [
+        [T("Chegou a nº 1", "Reached No. 1"), j => j.marcos.n1_idade, idade, true],
+        [T("1º Slam", "1st Slam"), j => j.marcos.slam?.idade ?? null, idade, true],
+        [T("1º título", "1st title"), j => j.cobertura === "completa" ? (j.marcos.titulo?.idade ?? null) : null, idade, true],
+        [T("Ano da virada", "Breakthrough year"), j => j.virada?.ano ?? null, x => x ?? "—", true],
+        [T("Auge (Elo)", "Peak (Elo)"), j => j.auge?.auge ?? null, x => x == null ? "—" : br(x, 0), false],
+        [T("Títulos", "Titles"), j => j.marcos.titulos, x => x, false],
+        ["Slams", j => j.marcos.slams, x => x, false],
+      ];
+      let col = 0, asc = true;
+      const tabela = () => {
+        const linhas = NOMES.map(n => [n, ...COLS.map(c => c[1](J[n]))]).sort((a, b) => {
+          const x = a[col + 1], y = b[col + 1]; if (x == null) return 1; if (y == null) return -1; return asc ? x - y : y - x; });
+        const el = document.getElementById("n1-t-marcos");
+        el.innerHTML = `<tr><th>${T("Nº 1", "No. 1")}</th>${COLS.map((c, k) => `<th class="n" data-k="${k}" style="cursor:pointer">${c[0]}${k === col ? (asc ? " ▲" : " ▼") : ""}</th>`).join("")}</tr>` +
+          linhas.map(l => `<tr><td>${l[0]}</td>${COLS.map((c, k) => `<td class="n">${c[2](l[k + 1])}</td>`).join("")}</tr>`).join("");
+        el.querySelectorAll("th[data-k]").forEach(th => th.addEventListener("click", () => {
+          const k = +th.dataset.k; asc = k === col ? !asc : COLS[k][3]; col = k; tabela(); }));
+      };
+      tabela();
+      document.getElementById("n1-nota-marcos").innerHTML = T(`Idades a partir da data de nascimento. "—" no 1º título: a carreira começou antes de 1991, fora da base.
+        Títulos desde 1991; Slams desde 1968.`, `Ages from the date of birth. "—" for the 1st title: the career began before 1991, outside the data. Titles
+        since 1991; Slams since 1968.`);
+    }
+
+    function comum() {
+      const C = [...N.em_comum].sort((a, b) => b.pct_acima_1 - a.pct_acima_1), nN = NOMES.length;
+      plot(document.getElementById("g-n1-comum"), [{ type: "bar", orientation: "h", y: C.map(r => nomeI(r.crit)).reverse(), x: C.map(r => Math.round(r.pct_acima_1 * nN)).reverse(),
+        marker: { color: C.map(r => r.pct_acima_1 >= .5 ? CORES.pop : CORES.demais).reverse() }, text: C.map(r => Math.round(r.pct_acima_1 * nN)).reverse(), textposition: "outside", cliponaxis: false,
+        hovertemplate: `%{y}: %{x} ${T("de", "of")} ${nN}<extra></extra>` }],
+        { height: 460, title: { text: T(`Em quantos dos ${nN} nº 1 cada aspecto é bem melhor que o circuito`, `In how many of the ${nN} No. 1s each aspect is far better than the tour`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          xaxis: { title: T("nº 1", "No. 1s"), range: [0, nN + 2], gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 220, r: 20, t: 50, b: 50 } });
+      const PR = k => { const v = NOMES.map(n => J[n].pressao?.[k]).filter(x => x != null); return { acima: v.filter(x => x > 0).length, n: v.length, media: v.reduce((a, x) => a + x, 0) / v.length }; };
+      const dec = PR("dec_ae"), tb = PR("tb_ae"), bps = PR("bp_salvos_ae"), bpc = PR("bp_conv_ae");
+      const sp = x => `${x >= 0 ? "+" : "−"}${br(100 * Math.abs(x), 1)} ${T("p.p.", "pp")}`;
+      document.getElementById("n1-nota-comum").innerHTML = T(`<b>Leitura:</b> o que mais une os nº 1 é ganhar os pontos em que o saque não ajuda
+        (2º saque e devolução) e vencer os sets decisivos, mesmo descontando que são melhores (${dec.acima} de ${dec.n} acima do esperado). Aces quase
+        não os separam do circuito.`, `<b>Reading:</b> what unites the No. 1s most is winning the points where the serve doesn't help (2nd serve
+        and return) and winning deciding sets, even after discounting that they are better (${dec.acima} of ${dec.n} above expected). Aces barely
+        set them apart from the tour.`);
+    }
+
+    function queda() {
+      const Q = N.depois_do_topo; if (!Q) return;
+      const L = Q.media.filter(r => r.ind !== "vitorias");
+      plot(document.getElementById("g-n1-queda"), [{ type: "bar", x: L.map(r => nomeI(r.ind)), y: L.map(r => 100 * r.media),
+        error_y: { type: "data", array: L.map(r => 196 * r.ep), color: CORES.neutra, thickness: 1.5 }, marker: { color: L.map(r => r.media + 1.96 * r.ep < 0 ? CORES.top : CORES.demais) },
+        customdata: L.map(r => r.caiu_em), hovertemplate: `%{x}: %{y:+.1f} ${T("p.p.", "pp")} · ${T("caiu em", "fell in")} %{customdata} ${T("de", "of")} ${Q.n}<extra></extra>` }],
+        { height: 380, title: { text: T(`Do auge ao fim da carreira (${Q.n} nº 1 que já pararam)<br><sup>quanto mudou, em pontos a cada 100 · rosa = queda clara</sup>`,
+            `From the peak to the end of the career (${Q.n} No. 1s who have retired)<br><sup>change, in points per 100 · pink = clear drop</sup>`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          yaxis: { title: T("p.p.", "pp"), zeroline: true, gridcolor: "rgba(137,135,129,.22)" }, margin: { l: 56, r: 10, t: 70, b: 90 } });
+      const g = k => Q.media.find(r => r.ind === k);
+      document.getElementById("n1-nota-queda").innerHTML = T(`<b>Leitura:</b> no fim da carreira o que cai primeiro é a <b>devolução</b> (em ${g("devolucao").caiu_em}
+        de ${Q.n}) e os pontos com o 1º saque: pernas e potência. Acertar o 1º saque quase não muda.`, `<b>Reading:</b> at the end of a career what
+        fades first is the <b>return</b> (for ${g("devolucao").caiu_em} of ${Q.n}) and points behind the 1st serve: legs and power. Landing the 1st serve
+        barely changes.`);
+    }
+    jornada(); marcos(); comum(); queda();
+  }
 
 /* ================= rivalidades (aba própria: índice + um arquivo por jogador, sem depender do jogadores.json) ================= */
 async function iniciarRivalidades() {
@@ -504,6 +672,10 @@ async function iniciarRivalidades() {
   if (EM_INGLES) await carregar("meta");   // garante o dicionário de rótulos (tr)
   document.getElementById("h-carregando").remove();
   const nome = Object.fromEntries(I.jogadores.map(([id, n]) => [id, n]));
+  { const [ra, rb, rn, rva, rvb] = I.rivalidades[0];
+    resposta("h-resposta", T(`A maior rivalidade desde 1991 é ${nome[ra]} × ${nome[rb]}: ${rva}–${rvb} em ${rn} jogos.`,
+        `The biggest rivalry since 1991 is ${nome[ra]} vs ${nome[rb]}: ${rva}–${rvb} in ${rn} matches.`),
+      T("Escolha quaisquer dois jogadores: o placar, a evolução, cada partida e quem venceria no auge.", "Pick any two players: the record, how it evolved, every match and who would win at their peaks.")); }
   const idDe = Object.fromEntries(I.jogadores.map(([id, n]) => [n, id]));
   const comArquivo = I.jogadores.filter(j => j[2] >= I.min_partidas);
   const cache = {};
@@ -568,12 +740,10 @@ async function iniciarRivalidades() {
     const lin = (rot, k) => `<tr><td>${rot}</td>` + [[noH2H_A, carA], [noH2H_B, carB]].map(([h, c]) =>
       `<td class="n"><b>${h ? pct(h[k]) : "—"}</b></td><td class="n">${c ? pct(c[k]) : "—"}</td><td class="n ${h && c ? (h[k] >= c[k] ? "pos" : "neg") : ""}">${h && c ? (h[k] >= c[k] ? "+" : "") + br(100 * (h[k] - c[k]), 1) : "—"}</td>`).join("") + "</tr>";
     document.getElementById("h-stats").innerHTML = `<tr><th></th><th colspan="3">${na}</th><th colspan="3">${nb}</th></tr>
-      <tr><th>${T("Pontos ganhos", "Points won")}</th>${[0, 1].map(() => `<th>${T("no confronto", "in the H2H")}</th><th>${T("na carreira", "career")}</th><th>${T("dif. (p.p.)", "diff. (pp)")}</th>`).join("")}</tr>` +
+      <tr><th>${T("Pontos ganhos", "Points won")}</th>${[0, 1].map(() => `<th>${T("no confronto", "in the H2H")}</th><th>${T("na carreira", "career")}</th><th>${T("diferença", "difference")}</th>`).join("")}</tr>` +
       lin(T("no saque", "on serve"), "saque") + lin(T("na devolução", "on return"), "dev") + lin(T("no total", "in total"), "tpw");
-    document.getElementById("h-stats-nota").innerHTML = T(`Só partidas com estatísticas (${m.filter(x => x.st).length} de ${m.length}). "Na carreira" = todas as partidas
-      do jogador na base. Contra um rival forte quase todo mundo ganha menos pontos que na carreira; o interessante é quem cai menos.`,
-      `Only matches with stats (${m.filter(x => x.st).length} of ${m.length}). "Career" = all the player's matches in the data. Almost everyone wins
-      fewer points against a strong rival than over their career; the interesting part is who drops less.`);
+    document.getElementById("h-stats-nota").innerHTML = T(`Contra um rival forte quase todo mundo ganha menos pontos que na carreira; o interessante é
+      quem cai menos.`, `Against a strong rival almost everyone wins fewer points than over the career; the interesting part is who drops less.`);
     document.getElementById("h-t").innerHTML = `<tr><th>${T("Data", "Date")}</th><th>${T("Torneio", "Tournament")}</th><th>${T("Nível", "Level")}</th>
       <th>${T("Superfície", "Surface")}</th><th>${T("Rodada", "Round")}</th><th>${T("Vencedor", "Winner")}</th><th>${T("Placar", "Score")}</th><th>${T("Pontos", "Points")}</th></tr>` +
       m.slice().reverse().map(x => `<tr><td>${data(x.d)}</td><td>${x.t}</td><td>${tr(I.niveis[x.n])}</td><td>${tr(I.sups[x.s] ?? "")}</td><td>${tr(I.rodadas[x.r] ?? "—")}</td>
@@ -583,6 +753,7 @@ async function iniciarRivalidades() {
     document.getElementById("h-nota").innerHTML = T(`Pontos do ${ultimoNome(na)} × do ${ultimoNome(nb)}.`, `Points ${ultimoNome(na)} × ${ultimoNome(nb)}.`) +
       (antes ? " " + T(`O primeiro jogo da base é de ${String(m[0].d).slice(0, 4)}: eles podem ter se enfrentado antes de 1991, que não está na base.`,
         `The first match in the data is from ${String(m[0].d).slice(0, 4)}: they may have met before 1991, which is not in the data.`) : "");
+    noAuge(na, nb);
   }
 
   document.getElementById("h-riv").innerHTML = I.rivalidades.map(([a, b, n, va, vb]) =>

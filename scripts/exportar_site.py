@@ -12,6 +12,8 @@ Saídas:
 - h2h/indice.json + h2h/<id>.json  confrontos diretos: índice e um arquivo por jogador (carregado sob demanda)
 - numero1.json     os nº 1 do mundo: jornada por fase e temporada, ano da virada, em comum, depois do topo
 - ganhar.json      o que faz ganhar uma partida: leitura simples e modelo por superfície × nível × época
+- torneios/        indice.json e um arquivo por torneio (campeões, chaves, velocidade, recordes)
+- curiosidades.json as histórias: zebras, viradas, jogos longos, aces, pneus, sequências, quem mais venceu o nº 1
 - achados.json     os números da página inicial (tirados dos resultados acima)
 """
 import sys
@@ -31,6 +33,8 @@ from tenis import idiomas  # noqa: E402
 from tenis import numero1  # noqa: E402
 from tenis import ganhar  # noqa: E402
 from tenis import pressao  # noqa: E402
+from tenis import curiosidades  # noqa: E402
+from tenis import torneios  # noqa: E402
 
 SAIDA = AQUI / "site" / "data"
 CONF = 0.95
@@ -51,6 +55,17 @@ def extras(pop: pd.DataFrame) -> dict:
     }
 
 
+def longo_com_finais(pop: pd.DataFrame) -> pd.DataFrame:
+    """Formato longo da população + as finais não concluídas (abandono ou W.O.), que contam como título e final na ATP."""
+    lg = an.longo(pop)
+    tit = pd.read_parquet(ex.BASE / "titulos.parquet")
+    nc = tit[(tit["fonte"] == "1991+") & ~tit["concluida"]]
+    extras = [pd.DataFrame({"jogador": nc[col], "ano": nc["ano"], "superficie": nc["superficie"], "nivel": nc["nivel"],
+                            "partida": 0, "venceu": 0, "final": 1, "titulo": v, "titulo_gs": v * (nc["nivel"] == "Grand Slam").astype(int)})
+              for col, v in (("vencedor", 1), ("perdedor", 0))]
+    return pd.concat([lg, *extras], ignore_index=True), nc
+
+
 def jogadores(pop: pd.DataFrame) -> dict:
     """Somas dos componentes de cada critério por jogador × ano × superfície × nível.
 
@@ -58,15 +73,8 @@ def jogadores(pop: pd.DataFrame) -> dict:
     mesmas fórmulas de tenis/analises.py. `checagem` traz valores calculados aqui no Python
     para conferir o JavaScript.
     """
-    lg = an.longo(pop)
-    # finais não concluídas (abandono ou W.O.) não estão na população, mas contam como título e final, como na ATP:
-    # entram como linhas sem partida, só com os componentes de títulos e finais (ex.: Federer, Estoril 2008)
-    tit = pd.read_parquet(ex.BASE / "titulos.parquet")
-    nc = tit[(tit["fonte"] == "1991+") & ~tit["concluida"]]
-    extras = [pd.DataFrame({"jogador": nc[col], "ano": nc["ano"], "superficie": nc["superficie"], "nivel": nc["nivel"],
-                            "partida": 0, "venceu": 0, "final": 1, "titulo": v, "titulo_gs": v * (nc["nivel"] == "Grand Slam").astype(int)})
-              for col, v in (("vencedor", 1), ("perdedor", 0))]
-    lg = pd.concat([lg, *extras], ignore_index=True)
+    # finais não concluídas entram como linhas sem partida, só com títulos e finais (ex.: Federer, Estoril 2008)
+    lg, nc = longo_com_finais(pop)
     por = ["jogador", "ano", "superficie", "nivel"]
     s = an.somas(lg, por).reset_index()
     nomes = lg.groupby("jogador")["partida"].sum().sort_values(ascending=False, kind="stable").index.tolist()  # por nº de partidas
@@ -126,9 +134,14 @@ def main() -> None:
     ex.salvar(SAIDA, "numero1.json", N1)
     G = ganhar.exportar(pop)
     ex.salvar(SAIDA, "ganhar.json", G)
+    CU = curiosidades.exportar(pop, VP, X)
+    ex.salvar(SAIDA, "curiosidades.json", CU)
+    TI = torneios.exportar(pd.read_parquet(ex.BASE / "torneios.parquet"), SAIDA / "torneios")
+    ex.salvar(SAIDA / "torneios", "indice.json", TI)
     H = h2h.exportar(pd.read_parquet(ex.BASE / "h2h.parquet"), SAIDA)
     ex.salvar(SAIDA / "h2h", "indice.json", H)
-    ex.salvar(SAIDA, "achados.json", achados.montar(resumo, X, VP, E, C, H, N1, G, pressao.confiabilidade(an.longo(pop))))
+    ex.salvar(SAIDA, "achados.json", achados.montar(resumo, X, VP, E, C, H, N1, G, pressao.confiabilidade(an.longo(pop)),
+                                                   an.tabela_jogadores(longo_com_finais(pop)[0]), CU, TI))
 
 
 if __name__ == "__main__":

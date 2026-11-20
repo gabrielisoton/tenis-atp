@@ -157,11 +157,11 @@ abas dessas páginas, não como páginas novas:
 
 | Página | Itens do backlog que entram nela |
 |---|---|
-| Achados (início) | um card novo para cada achado forte de qualquer item |
-| Jogadores | 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado (feito) |
-| Épocas | 21 Os nº 1 (feito) |
-| Torneios (nova, quando o item 7 for feito) | 7 páginas de torneio · 16 velocidade da quadra |
-| O jogo | 15 sacador × devolvedor · 17 histórias · 20 o que faz ganhar (feito) · 22 guia para quem treina (feito) |
+| Início | um card por aba, com a pergunta e a resposta mais intrigante dela (feito) |
+| Jogadores | Perfil · Frente a frente · Os nº 1 · Os melhores em cada aspecto · 6 perfil × torneio · 8 janela de 52 semanas · 18 pressão acima do esperado (feito) |
+| Épocas | Elo e O auge (Os nº 1 e Pico × Pico foram para Jogadores; a Corrida por idade saiu) |
+| Torneios | 7 páginas de torneio (feito) · 16 velocidade da quadra (feito em parte: aces por game × média do piso; falta ajustar pelos jogadores) |
+| O jogo | O que define o vencedor? (20 e 22, feitos) · Evolução do jogo · 17 histórias (feito: aba Curiosidades) · 15 sacador × devolvedor |
 | Sobre os dados | 3 atualização automática (selo "dados até", feito: o selo fica no rodapé de todas as páginas) · 19 previsão de partidas e calibração |
 
 ## Fases

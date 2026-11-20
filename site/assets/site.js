@@ -7,10 +7,11 @@ window.SITE = {
     ["index.html", ["Início", "Home"], ["Achados", "Findings"]],
     ["epocas.html", ["Elo · auge", "Elo · peak"], ["Épocas", "Eras"]],
     ["jogadores.html", ["Vestiário", "Locker room"], ["Jogadores", "Players"]],
+    ["torneios.html", ["Quadra central", "Centre court"], ["Torneios", "Tournaments"]],
     ["jogo.html", "Tie-break", ["O jogo", "The game"]],
     ["sobre.html", ["Bastidores", "Behind the scenes"], ["Sobre os dados", "About the data"]],
   ],
   extras: null,
-  rodape: ["Projeto pessoal de analytics de tênis · <a href=\"https://github.com/gabrielisoton/tenis-atp\">código no GitHub</a>",
-           "Personal tennis analytics project · <a href=\"https://github.com/gabrielisoton/tenis-atp\">code on GitHub</a>"],
+  autor: { nome: "Gabriel Isoton De David", linkedin: "", github: "https://github.com/gabrielisoton/tenis-atp" },
+  rodape: ["Projeto pessoal de analytics de tênis", "Personal tennis analytics project"],
 };

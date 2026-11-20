@@ -8,12 +8,32 @@ from __future__ import annotations
 
 import numpy as np
 
+from tenis import analises as an
+
 
 # aspectos do jogo comparados no card "a maior vantagem do Top N" (proporções; fora os totais e o resultado)
 ASPECTOS = ["primeiro_dentro", "ganhos_1", "ganhos_2", "devolucao", "bp_salvos", "bp_convertidos"]
 
 
-def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict, ganhar: dict, conf: dict) -> dict:
+def _melhores(tab) -> dict:
+    """O jogador mais completo: o 1º do quadro de medalhas e em quantos aspectos ele fica no top 10."""
+    podio, med = an.lideres(tab)
+    return {"jogador": med.index[0], "top": int(med.iloc[0]["top10"]), "ouro": int(med.iloc[0]["ouro"]), "n": int(len(podio))}
+
+
+def _perfil(tab, nome: str) -> dict | None:
+    """O aspecto do jogo em que `nome` mais se destaca (percentil entre os jogadores com 100+ partidas)."""
+    melhor = None
+    for k in ("ganhos_1", "ganhos_2", "devolucao", "bp_salvos", "bp_convertidos", "tie_breaks", "decisivos", "primeiro_dentro", "aces_game"):
+        rk = an.ranking_criterio(tab, k)
+        if nome in rk.index and (melhor is None or rk.loc[nome, "percentil"] > melhor["percentil"]):
+            melhor = {"jogador": nome, "chave": k, "aspecto": an.CRIT[k].nome, "percentil": round(float(rk.loc[nome, "percentil"]), 1),
+                      "posicao": int(rk.loc[nome, "posicao"]), "total": int(len(rk))}
+    return melhor
+
+
+def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: dict, n1: dict, ganhar: dict, conf: dict,
+           tab=None, curios: dict | None = None, torneios: dict | None = None) -> dict:
     # 1. maior pico de Elo e a carreira de quem o atingiu
     pico = E["picos"]["geral"][0]
     serie = E["series"][pico["jogador"]]
@@ -63,7 +83,16 @@ def montar(resumo: dict, extras: dict, vp: dict, E: dict, corrida: dict, h2h: di
                                  "demais": round(extras["top_n"]["por_n"][n]["Todas"]["demais"][k], 4),
                                  "dif": round(extras["top_n"]["por_n"][n]["Todas"]["top"][k] - extras["top_n"]["por_n"][n]["Todas"]["demais"][k], 4)}
                                 for k in ASPECTOS], key=lambda r: -r["dif"]) for n in ("5", "10")},
-        "numero1": {"n": nn, "acima": acima},
+        "numero1": {"n": nn, "acima": acima,
+                    "mais_jovem": min(({"jogador": k, "idade": v["marcos"]["n1_idade"]} for k, v in n1["jogadores"].items() if v["marcos"]["n1_idade"]),
+                                      key=lambda r: r["idade"])},
+        # para os cards de cada aba
+        "atual": E["atual"]["geral"][0],
+        "perfil": None if tab is None else _perfil(tab, "Roger Federer"),
+        "melhores": None if tab is None else _melhores(tab),
+        "zebra": None if curios is None else curios["zebras"]["slams"][0],
+        "dono_torneio": None if torneios is None else (lambda t: {"jogador": t["dono"][0], "n": t["dono"][1], "torneio": t["nome"], "cod": t["cod"]})(
+            max((t for t in torneios["torneios"] if t["dono"]), key=lambda t: t["dono"][1])),
         # 10. o que faz ganhar: quanto vale +1 ponto de saque a cada 100 numa partida parelha, e o peso (z) de cada aspecto
         "ganhar": (lambda c: {"por_ponto": round(sum(x["por_ponto"] for x in c if x["por_ponto"]) / 3, 4),
                               "z": {x["crit"]: x["z"] for x in c}})(ganhar["recortes"]["Todas|Todos|Todas"]["modelo"]["coef"]),

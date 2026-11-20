@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎾</text></svg>">
+<title data-en="Tournaments · Tennis by numbers">Torneios · Tênis em números</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/estilo.css?v=12">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="assets/site.js?v=12"></script>
+<script src="assets/comum.js?v=11"></script>
+<script src="assets/jogadores.js?v=10"></script>
+<style>
+  /* chave: uma coluna por rodada, cada partida um cartãozinho; a coluna seguinte centraliza os jogos entre os dois de onde veio */
+  .chave { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 12px; align-items: stretch; }
+  .chave .rodada { display: flex; flex-direction: column; gap: 8px; min-width: 210px; }
+  .chave .rodada > b { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--tinta-3); text-align: center; }
+  .chave .jogos { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 8px; }
+  .jogo { background: #fff; border: 1px solid var(--borda); border-radius: 10px; padding: 6px 10px; font-size: .88rem; line-height: 1.35; }
+  .jogo .v { font-weight: 700; color: var(--quadra); }
+  .jogo .p { color: var(--tinta-3); }
+  .jogo small { display: block; color: var(--tinta-3); font-size: .78rem; }
+  .jogo .s { color: var(--tinta-3); font-size: .72rem; margin-left: 4px; }
+  .recordes { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .recordes .cartao b.n { display: block; font-family: "Barlow Condensed"; font-size: 1.6rem; color: var(--quadra); }
+</style>
+</head>
+<body>
+<header class="topo"><div id="quadra"></div><div class="topo-dentro">
+  <span class="etiqueta"><span data-l="pt">Torneios</span><span data-l="en">Tournaments</span></span>
+  <h1><span data-l="pt">Cada torneio tem a sua história</span><span data-l="en">Every tournament has its story</span></h1>
+  <p data-l="pt">Escolha um torneio: quem manda nele, como foi a chave de cada ano, se a quadra é rápida ou lenta e os recordes.</p>
+  <p data-l="en">Pick a tournament: who rules it, how each year's draw went, whether the court is fast or slow, and the records.</p>
+</div></header>
+<main class="conteudo">
+  <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
+  <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:18px">
+    <div class="grupo"><span class="rot"><span data-l="pt">Torneio</span><span data-l="en">Tournament</span></span><input class="sel busca" id="t-nome"></div>
+  </div>
+  <div id="t-resposta"></div>
+  <div id="t-placar"></div>
+
+  <h2><span data-l="pt">Quem manda aqui?</span><span data-l="en">Who rules here?</span></h2>
+  <div class="grade g2">
+    <div class="cartao"><div id="g-donos" class="grafico" style="min-height:380px"></div></div>
+    <div class="cartao rolagem" style="max-height:420px;overflow:auto"><h3 style="margin-top:0"><span data-l="pt">Campeões, ano a ano</span><span data-l="en">Champions, year by year</span></h3>
+      <table class="t" id="t-campeoes"></table></div>
+  </div>
+
+  <h2 id="t-tit-chave"></h2>
+  <div class="filtros" style="position:static"><div class="grupo"><span class="rot"><span data-l="pt">Ano</span><span data-l="en">Year</span></span><select class="sel" id="t-ano"></select></div></div>
+  <div id="t-chave-resposta"></div>
+  <div class="cartao"><div class="chave" id="t-chave"></div></div>
+  <details class="como-ler" id="t-chave-toda"><summary>🗂️ <span data-l="pt">Ver a chave completa</span><span data-l="en">See the full draw</span></summary><div class="chave" id="t-chave-completa"></div></details>
+  <p class="ler">📖 <span data-l="pt">Em negrito, quem venceu. O número ao lado do nome é a cabeça de chave; Q = veio do qualifying, WC = convite.</span>
+    <span data-l="en">In bold, the winner. The number next to the name is the seed; Q = qualifier, WC = wildcard.</span></p>
+
+  <h2><span data-l="pt">A quadra é rápida ou lenta?</span><span data-l="en">Is the court fast or slow?</span></h2>
+  <div id="t-vel-resposta"></div>
+  <div class="cartao"><div id="g-vel" class="grafico" style="min-height:340px"></div></div>
+  <p class="ler">📖 <span data-l="pt">Aces por game de saque: quanto mais aces, mais a quadra favorece quem saca. A linha cinza é a média do circuito no mesmo piso e ano.</span>
+    <span data-l="en">Aces per service game: the more aces, the more the court favours the server. The grey line is the tour average on the same surface and year.</span></p>
+
+  <h2><span data-l="pt">Os recordes</span><span data-l="en">The records</span></h2>
+  <div class="recordes" id="t-recordes"></div>
+</main>
+<script>
+document.getElementById("quadra").innerHTML = svgQuadra();
+(async () => {
+  const I = (await carregar("torneios/indice")).torneios;
+  document.getElementById("carregando").remove();
+  const porCod = Object.fromEntries(I.map(t => [t.cod, t]));
+  const rotulo = t => `${t.nome}`, ult = n => n.split(" ").slice(-1)[0];
+  let cod = (location.hash.slice(1) && porCod[location.hash.slice(1)]) ? location.hash.slice(1) : "540";
+  const cb = combobox(document.getElementById("t-nome"), I.map(rotulo), i => `${tr(I[i].nivel)} · ${tr(I[i].superficie)}`, nome => {
+    cod = I.find(t => rotulo(t) === nome).cod; history.replaceState(null, "", location.pathname + location.search + "#" + cod); abrir(); });
+  const cache = {};
+  async function abrir() {
+    cb.definir(rotulo(porCod[cod]));
+    const D = cache[cod] ??= await carregar(`torneios/${cod}`);
+    const J = D.jogadores, C = D.campeoes, dono = D.donos[0], ultC = C[C.length - 1];
+    const desde = D.nivel === "Grand Slam" ? Math.min(C[0]?.ano ?? D.anos[0], D.anos[0]) : D.anos[0];
+    // ---- resposta e placar
+    const vel = D.velocidade, vm = vel.length ? vel.reduce((a, v) => a + v.aces, 0) / vel.length : null;
+    const vc = vel.filter(v => v.circuito).length ? vel.filter(v => v.circuito).reduce((a, v) => a + v.circuito, 0) / vel.filter(v => v.circuito).length : null;
+    const difVel = vm && vc ? vm / vc - 1 : null;
+    const noPiso = { Dura: T("na quadra dura", "on hard courts"), Saibro: T("no saibro", "on clay"), Grama: T("na grama", "on grass"), Carpete: T("no carpete", "on carpet") }[D.superficie] || "";
+    resposta("t-resposta", T(`${dono[0]} é o maior campeão de ${D.nome}: ${dono[1]} títulos.`, `${dono[0]} is the biggest champion at ${D.nome}: ${dono[1]} titles.`),
+      T(`Último campeão: ${ultC.campeao} (${ultC.ano}).${D.nomes_antigos.length ? ` Já se chamou ${D.nomes_antigos.slice(0, 2).join(", ")}.` : ""}`,
+        `Latest champion: ${ultC.campeao} (${ultC.ano}).${D.nomes_antigos.length ? ` Formerly ${D.nomes_antigos.slice(0, 2).join(", ")}.` : ""}`));
+    placar(document.getElementById("t-placar"), [
+      { rot: T("Nível · piso", "Level · surface"), num: tr(D.superficie), sub: tr(D.nivel) },
+      { rot: T("Campeões na base", "Champions in the data"), num: C.length, sub: T(`desde ${desde}`, `since ${desde}`) },
+      { rot: T("Maior campeão", "Biggest champion"), num: dono[1], sub: dono[0] },
+      { rot: T("A quadra é", "The court is"), num: difVel === null ? "—" : Math.abs(difVel) < 0.06 ? T("média", "average") : difVel > 0 ? T("rápida", "fast") : T("lenta", "slow"),
+        sub: difVel === null ? "" : T(`${br(Math.abs(100 * difVel), 0)}% ${difVel >= 0 ? "mais" : "menos"} aces que a média do piso`, `${br(Math.abs(100 * difVel), 0)}% ${difVel >= 0 ? "more" : "fewer"} aces than the surface average`) },
+    ]);
+    // ---- quem manda
+    const Dn = D.donos.slice().reverse();
+    plot(document.getElementById("g-donos"), [{ type: "bar", orientation: "h", y: Dn.map(d => d[0]), x: Dn.map(d => d[1]), marker: { color: Dn.map((_, i) => i === Dn.length - 1 ? CORES.pop : CORES.demais) },
+      text: Dn.map(d => d[1]), textposition: "outside", cliponaxis: false, hovertemplate: `%{y}: %{x} ${T("títulos", "titles")}<extra></extra>` }],
+      { height: 380, title: { text: T(`Mais títulos em ${D.nome}`, `Most titles at ${D.nome}`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        xaxis: { dtick: 1, gridcolor: "rgba(137,135,129,.22)", showgrid: true }, margin: { l: 150, r: 30, t: 50, b: 40 } });
+    document.getElementById("t-campeoes").innerHTML = `<tr><th>${T("Ano", "Year")}</th><th>${T("Campeão", "Champion")}</th><th>${T("Vice", "Runner-up")}</th><th>${T("Placar", "Score")}</th></tr>` +
+      C.slice().reverse().map(c => `<tr><td>${c.ano}</td><td><b>${c.campeao}</b></td><td>${c.vice}</td><td>${c.placar}</td></tr>`).join("");
+    // ---- a chave
+    const anos = Object.keys(D.chaves).sort().reverse(), selAno = document.getElementById("t-ano");
+    selAno.innerHTML = anos.map(a => `<option>${a}</option>`).join("");
+    selAno.onchange = () => chave(selAno.value);
+    chave(anos[0]);
+    // ---- velocidade
+    if (vel.length) {
+      plot(document.getElementById("g-vel"), [
+        { x: vel.map(v => v.ano), y: vel.map(v => v.aces), mode: "lines+markers", name: D.nome, line: { color: CORES.pop, width: 3 }, hovertemplate: `%{x}: %{y:.2f}<extra>${D.nome}</extra>` },
+        { x: vel.map(v => v.ano), y: vel.map(v => v.circuito), mode: "lines", name: T(`circuito (${tr(D.superficie).toLowerCase()})`, `tour (${tr(D.superficie).toLowerCase()})`), line: { color: CORES.neutra, dash: "dash" }, hovertemplate: `%{x}: %{y:.2f}<extra></extra>` }],
+        { height: 340, title: { text: T("Aces por game de saque", "Aces per service game"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+          yaxis: { gridcolor: "rgba(137,135,129,.22)", rangemode: "tozero" }, legend: { orientation: "h", y: -0.15, yanchor: "top", x: 0 }, margin: { l: 50, r: 10, t: 50, b: 70 } });
+      resposta("t-vel-resposta", difVel === null ? T("Sem dados suficientes de aces.", "Not enough ace data.") :
+        Math.abs(difVel) < 0.06 ? T(`Na média: ${br(vm, 2)} aces por game de saque, quase igual ao circuito ${noPiso}.`, `About average: ${br(vm, 2)} aces per service game, close to the tour ${noPiso}.`)
+          : difVel > 0 ? T(`Mais rápida que a média: ${br(100 * difVel, 0)}% mais aces que o circuito ${noPiso}.`, `Faster than average: ${br(100 * difVel, 0)}% more aces than the tour ${noPiso}.`)
+            : T(`Mais lenta que a média: ${br(-100 * difVel, 0)}% menos aces que o circuito ${noPiso}.`, `Slower than average: ${br(-100 * difVel, 0)}% fewer aces than the tour ${noPiso}.`));
+    } else { Plotly.purge("g-vel"); resposta("t-vel-resposta", T("Sem dados de aces para este torneio.", "No ace data for this tournament.")); }
+    // ---- recordes
+    const R = D.recordes, hm = m => `${Math.floor(m / 60)}h${String(m % 60).padStart(2, "0")}`;
+    const rec = (rot, x, num, txt) => x ? `<div class="cartao"><span class="nota">${rot}</span><b class="n">${num}</b>${txt}</div>` : "";
+    document.getElementById("t-recordes").innerHTML =
+      rec(T("Campeão mais jovem", "Youngest champion"), R.mais_jovem, R.mais_jovem && `${br(R.mais_jovem.idade, 1)} ${T("anos", "years")}`, R.mais_jovem && `${R.mais_jovem.campeao}, ${R.mais_jovem.ano}`) +
+      rec(T("Campeão mais velho", "Oldest champion"), R.mais_velho, R.mais_velho && `${br(R.mais_velho.idade, 1)} ${T("anos", "years")}`, R.mais_velho && `${R.mais_velho.campeao}, ${R.mais_velho.ano}`) +
+      rec(T("Campeão com pior ranking", "Lowest-ranked champion"), R.pior_ranking, R.pior_ranking && `${R.pior_ranking.rank}º`, R.pior_ranking && `${R.pior_ranking.campeao}, ${R.pior_ranking.ano}`) +
+      rec(T("Final mais longa", "Longest final"), R.final_mais_longa, R.final_mais_longa && hm(R.final_mais_longa.minutos), R.final_mais_longa && `${R.final_mais_longa.campeao} × ${R.final_mais_longa.vice}, ${R.final_mais_longa.ano}`);
+
+    function chave(ano) {
+      const M = D.chaves[ano].map(([r, v, p, sv, sp, ev, ep, pl]) => ({ r, v: J[v], p: J[p], sv, sp, ev, ep, pl }));
+      const nomeR = { 0: "R128", 1: "R64", 2: "R32", 3: T("Oitavas", "Last 16"), 4: T("Quartas", "Quarter-finals"), 5: T("Semifinal", "Semi-finals"), 6: T("Final", "Final"), 7: T("Grupos", "Round robin") };
+      const fin = M.find(m => m.r === 6);
+      document.getElementById("t-tit-chave").innerHTML = T(`Como foi a chave de ${ano}?`, `How did the ${ano} draw go?`);
+      resposta("t-chave-resposta", fin ? T(`${fin.v} foi campeão, vencendo ${fin.p} na final por ${fin.pl}.`, `${fin.v} won the title, beating ${fin.p} in the final ${fin.pl}.`) : T("Sem final registrada.", "No final recorded."));
+      // monta a árvore a partir da final: em cada rodada anterior, os dois jogos de onde vieram os finalistas daquela partida
+      const rodadas = [...new Set(M.map(m => m.r))].filter(r => r < 7).sort((a, b) => a - b);
+      const porR = r => M.filter(m => m.r === r);
+      const ordem = { 6: fin ? [fin] : [] };
+      for (let k = rodadas.length - 2; k >= 0; k--) {
+        const r = rodadas[k], prox = ordem[rodadas[k + 1]] || [], lista = porR(r), usado = new Set();
+        ordem[r] = prox.flatMap(m => [m ? m.v : null, m ? m.p : null].map(j => { const x = lista.find(y => y.v === j && !usado.has(y)); if (x) usado.add(x); return x || null; }));
+      }
+      const sem = (n, s, e) => `${n}${s ? `<span class="s">${s}</span>` : ""}${e ? `<span class="s">${e}</span>` : ""}`;
+      const cartao = m => m ? `<div class="jogo"><div class="v">${sem(m.v, m.sv, m.ev)}</div><div class="p">${sem(m.p, m.sp, m.ep)}</div><small>${m.pl}</small></div>` : `<div class="jogo"><small>—</small></div>`;
+      const colunas = rs => rs.map(r => `<div class="rodada"><b>${nomeR[r]}</b><div class="jogos">${(ordem[r] || []).map(cartao).join("")}</div></div>`).join("");
+      document.getElementById("t-chave").innerHTML = colunas(rodadas.filter(r => r >= 4));
+      const toda = document.getElementById("t-chave-toda");
+      toda.hidden = rodadas.filter(r => r < 4).length === 0;
+      document.getElementById("t-chave-completa").innerHTML = colunas(rodadas);
+    }
+  }
+  await abrir();
+})();
+</script>
+</body>
+</html>
