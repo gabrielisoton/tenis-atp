@@ -12,6 +12,6 @@ window.SITE = {
     ["sobre.html", ["Bastidores", "Behind the scenes"], ["Sobre os dados", "About the data"]],
   ],
   extras: null,
-  autor: { nome: "Gabriel Isoton De David", linkedin: "", github: "https://github.com/gabrielisoton/tenis-atp" },
+  autor: { nome: "Gabriel Isoton De David", linkedin: ["https://www.linkedin.com/in/gabriel-isoton-de-david/", "https://www.linkedin.com/in/gabriel-isoton-de-david/?locale=en-US"], github: "https://github.com/gabrielisoton/tenis-atp" },
   rodape: ["Projeto pessoal de analytics de tênis", "Personal tennis analytics project"],
 };

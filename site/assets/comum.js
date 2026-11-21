@@ -175,7 +175,7 @@ const lerCurto = texto => `<p class="ler">📖 ${texto}</p>`;
 function rodape() {
   const f = document.createElement("footer");
   const A = SITE.autor;
-  f.innerHTML = `${A ? `<span class="autor">${T("Desenvolvido por", "Built by")} <b>${A.nome}</b>${A.linkedin ? ` · <a href="${A.linkedin}">LinkedIn</a>` : ""} · <a href="${A.github}">GitHub</a></span><br>` : ""}
+  f.innerHTML = `${A ? `<span class="autor">${T("Desenvolvido por", "Built by")} <b>${A.nome}</b>${A.linkedin ? ` · <a href="${T(...A.linkedin)}" target="_blank" rel="noopener">LinkedIn</a>` : ""} · <a href="${A.github}">GitHub</a></span><br>` : ""}
     ${SITE.rodape ? L(SITE.rodape) + "<br>" : ""}
     ${T("Dados", "Data")}: <a href="https://github.com/Tennismylife/TML-Database">TML-Database (Tennismylife)</a>, ATP <span data-meta="periodo"></span>, ${T("uso educacional", "educational use")}.
     <span class="selo-dados">${T("Dados até", "Data up to")} <b data-meta="data_corte"></b> (<span data-meta="ultimos_torneios"></span>)</span>`;
