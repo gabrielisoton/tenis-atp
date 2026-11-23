@@ -33,14 +33,17 @@
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
   <span class="etiqueta"><span data-l="pt">Torneios</span><span data-l="en">Tournaments</span></span>
   <h1><span data-l="pt">Cada torneio tem a sua história</span><span data-l="en">Every tournament has its story</span></h1>
-  <p data-l="pt">Os Grand Slams, o ATP Finals, os Masters 1000 e os ATP 500. Veja cada nível de uma vez ou escolha um torneio:
-    quem manda nele, como foi a chave de cada ano, se a quadra é rápida ou lenta e os recordes.</p>
-  <p data-l="en">The Grand Slams, the ATP Finals, the Masters 1000s and the ATP 500s. See each level at once or pick a tournament:
-    who rules it, how each year's draw went, whether the court is fast or slow, and the records.</p>
+  <p data-l="pt">Os Grand Slams, o ATP Finals, os Masters 1000 e os ATP 500. Na primeira aba, cada nível e cada torneio: quem manda,
+    se a quadra é rápida ou lenta e os recordes. Na segunda, a chave de cada edição.</p>
+  <p data-l="en">The Grand Slams, the ATP Finals, the Masters 1000s and the ATP 500s. In the first tab, each level and each tournament: who
+    rules it, whether the court is fast or slow, and the records. In the second, every year's draw.</p>
 </div></header>
 <main class="conteudo">
   <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
-  <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:18px">
+  <div class="abas" id="abas-t" style="margin-top:22px"><button class="on" data-a="torneios">🏟️ <span data-l="pt">Os torneios</span><span data-l="en">The tournaments</span></button>
+    <button data-a="chaves">🗂️ <span data-l="pt">As chaves</span><span data-l="en">The draws</span></button></div>
+  <section class="painel-aba" data-p="torneios">
+  <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:4px">
     <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><span id="t-nivel" style="display:flex;flex-wrap:wrap;gap:6px"></span></div>
     <div class="grupo"><span class="rot"><span data-l="pt">Torneio</span><span data-l="en">Tournament</span></span><select class="sel" id="t-nome"></select></div>
   </div>
@@ -80,13 +83,7 @@
       <table class="t" id="t-campeoes"></table></div>
   </div>
 
-  <h2 id="t-tit-chave"></h2>
-  <div class="filtros" style="position:static"><div class="grupo"><span class="rot"><span data-l="pt">Ano</span><span data-l="en">Year</span></span><select class="sel" id="t-ano"></select></div></div>
-  <div id="t-chave-resposta"></div>
-  <div class="cartao"><div class="chave" id="t-chave"></div></div>
-  <details class="como-ler" id="t-chave-toda"><summary>🗂️ <span data-l="pt">Ver a chave completa</span><span data-l="en">See the full draw</span></summary><div class="chave" id="t-chave-completa"></div></details>
-  <p class="ler">📖 <span data-l="pt">Em negrito, quem venceu. O número ao lado do nome é a cabeça de chave; Q = veio do qualifying, WC = convite.</span>
-    <span data-l="en">In bold, the winner. The number next to the name is the seed; Q = qualifier, WC = wildcard.</span></p>
+  <p style="margin:14px 0 0"><button class="chip" id="t-ir-chave">🗂️ <span data-l="pt">Ver a chave de cada edição →</span><span data-l="en">See each year's draw →</span></button></p>
 
   <h2><span data-l="pt">A quadra é rápida ou lenta?</span><span data-l="en">Is the court fast or slow?</span></h2>
   <div id="t-vel-resposta"></div>
@@ -97,6 +94,20 @@
   <h2><span data-l="pt">Os recordes</span><span data-l="en">The records</span></h2>
   <div class="recordes" id="t-recordes"></div>
   </div>
+  </section>
+
+  <section class="painel-aba" data-p="chaves" hidden>
+  <h2 style="margin-top:6px" id="t-tit-chave"></h2>
+  <div class="filtros" style="position:relative;top:0;z-index:30">
+    <div class="grupo"><span class="rot"><span data-l="pt">Torneio</span><span data-l="en">Tournament</span></span><select class="sel" id="c-nome"></select></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Ano</span><span data-l="en">Year</span></span><select class="sel" id="t-ano"></select></div>
+  </div>
+  <div id="t-chave-resposta"></div>
+  <div class="cartao"><div class="chave" id="t-chave"></div></div>
+  <details class="como-ler" id="t-chave-toda"><summary>🗂️ <span data-l="pt">Ver a chave completa</span><span data-l="en">See the full draw</span></summary><div class="chave" id="t-chave-completa"></div></details>
+  <p class="ler">📖 <span data-l="pt">Em negrito, quem venceu. O número ao lado do nome é a cabeça de chave; Q = veio do qualifying, WC = convite.</span>
+    <span data-l="en">In bold, the winner. The number next to the name is the seed; Q = qualifier, WC = wildcard.</span></p>
+  </section>
 </main>
 <script>
 document.getElementById("quadra").innerHTML = svgQuadra();
@@ -125,6 +136,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     elSel.innerHTML = (temVisao(nivel) ? `<option value="">${T(`Todos os ${nivPorNome[nivel][2]} (visão geral)`, `All ${nivPorNome[nivel][2]} (overview)`)}</option>` : "") +
       daLista(nivel).map(t => `<option value="${t.cod}">${t.nome}</option>`).join("");
     elSel.value = cod || "";
+    if (cod) { chCod = cod; chAno = null; }
     history.replaceState(null, "", location.pathname + location.search + "#" + (cod || nivPorNome[nivel][0]));
     document.getElementById("v-nivel").hidden = !!cod;
     document.getElementById("v-torneio").hidden = !cod;
@@ -184,6 +196,60 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       rec(T("Final mais longa", "Longest final"), R.final_mais_longa, R.final_mais_longa && hm(R.final_mais_longa.minutos), R.final_mais_longa && `${R.final_mais_longa.campeao} × ${R.final_mais_longa.vice}, ${R.final_mais_longa.torneio} ${R.final_mais_longa.ano}`);
   }
 
+  // ---------- aba 2: as chaves (torneio e ano próprios; acompanha o torneio escolhido na aba 1)
+  let chCod = null, chAno = null;
+  const elC = document.getElementById("c-nome"), elAno = document.getElementById("t-ano");
+  elC.innerHTML = NIVEIS.map(([k, n, r]) => `<optgroup label="${r}">${daLista(n).map(t => `<option value="${t.cod}">${t.nome}</option>`).join("")}</optgroup>`).join("");
+  elC.addEventListener("change", () => { chCod = elC.value; chAno = null; abrirChaves(); });
+  elAno.addEventListener("change", () => { chAno = elAno.value; abrirChaves(); });
+  async function abrirChaves() {
+    chCod = chCod || cod || "540";
+    elC.value = chCod;
+    const D = cache[chCod] ??= await carregar(`torneios/${chCod}`);
+    const anos = Object.keys(D.chaves).sort().reverse();
+    if (!anos.includes(chAno)) chAno = anos[0];
+    elAno.innerHTML = anos.map(a => `<option>${a}</option>`).join("");
+    elAno.value = chAno;
+    history.replaceState(null, "", location.pathname + location.search + `#chaves-${chCod}-${chAno}`);
+    chave(D, chAno);
+  }
+  function chave(D, ano) {
+  const J = D.jogadores;
+    const M = D.chaves[ano].map(([r, v, p, sv, sp, ev, ep, pl]) => ({ r, v: J[v], p: J[p], sv, sp, ev, ep, pl }));
+    const nomeR = { 0: "R128", 1: "R64", 2: "R32", 3: T("Oitavas", "Last 16"), 4: T("Quartas", "Quarter-finals"), 5: T("Semifinal", "Semi-finals"), 6: T("Final", "Final"), 7: T("Grupos", "Round robin") };
+    const fin = M.find(m => m.r === 6);
+    document.getElementById("t-tit-chave").innerHTML = T(`Como foi a chave de ${D.nome} ${ano}?`, `How did the ${D.nome} ${ano} draw go?`);
+    resposta("t-chave-resposta", fin ? T(`${fin.v} foi campeão, vencendo ${fin.p} na final por ${fin.pl}.`, `${fin.v} won the title, beating ${fin.p} in the final ${fin.pl}.`) : T("Sem final registrada.", "No final recorded."));
+    // monta a árvore a partir da final: em cada rodada anterior, os dois jogos de onde vieram os finalistas daquela partida
+    const rodadas = [...new Set(M.map(m => m.r))].filter(r => r < 7).sort((a, b) => a - b);
+    const porR = r => M.filter(m => m.r === r);
+    const ordem = { 6: fin ? [fin] : [] };
+    for (let k = rodadas.length - 2; k >= 0; k--) {
+      const r = rodadas[k], prox = ordem[rodadas[k + 1]] || [], lista = porR(r), usado = new Set();
+      ordem[r] = prox.flatMap(m => [m ? m.v : null, m ? m.p : null].map(j => { const x = lista.find(y => y.v === j && !usado.has(y)); if (x) usado.add(x); return x || null; }));
+    }
+    const sem = (n, s, e) => `${n}${s ? `<span class="s">${s}</span>` : ""}${e ? `<span class="s">${e}</span>` : ""}`;
+    const cartao = m => m ? `<div class="jogo"><div class="v">${sem(m.v, m.sv, m.ev)}</div><div class="p">${sem(m.p, m.sp, m.ep)}</div><small>${m.pl}</small></div>` : `<div class="jogo"><small>—</small></div>`;
+    const colunas = rs => rs.map(r => `<div class="rodada"><b>${nomeR[r]}</b><div class="jogos">${(ordem[r] || []).map(cartao).join("")}</div></div>`).join("");
+    document.getElementById("t-chave").innerHTML = colunas(rodadas.filter(r => r >= 4));
+    const toda = document.getElementById("t-chave-toda");
+    toda.hidden = rodadas.filter(r => r < 4).length === 0;
+    document.getElementById("t-chave-completa").innerHTML = colunas(rodadas);
+  }
+
+  // ---------- as duas abas (o endereço guarda a aba, o torneio e o ano)
+  let aba = "torneios";
+  const abasT = document.getElementById("abas-t");
+  function irAba(a) {
+    aba = a;
+    abasT.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.a === a));
+    document.querySelectorAll("main > .painel-aba").forEach(p => p.hidden = p.dataset.p !== a);
+    if (a === "chaves") abrirChaves(); else mostrar();
+    window.dispatchEvent(new Event("resize"));
+  }
+  abasT.querySelectorAll("button").forEach(b => b.addEventListener("click", () => irAba(b.dataset.a)));
+  document.getElementById("t-ir-chave").addEventListener("click", () => { chCod = cod; chAno = null; irAba("chaves"); window.scrollTo({ top: 0, behavior: "smooth" }); });
+
   const cache = {};
   async function abrir() {
     const D = cache[cod] ??= await carregar(`torneios/${cod}`);
@@ -212,11 +278,6 @@ document.getElementById("quadra").innerHTML = svgQuadra();
         xaxis: { dtick: 1, gridcolor: "rgba(137,135,129,.22)", showgrid: true }, margin: { l: 150, r: 30, t: 50, b: 40 } });
     document.getElementById("t-campeoes").innerHTML = `<tr><th>${T("Ano", "Year")}</th><th>${T("Campeão", "Champion")}</th><th>${T("Vice", "Runner-up")}</th><th>${T("Placar", "Score")}</th></tr>` +
       C.slice().reverse().map(c => `<tr><td>${c.ano}</td><td><b>${c.campeao}</b></td><td>${c.vice}</td><td>${c.placar}</td></tr>`).join("");
-    // ---- a chave
-    const anos = Object.keys(D.chaves).sort().reverse(), selAno = document.getElementById("t-ano");
-    selAno.innerHTML = anos.map(a => `<option>${a}</option>`).join("");
-    selAno.onchange = () => chave(selAno.value);
-    chave(anos[0]);
     // ---- velocidade
     if (vel.length) {
       plot(document.getElementById("g-vel"), [
@@ -237,35 +298,17 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       rec(T("Campeão com pior ranking", "Lowest-ranked champion"), R.pior_ranking, R.pior_ranking && `${R.pior_ranking.rank}º`, R.pior_ranking && `${R.pior_ranking.campeao}, ${R.pior_ranking.ano}`) +
       rec(T("Final mais longa", "Longest final"), R.final_mais_longa, R.final_mais_longa && hm(R.final_mais_longa.minutos), R.final_mais_longa && `${R.final_mais_longa.campeao} × ${R.final_mais_longa.vice}, ${R.final_mais_longa.ano}`);
 
-    function chave(ano) {
-      const M = D.chaves[ano].map(([r, v, p, sv, sp, ev, ep, pl]) => ({ r, v: J[v], p: J[p], sv, sp, ev, ep, pl }));
-      const nomeR = { 0: "R128", 1: "R64", 2: "R32", 3: T("Oitavas", "Last 16"), 4: T("Quartas", "Quarter-finals"), 5: T("Semifinal", "Semi-finals"), 6: T("Final", "Final"), 7: T("Grupos", "Round robin") };
-      const fin = M.find(m => m.r === 6);
-      document.getElementById("t-tit-chave").innerHTML = T(`Como foi a chave de ${ano}?`, `How did the ${ano} draw go?`);
-      resposta("t-chave-resposta", fin ? T(`${fin.v} foi campeão, vencendo ${fin.p} na final por ${fin.pl}.`, `${fin.v} won the title, beating ${fin.p} in the final ${fin.pl}.`) : T("Sem final registrada.", "No final recorded."));
-      // monta a árvore a partir da final: em cada rodada anterior, os dois jogos de onde vieram os finalistas daquela partida
-      const rodadas = [...new Set(M.map(m => m.r))].filter(r => r < 7).sort((a, b) => a - b);
-      const porR = r => M.filter(m => m.r === r);
-      const ordem = { 6: fin ? [fin] : [] };
-      for (let k = rodadas.length - 2; k >= 0; k--) {
-        const r = rodadas[k], prox = ordem[rodadas[k + 1]] || [], lista = porR(r), usado = new Set();
-        ordem[r] = prox.flatMap(m => [m ? m.v : null, m ? m.p : null].map(j => { const x = lista.find(y => y.v === j && !usado.has(y)); if (x) usado.add(x); return x || null; }));
-      }
-      const sem = (n, s, e) => `${n}${s ? `<span class="s">${s}</span>` : ""}${e ? `<span class="s">${e}</span>` : ""}`;
-      const cartao = m => m ? `<div class="jogo"><div class="v">${sem(m.v, m.sv, m.ev)}</div><div class="p">${sem(m.p, m.sp, m.ep)}</div><small>${m.pl}</small></div>` : `<div class="jogo"><small>—</small></div>`;
-      const colunas = rs => rs.map(r => `<div class="rodada"><b>${nomeR[r]}</b><div class="jogos">${(ordem[r] || []).map(cartao).join("")}</div></div>`).join("");
-      document.getElementById("t-chave").innerHTML = colunas(rodadas.filter(r => r >= 4));
-      const toda = document.getElementById("t-chave-toda");
-      toda.hidden = rodadas.filter(r => r < 4).length === 0;
-      document.getElementById("t-chave-completa").innerHTML = colunas(rodadas);
-    }
   }
+  const lerChaves = k => { const [, c, a] = k.split("-"); chCod = porCod[c] ? c : null; chAno = a || null; };
   window.addEventListener("hashchange", () => {
     const k = location.hash.slice(1);
+    if (k.startsWith("chaves")) { lerChaves(k); if (aba === "chaves") abrirChaves(); else irAba("chaves"); return; }
+    if (aba !== "torneios" && (porCod[k] || nivPorChave[k])) { aba = "torneios"; abasT.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.a === "torneios"));
+      document.querySelectorAll("main > .painel-aba").forEach(p => p.hidden = p.dataset.p !== "torneios"); }
     if (porCod[k]) { cod = k; nivel = porCod[k].nivel; } else if (nivPorChave[k]) { nivel = nivPorChave[k][1]; cod = temVisao(nivel) ? null : daLista(nivel)[0].cod; } else return;
     mostrar();
   });
-  mostrar();
+  if (h.startsWith("chaves")) { lerChaves(h); irAba("chaves"); } else mostrar();
 })();
 </script>
 </body>

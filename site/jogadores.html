@@ -61,14 +61,14 @@
     and the Olympics, as in the official ATP count.</p>
 </div></header>
 <main class="conteudo" id="area">
-  <div class="abas" id="abas-j" style="margin-top:22px"><button class="on" data-a="perfil">🎾 <span data-l="pt">Perfil do jogador</span><span data-l="en">Player profile</span></button>
-    <button data-a="rivalidades">⚔️ <span data-l="pt">Frente a frente</span><span data-l="en">Head to head</span></button>
+  <div class="abas" id="abas-j" style="margin-top:22px"><button class="on" data-a="lid">🏆 <span data-l="pt">Os melhores em cada aspecto</span><span data-l="en">The best at each aspect</span></button>
     <button data-a="n1">🥇 <span data-l="pt">Os nº 1</span><span data-l="en">The No. 1s</span></button>
-    <button data-a="lid">🏆 <span data-l="pt">Os melhores em cada aspecto</span><span data-l="en">The best at each aspect</span></button></div>
+    <button data-a="perfil">🎾 <span data-l="pt">Perfil do jogador</span><span data-l="en">Player profile</span></button>
+    <button data-a="rivalidades">⚔️ <span data-l="pt">Frente a frente</span><span data-l="en">Head to head</span></button></div>
   <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando os dados de todos os jogadores…</span><span
     data-l="en">Loading the data for every player…</span></div>
 
-  <section class="painel-aba" data-p="lid" hidden>
+  <section class="painel-aba" data-p="lid">
     <h2 style="margin-top:6px"><span data-l="pt">Quem é o jogador mais completo?</span><span data-l="en">Who is the most complete player?</span></h2>
     <div id="l-resposta"></div>
     <div class="filtros" style="position:static">
@@ -96,7 +96,7 @@
     <div class="cartao rolagem" style="max-height:480px;overflow:auto"><table class="t" id="r-t"></table></div>
   </section>
 
-  <section class="painel-aba" data-p="perfil">
+  <section class="painel-aba" data-p="perfil" hidden>
     <div class="filtros" style="position:relative;top:0;z-index:30">
       <div class="grupo"><span class="rot"><span data-l="pt">Jogador</span><span data-l="en">Player</span></span><input class="sel busca" id="p-nome" value="Roger Federer"
         placeholder="Digite ou escolha um jogador" aria-label="Jogador"
@@ -107,8 +107,12 @@
     <div id="p-corpo"></div>
   </section>
   <section class="painel-aba" data-p="n1" hidden>
-  <h2 style="margin-top:6px"><span data-l="pt">Como cada um chegou ao topo?</span><span data-l="en">How did each one reach the top?</span></h2>
+  <h2 style="margin-top:6px"><span data-l="pt">O que todos os nº 1 têm em comum?</span><span data-l="en">What do all the No. 1s have in common?</span></h2>
   <div id="n1-resposta"></div>
+  <div class="cartao"><div id="g-n1-comum" class="grafico" style="min-height:460px"></div></div>
+  <p class="nota" id="n1-nota-comum"></p>
+
+  <h2><span data-l="pt">Como cada um chegou ao topo?</span><span data-l="en">How did each one reach the top?</span></h2>
   <div class="filtros" style="position:relative;top:0;z-index:30">
     <div class="grupo"><span class="rot"><span data-l="pt">Nº 1</span><span data-l="en">No. 1</span></span><input class="sel busca" id="n1-a"></div>
     <div class="grupo"><span class="rot"><span data-l="pt">Adversários</span><span data-l="en">Opponents</span></span><span id="n1-regua"></span></div>
@@ -124,10 +128,6 @@
   <h2><span data-l="pt">Quão cedo cada um chegou lá?</span><span data-l="en">How early did each one get there?</span></h2>
   <p class="ler">📖 <span data-l="pt">Idade em cada marco. Toque no título de uma coluna para ordenar.</span><span data-l="en">Age at each milestone. Tap a column title to sort.</span></p>
   <div class="cartao rolagem" style="overflow:auto"><table class="t" id="n1-t-marcos"></table><p class="nota" id="n1-nota-marcos"></p></div>
-
-  <h2><span data-l="pt">O que todos os nº 1 têm em comum?</span><span data-l="en">What do all the No. 1s have in common?</span></h2>
-  <div class="cartao"><div id="g-n1-comum" class="grafico" style="min-height:460px"></div></div>
-  <p class="nota" id="n1-nota-comum"></p>
 
   <h2><span data-l="pt">O que cai primeiro depois do auge?</span><span data-l="en">What fades first after the peak?</span></h2>
   <div class="cartao"><div id="g-n1-queda" class="grafico" style="min-height:380px"></div><p class="nota" id="n1-nota-queda"></p></div>
@@ -580,8 +580,9 @@ function desenharN1(N) {
     cbA.definir(A);
     const nN = NOMES.length, quantos = k => Math.round((N.em_comum.find(r => r.crit === k)?.pct_acima_1 || 0) * nN);
     const maisNovo = NOMES.filter(n => J[n].marcos.n1_idade).sort((a, b) => J[a].marcos.n1_idade - J[b].marcos.n1_idade)[0];
-    resposta("n1-resposta", T(`${maisNovo} chegou a nº 1 mais jovem que todos: aos ${br(J[maisNovo].marcos.n1_idade, 1)} anos. E nº 1 não se faz com ace: ${quantos("ganhos_2")} dos ${nN} são muito melhores que o circuito no 2º saque; em aces, só ${quantos("aces_game")}.`,
-        `${maisNovo} became No. 1 younger than anyone: at ${br(J[maisNovo].marcos.n1_idade, 1)}. And No. 1s aren't made by aces: ${quantos("ganhos_2")} of the ${nN} are far better than the tour on the 2nd serve; in aces, only ${quantos("aces_game")}.`));
+    resposta("n1-resposta", T(`Nº 1 não se faz com ace: ${quantos("ganhos_2")} dos ${nN} são muito melhores que o circuito no 2º saque; em aces, só ${quantos("aces_game")}.`,
+        `No. 1s aren't made by aces: ${quantos("ganhos_2")} of the ${nN} are far better than the tour on the 2nd serve; in aces, only ${quantos("aces_game")}.`),
+      T(`E ${maisNovo} chegou a nº 1 mais jovem que todos: aos ${br(J[maisNovo].marcos.n1_idade, 1)} anos.`, `And ${maisNovo} became No. 1 younger than anyone: at ${br(J[maisNovo].marcos.n1_idade, 1)}.`));
     document.getElementById("n1-comoler").innerHTML = lerCurto(T(`Cada ponto mostra o jogador numa fase da carreira, pelo ranking que ele tinha: de
       fora do top 50 até nº 1. Escolha "Só Top 10" para comparar só contra os mais fortes.`, `Each point shows the player at a stage of his career,
       by the ranking he had: from outside the top 50 up to No. 1. Pick "Top 10 only" to compare only against the strongest.`));
