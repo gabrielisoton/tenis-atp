@@ -11,7 +11,6 @@
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=13"></script>
 <script src="assets/comum.js?v=12"></script>
-<script src="assets/jogadores.js?v=10"></script>
 <style>
   /* chave: uma coluna por rodada, cada partida um cartãozinho; a coluna seguinte centraliza os jogos entre os dois de onde veio */
   .chave { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 12px; align-items: stretch; }
@@ -25,20 +24,52 @@
   .jogo .s { color: var(--tinta-3); font-size: .72rem; margin-left: 4px; }
   .recordes { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
   .recordes .cartao b.n { display: block; font-family: "Barlow Condensed"; font-size: 1.6rem; color: var(--quadra); }
+  #n-torneios tr[data-cod] { cursor: pointer; }
+  #n-torneios tr[data-cod]:hover td { background: #eef3ef; }
+  #n-torneios td:first-child { color: var(--pop); font-weight: 600; }
 </style>
 </head>
 <body>
 <header class="topo"><div id="quadra"></div><div class="topo-dentro">
   <span class="etiqueta"><span data-l="pt">Torneios</span><span data-l="en">Tournaments</span></span>
   <h1><span data-l="pt">Cada torneio tem a sua história</span><span data-l="en">Every tournament has its story</span></h1>
-  <p data-l="pt">Escolha um torneio: quem manda nele, como foi a chave de cada ano, se a quadra é rápida ou lenta e os recordes.</p>
-  <p data-l="en">Pick a tournament: who rules it, how each year's draw went, whether the court is fast or slow, and the records.</p>
+  <p data-l="pt">Os Grand Slams, o ATP Finals, os Masters 1000 e os ATP 500. Veja cada nível de uma vez ou escolha um torneio:
+    quem manda nele, como foi a chave de cada ano, se a quadra é rápida ou lenta e os recordes.</p>
+  <p data-l="en">The Grand Slams, the ATP Finals, the Masters 1000s and the ATP 500s. See each level at once or pick a tournament:
+    who rules it, how each year's draw went, whether the court is fast or slow, and the records.</p>
 </div></header>
 <main class="conteudo">
   <div class="aviso" id="carregando" style="margin-top:14px"><span data-l="pt">Carregando…</span><span data-l="en">Loading…</span></div>
   <div class="filtros" style="position:relative;top:0;z-index:30;margin-top:18px">
-    <div class="grupo"><span class="rot"><span data-l="pt">Torneio</span><span data-l="en">Tournament</span></span><input class="sel busca" id="t-nome"></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Nível</span><span data-l="en">Level</span></span><span id="t-nivel" style="display:flex;flex-wrap:wrap;gap:6px"></span></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Torneio</span><span data-l="en">Tournament</span></span><select class="sel" id="t-nome"></select></div>
   </div>
+
+  <div id="v-nivel" hidden>
+  <div id="n-resposta"></div>
+  <div id="n-placar"></div>
+  <h2 id="n-tit-donos"></h2>
+  <div class="grade g2">
+    <div class="cartao"><div id="g-n-donos" class="grafico" style="min-height:380px"></div></div>
+    <div class="cartao rolagem" style="max-height:420px;overflow:auto"><h3 style="margin-top:0"><span data-l="pt">Torneio a torneio</span><span data-l="en">Tournament by tournament</span></h3>
+      <table class="t" id="n-torneios"></table>
+      <p class="nota" style="margin-top:8px"><span data-l="pt">Toque num torneio para abrir a página dele.</span><span data-l="en">Tap a tournament to open its page.</span></p></div>
+  </div>
+  <div id="n-bloco-dif">
+    <h2><span data-l="pt">Quem venceu mais torneios diferentes?</span><span data-l="en">Who won the most different tournaments?</span></h2>
+    <div id="n-dif-resposta"></div>
+    <div class="cartao rolagem"><table class="t" id="n-dif"></table></div>
+  </div>
+  <h2><span data-l="pt">Qual quadra é mais rápida para o seu piso?</span><span data-l="en">Which court is fastest for its surface?</span></h2>
+  <div id="n-vel-resposta"></div>
+  <div class="cartao"><div id="g-n-vel" class="grafico" style="min-height:340px"></div></div>
+  <p class="ler">📖 <span data-l="pt">Aces por game de saque de cada torneio, comparados com a média do circuito no mesmo piso. Barra para a direita: quadra mais rápida que a média.</span>
+    <span data-l="en">Aces per service game at each tournament, compared with the tour average on the same surface. Bar to the right: faster than average.</span></p>
+  <h2><span data-l="pt">Os recordes</span><span data-l="en">The records</span></h2>
+  <div class="recordes" id="n-recordes"></div>
+  </div>
+
+  <div id="v-torneio" hidden>
   <div id="t-resposta"></div>
   <div id="t-placar"></div>
 
@@ -65,20 +96,96 @@
 
   <h2><span data-l="pt">Os recordes</span><span data-l="en">The records</span></h2>
   <div class="recordes" id="t-recordes"></div>
+  </div>
 </main>
 <script>
 document.getElementById("quadra").innerHTML = svgQuadra();
 (async () => {
-  const I = (await carregar("torneios/indice")).torneios;
+  const IX = await carregar("torneios/indice"), I = IX.torneios, NV = IX.niveis;
   document.getElementById("carregando").remove();
   const porCod = Object.fromEntries(I.map(t => [t.cod, t]));
-  const rotulo = t => `${t.nome}`, ult = n => n.split(" ").slice(-1)[0];
-  let cod = (location.hash.slice(1) && porCod[location.hash.slice(1)]) ? location.hash.slice(1) : "540";
-  const cb = combobox(document.getElementById("t-nome"), I.map(rotulo), i => `${tr(I[i].nivel)} · ${tr(I[i].superficie)}`, nome => {
-    cod = I.find(t => rotulo(t) === nome).cod; history.replaceState(null, "", location.pathname + location.search + "#" + cod); abrir(); });
+  // níveis: código curto no endereço (#gs, #m1000, #atp500, #finals); um torneio é o código dele (#540)
+  const NIVEIS = [["gs", "Grand Slam", T("Grand Slams", "Grand Slams")], ["m1000", "Masters 1000", "Masters 1000"], ["atp500", "ATP 500", "ATP 500"], ["finals", "ATP Finals", "ATP Finals"]]
+    .filter(n => I.some(t => t.nivel === n[1]));
+  const nivPorChave = Object.fromEntries(NIVEIS.map(n => [n[0], n])), nivPorNome = Object.fromEntries(NIVEIS.map(n => [n[1], n]));
+  const daLista = n => I.filter(t => t.nivel === n);
+  const ULT_ANO = Math.max(...I.map(t => t.anos[1]));
+  const temVisao = n => daLista(n).length > 1;
+  let nivel = "Grand Slam", cod = null;
+  const h = location.hash.slice(1);
+  if (porCod[h]) { cod = h; nivel = porCod[h].nivel; } else if (nivPorChave[h]) nivel = nivPorChave[h][1];
+  if (!temVisao(nivel) && !cod) cod = daLista(nivel)[0].cod;
+  const elNiv = document.getElementById("t-nivel"), elSel = document.getElementById("t-nome");
+  elNiv.innerHTML = NIVEIS.map(([k, n, r]) => `<button class="chip" data-v="${n}">${r}</button>`).join("");
+  elNiv.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+    nivel = b.dataset.v; cod = temVisao(nivel) ? null : daLista(nivel)[0].cod; mostrar(); }));
+  elSel.addEventListener("change", () => { cod = elSel.value || null; mostrar(); });
+  function mostrar() {
+    elNiv.querySelectorAll(".chip").forEach(b => b.classList.toggle("on", b.dataset.v === nivel));
+    elSel.innerHTML = (temVisao(nivel) ? `<option value="">${T(`Todos os ${nivPorNome[nivel][2]} (visão geral)`, `All ${nivPorNome[nivel][2]} (overview)`)}</option>` : "") +
+      daLista(nivel).map(t => `<option value="${t.cod}">${t.nome}</option>`).join("");
+    elSel.value = cod || "";
+    history.replaceState(null, "", location.pathname + location.search + "#" + (cod || nivPorNome[nivel][0]));
+    document.getElementById("v-nivel").hidden = !!cod;
+    document.getElementById("v-torneio").hidden = !cod;
+    if (cod) abrir(); else visaoNivel();
+  }
+  const rec = (rot, x, num, txt) => x ? `<div class="cartao"><span class="nota">${rot}</span><b class="n">${num}</b>${txt}</div>` : "";
+  const hm = m => `${Math.floor(m / 60)}h${String(m % 60).padStart(2, "0")}`;
+  const lista = xs => xs.length < 2 ? xs.join("") : T(`${xs.slice(0, -1).join(", ")} e ${xs[xs.length - 1]}`, `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+
+  function visaoNivel() {
+    const N = NV[nivel], L = daLista(nivel), rot = nivPorNome[nivel][2], dono = N.donos[0];
+    const dif = N.diferentes, todos = dif.filter(d => d[1] >= L.length), topo = dif.length ? dif.filter(d => d[1] === dif[0][1]) : [];
+    const seg = N.donos[1];
+    resposta("n-resposta", T(`${dono[0]} é quem mais venceu ${rot}: ${dono[1]} títulos.`, `${dono[0]} has won the most ${rot}: ${dono[1]} titles.`),
+      T(`Depois vem ${seg[0]}, com ${seg[1]}. Contando desde ${N.desde}${N.desde < 1991 ? ", início da Era Aberta" : ""}.`,
+        `Next is ${seg[0]}, with ${seg[1]}. Counting since ${N.desde}${N.desde < 1991 ? ", the start of the Open Era" : ""}.`));
+    const V = L.filter(t => t.vel !== null).sort((a, b) => a.vel - b.vel), rap = V[V.length - 1], len = V[0];
+    const pctV = v => `${v >= 0 ? "+" : "−"}${br(Math.abs(100 * v), 0)}%`;
+    placar(document.getElementById("n-placar"), [
+      { rot: T("Torneios", "Tournaments"), num: L.length, sub: T(`${N.finais} finais desde ${N.desde}`, `${N.finais} finals since ${N.desde}`) },
+      { rot: T("Maior campeão", "Biggest champion"), num: dono[1], sub: dono[0] },
+      { rot: T("Mais rápida para o piso", "Fastest for its surface"), num: rap ? rap.nome : "—", sub: rap ? T(`${pctV(rap.vel)} aces que a média do piso`, `${pctV(rap.vel)} aces vs surface average`) : "" },
+      { rot: T("Mais lenta para o piso", "Slowest for its surface"), num: len ? len.nome : "—", sub: len ? T(`${pctV(len.vel)} aces que a média do piso`, `${pctV(len.vel)} aces vs surface average`) : "" },
+    ]);
+    document.getElementById("n-tit-donos").innerHTML = T(`Quem mais venceu ${rot}?`, `Who has won the most ${rot}?`);
+    const Dn = N.donos.slice().reverse();
+    plot(document.getElementById("g-n-donos"), [{ type: "bar", orientation: "h", y: Dn.map(d => d[0]), x: Dn.map(d => d[1]), marker: { color: Dn.map((_, i) => i === Dn.length - 1 ? CORES.pop : CORES.demais) },
+      text: Dn.map(d => d[1]), textposition: "outside", cliponaxis: false, hovertemplate: `%{y}: %{x} ${T("títulos", "titles")}<extra></extra>` }],
+      { height: 380, title: { text: T(`Títulos em ${rot} desde ${N.desde}`, `${rot} titles since ${N.desde}`), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        xaxis: { gridcolor: "rgba(137,135,129,.22)", showgrid: true }, margin: { l: 150, r: 30, t: 50, b: 40 } });
+    const tab = document.getElementById("n-torneios");
+    tab.innerHTML = `<tr><th>${T("Torneio", "Tournament")}</th><th>${T("Maior campeão", "Biggest champion")}</th><th>${T("Último campeão", "Latest champion")}</th></tr>` +
+      L.map(t => `<tr data-cod="${t.cod}"><td>${t.nome}${t.anos[1] < ULT_ANO - 1 ? ` <small class="nota">(${T("até", "until")} ${t.anos[1]})</small>` : ""}</td><td>${t.dono ? `<b>${t.dono[0]}</b> (${t.dono[1]})` : "—"}</td><td>${t.ultimo ? `${t.ultimo[0]} (${t.ultimo[1]})` : "—"}</td></tr>`).join("");
+    tab.querySelectorAll("tr[data-cod]").forEach(r => r.addEventListener("click", () => { cod = r.dataset.cod; mostrar(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+    document.getElementById("n-bloco-dif").hidden = !dif.length;
+    if (dif.length) {
+      resposta("n-dif-resposta", nivel === "Grand Slam"
+        ? T(`${todos.length} jogadores venceram os quatro Grand Slams: ${lista(todos.map(d => d[0]))}.`, `${todos.length} players won all four Grand Slams: ${lista(todos.map(d => d[0]))}.`)
+        : topo.length > 1 ? T(`${lista(topo.map(d => d[0]))} venceram ${dif[0][1]} ${rot} diferentes cada um.`, `${lista(topo.map(d => d[0]))} each won ${dif[0][1]} different ${rot}.`)
+          : T(`${dif[0][0]} venceu ${dif[0][1]} ${rot} diferentes, mais que qualquer outro.`, `${dif[0][0]} won ${dif[0][1]} different ${rot}, more than anyone else.`));
+      document.getElementById("n-dif").innerHTML = `<tr><th>${T("Jogador", "Player")}</th><th>${T("Torneios diferentes", "Different tournaments")}</th><th>${T("Títulos", "Titles")}</th></tr>` +
+        dif.map(d => `<tr><td><b>${d[0]}</b></td><td>${d[1]}</td><td>${d[2]}</td></tr>`).join("");
+    }
+    plot(document.getElementById("g-n-vel"), [{ type: "bar", orientation: "h", y: V.map(t => t.nome), x: V.map(t => 100 * t.vel),
+      marker: { color: V.map(t => CORES.sup[t.superficie] || CORES.neutra) }, text: V.map(t => pctV(t.vel)), textposition: "outside", cliponaxis: false, customdata: V.map(t => tr(t.superficie).toLowerCase()),
+      hovertemplate: `%{y} (%{customdata}): %{x:.0f}% ${T("aces que a média do piso", "aces vs surface average")}<extra></extra>` }],
+      { height: Math.max(300, 34 * V.length + 80), title: { text: T("Aces em relação à média do piso", "Aces compared with the surface average"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
+        xaxis: { ticksuffix: "%", zeroline: true, zerolinecolor: "#898781", gridcolor: "rgba(137,135,129,.22)",
+          range: [Math.min(0, ...V.map(t => 100 * t.vel)) * 1.35 - 2, Math.max(0, ...V.map(t => 100 * t.vel)) * 1.35 + 2] }, margin: { l: 160, r: 30, t: 50, b: 40 } });
+    resposta("n-vel-resposta", rap && len ? T(`Comparando cada torneio com a média do seu piso, o mais rápido é ${rap.nome} (${pctV(rap.vel)} aces) e o mais lento, ${len.nome} (${pctV(len.vel)}).`,
+      `Comparing each tournament with its surface average, the fastest is ${rap.nome} (${pctV(rap.vel)} aces) and the slowest, ${len.nome} (${pctV(len.vel)}).`) : "");
+    const R = N.recordes, onde = x => `${x.campeao}, ${x.torneio} ${x.ano}`;
+    document.getElementById("n-recordes").innerHTML =
+      rec(T("Campeão mais jovem", "Youngest champion"), R.mais_jovem, R.mais_jovem && `${br(R.mais_jovem.idade, 1)} ${T("anos", "years")}`, R.mais_jovem && onde(R.mais_jovem)) +
+      rec(T("Campeão mais velho", "Oldest champion"), R.mais_velho, R.mais_velho && `${br(R.mais_velho.idade, 1)} ${T("anos", "years")}`, R.mais_velho && onde(R.mais_velho)) +
+      rec(T("Campeão com pior ranking", "Lowest-ranked champion"), R.pior_ranking, R.pior_ranking && `${R.pior_ranking.rank}º`, R.pior_ranking && onde(R.pior_ranking)) +
+      rec(T("Final mais longa", "Longest final"), R.final_mais_longa, R.final_mais_longa && hm(R.final_mais_longa.minutos), R.final_mais_longa && `${R.final_mais_longa.campeao} × ${R.final_mais_longa.vice}, ${R.final_mais_longa.torneio} ${R.final_mais_longa.ano}`);
+  }
+
   const cache = {};
   async function abrir() {
-    cb.definir(rotulo(porCod[cod]));
     const D = cache[cod] ??= await carregar(`torneios/${cod}`);
     const J = D.jogadores, C = D.campeoes, dono = D.donos[0], ultC = C[C.length - 1];
     const desde = D.nivel === "Grand Slam" ? Math.min(C[0]?.ano ?? D.anos[0], D.anos[0]) : D.anos[0];
@@ -123,8 +230,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
             : T(`Mais lenta que a média: ${br(-100 * difVel, 0)}% menos aces que o circuito ${noPiso}.`, `Slower than average: ${br(-100 * difVel, 0)}% fewer aces than the tour ${noPiso}.`));
     } else { Plotly.purge("g-vel"); resposta("t-vel-resposta", T("Sem dados de aces para este torneio.", "No ace data for this tournament.")); }
     // ---- recordes
-    const R = D.recordes, hm = m => `${Math.floor(m / 60)}h${String(m % 60).padStart(2, "0")}`;
-    const rec = (rot, x, num, txt) => x ? `<div class="cartao"><span class="nota">${rot}</span><b class="n">${num}</b>${txt}</div>` : "";
+    const R = D.recordes;
     document.getElementById("t-recordes").innerHTML =
       rec(T("Campeão mais jovem", "Youngest champion"), R.mais_jovem, R.mais_jovem && `${br(R.mais_jovem.idade, 1)} ${T("anos", "years")}`, R.mais_jovem && `${R.mais_jovem.campeao}, ${R.mais_jovem.ano}`) +
       rec(T("Campeão mais velho", "Oldest champion"), R.mais_velho, R.mais_velho && `${br(R.mais_velho.idade, 1)} ${T("anos", "years")}`, R.mais_velho && `${R.mais_velho.campeao}, ${R.mais_velho.ano}`) +
@@ -154,7 +260,12 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       document.getElementById("t-chave-completa").innerHTML = colunas(rodadas);
     }
   }
-  await abrir();
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (porCod[k]) { cod = k; nivel = porCod[k].nivel; } else if (nivPorChave[k]) { nivel = nivPorChave[k][1]; cod = temVisao(nivel) ? null : daLista(nivel)[0].cod; } else return;
+    mostrar();
+  });
+  mostrar();
 })();
 </script>
 </body>
