@@ -152,6 +152,13 @@
     <span data-l="en">How each played in the head to head vs over their career</span></h3><table class="t" id="h-stats"></table>
     <p class="nota" id="h-stats-nota"></p></div>
   <h2><span data-l="pt">E se os dois jogassem no auge?</span><span data-l="en">And if both played at their peak?</span></h2>
+  <p class="ler">📖 <span data-l="pt">Escolha quaisquer dois craques, mesmo de épocas diferentes e que nunca se enfrentaram. Começa com o par de cima.</span>
+    <span data-l="en">Pick any two greats, even from different eras who never met. It starts with the pair above.</span></p>
+  <div class="filtros" style="position:relative;top:0;z-index:25">
+    <div class="grupo"><span class="rot"><span data-l="pt">Jogador</span><span data-l="en">Player</span></span><input class="sel busca" id="x-a"></div>
+    <div class="grupo"><span class="rot"><span data-l="pt">Contra</span><span data-l="en">Against</span></span><input class="sel busca" id="x-b"></div>
+  </div>
+  <div class="filtros" style="position:static;margin-top:6px"><div class="grupo"><span class="rot"><span data-l="pt">Duelos que nunca aconteceram</span><span data-l="en">Matches that never happened</span></span><span id="x-sugestoes" style="display:flex;flex-wrap:wrap;gap:6px"></span></div></div>
   <div id="x-resposta"></div>
   <div id="x-corpo">
     <div class="filtros" style="position:static"><div class="grupo"><span class="rot"><span data-l="pt">Auge</span><span data-l="en">Peak</span></span><span id="x-modo"></span></div></div>
@@ -486,18 +493,32 @@ abrirAbaDoHash("#abas-j");
 })();
 
 /* ================= e se jogassem no auge? (o antigo Pico × Pico, agora guiado pelo par do Frente a frente) ================= */
-let SIMUL = null, modoAuge = "auge";
+let SIMUL = null, modoAuge = "auge", xA = "Pete Sampras", xB = "Carlos Alcaraz", cbXA = null, cbXB = null;
+// chamado pelo confronto direto: se os dois estão na simulação, o par de baixo acompanha o de cima; senão fica o par atual
 async function noAuge(A, B) {
   if (!SIMUL) SIMUL = (await carregar("elo")).simulador;
-  const S = SIMUL, J = S.jogadores, esc = S.escala_md3, corpo = document.getElementById("x-corpo");
-  const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
-  if (!J[A] || !J[B]) {
-    corpo.hidden = true;
-    resposta("x-resposta", T("A simulação no auge existe para os grandes de cada época: quem chegou a 2.050 pontos de Elo. Escolha dois deles acima.",
-      "The peak simulation covers the greats of each era: players who reached 2,050 Elo points. Pick two of them above."));
-    return;
+  const J = SIMUL.jogadores;
+  if (!cbXA) {
+    const nomes = Object.keys(J).sort((a, b) => J[b].geral.auge - J[a].geral.auge);
+    const det = i => `Elo ${br(J[nomes[i]].geral.auge, 0)}`;
+    cbXA = combobox(document.getElementById("x-a"), nomes, det, n => { xA = n; desenharAuge(); });
+    cbXB = combobox(document.getElementById("x-b"), nomes, det, n => { xB = n; desenharAuge(); });
+    const sug = [["Roger Federer", "Carlos Alcaraz"], ["Pete Sampras", "Novak Djokovic"], ["Andre Agassi", "Jannik Sinner"], ["Pete Sampras", "Carlos Alcaraz"]].filter(([a, b]) => J[a] && J[b]);
+    const el = document.getElementById("x-sugestoes"), ult = n => n.split(" ").slice(-1)[0];
+    el.innerHTML = sug.map(([a, b]) => `<button class="chip" data-a="${a}" data-b="${b}">${ult(a)} × ${ult(b)}</button>`).join("");
+    el.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { xA = c.dataset.a; xB = c.dataset.b; desenharAuge(); }));
   }
-  corpo.hidden = false;
+  if (J[A] && J[B]) { xA = A; xB = B; }
+  desenharAuge();
+}
+function desenharAuge() {
+  const A = xA, B = xB;
+  cbXA.definir(A); cbXB.definir(B);
+  document.querySelectorAll("#x-sugestoes .chip").forEach(c => c.classList.toggle("on", c.dataset.a === A && c.dataset.b === B));
+  const S = SIMUL, J = S.jogadores, esc = S.escala_md3;
+  const mesAno = d => { const [a, m] = d.split("-"); return new Date(+a, +m - 1, 1).toLocaleDateString(EM_INGLES ? "en-US" : "pt-BR", { month: "short", year: "numeric" }).replace(" de ", "/").replace(".", ""); };
+  if (A === B) { resposta("x-resposta", T("Escolha dois jogadores diferentes.", "Pick two different players.")); document.getElementById("x-corpo").hidden = true; return; }
+  document.getElementById("x-corpo").hidden = false;
   const SUP3 = ["Dura", "Saibro", "Grama"];
   const chance3 = (ra, rb) => 1 / (1 + Math.pow(10, -esc * (ra - rb) / 400));
   const set = p => { let lo = 0, hi = 1; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (m * m * (3 - 2 * m) < p) lo = m; else hi = m; } return (lo + hi) / 2; };
@@ -508,12 +529,13 @@ async function noAuge(A, B) {
   const modoEl = document.getElementById("x-modo");
   modoEl.innerHTML = [["auge", T("Melhor temporada", "Best season")], ["pico", T("Melhor semana", "Best week")]]
     .map(([v, r]) => `<button class="chip ${v === modoAuge ? "on" : ""}" data-v="${v}">${r}</button>`).join("");
-  modoEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { modoAuge = b.dataset.v; noAuge(A, B); }));
+  modoEl.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { modoAuge = b.dataset.v; desenharAuge(); }));
   const res = SUP3.map(sup => { const p3 = chance3(nota(A, sup), nota(B, sup)); return { sup, p3, p5: md5(p3) }; });
   const dura = res[0], fav = dura.p5 >= .5 ? A : B, pf = Math.max(dura.p5, 1 - dura.p5), outro = fav === A ? B : A;
   resposta("x-resposta", T(`No auge, ${fav} venceria ${outro} em ${pct(pf, 0)} das vezes numa final de Slam em quadra dura.`,
       `At their peaks, ${fav} would beat ${outro} ${pct(pf, 0)} of the time in a hard-court Slam final.`),
-    T("É uma brincadeira, com método: o Elo mede quanto cada um dominava a sua época.", "It's a game, with a method: Elo measures how much each one dominated his own era."));
+    T("É uma brincadeira, com método: o Elo mede quanto cada um dominava a sua época. Só entram os craques que passaram de 2.050 pontos de Elo.",
+      "It's a game, with a method: Elo measures how much each one dominated his own era. Only greats who passed 2,050 Elo points are included."));
   placar(document.getElementById("x-placar"), res.map(r => ({ rot: `${tr(r.sup)} · ${T("melhor de 3", "best of 3")}`, num: `${pct(r.p3, 0)} × ${pct(1 - r.p3, 0)}`, sub: `${ult(A)} × ${ult(B)}` })));
   const y = res.flatMap(r => [`${tr(r.sup)} · ${T("MD3", "Bo3")}`, `${tr(r.sup)} · ${T("MD5", "Bo5")}`]), pa = res.flatMap(r => [r.p3, r.p5]);
   plot(document.getElementById("g-pxp"), [
