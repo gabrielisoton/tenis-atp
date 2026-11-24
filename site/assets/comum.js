@@ -148,8 +148,23 @@ function paraCelular(L, dados) {
   L.margin = { ...m, l: Math.min(m.l ?? 56, 96), r: Math.min(m.r ?? 18, 14), t: Math.min(m.t ?? 46, 64), b: Math.min(m.b ?? 52, 96) };
   L.font = { ...(L.font || {}), size: 12 };
   if (L.height) L.height = Math.max(280, Math.round(L.height * 0.85));
-  if (L.title) L.title = { ...(typeof L.title === "string" ? { text: L.title } : L.title), font: { size: 14, family: "Barlow Condensed" } };
-  if (L.legend) L.legend = { ...L.legend, font: { size: 11 } };
+  if (L.title) {
+    L.title = { ...(typeof L.title === "string" ? { text: L.title } : L.title), font: { size: 14, family: "Barlow Condensed" } };
+    // o Plotly não quebra título: a primeira linha comprida vira duas (senão é cortada na borda do celular)
+    const [prim, ...resto] = String(L.title.text || "").split("<br>");
+    if (prim.length > 40) {
+      const k = prim.lastIndexOf(" ", 40);
+      if (k > 10) { L.title.text = [prim.slice(0, k) + "<br>" + prim.slice(k + 1), ...resto].join("<br>"); L.margin.t += 18; }
+    }
+  }
+  if (L.legend) {
+    L.legend = { ...L.legend, font: { size: 11 } };
+    // legenda em cima do gráfico: o título vai para o alto da caixa e sobra espaço para a legenda logo abaixo dele
+    if ((L.legend.y ?? 1) >= 1 && L.title && L.showlegend !== false && dados.filter(t => t.showlegend !== false && t.name).length > 1) {
+      L.title = { ...L.title, yref: "container", y: 0.995, yanchor: "top", pad: { t: 6 } };
+      L.margin.t = Math.max(L.margin.t, Math.min(m.t ?? 46, 110));
+    }
+  }
   // rótulos de categoria compridos (barras horizontais): abrevia só o texto do eixo, o dado e o hover continuam inteiros
   const cats = [...new Set(dados.filter(t => t.orientation === "h" && Array.isArray(t.y)).flatMap(t => t.y))];
   if (cats.some(c => typeof c === "string" && c.length > 18))
@@ -158,6 +173,8 @@ function paraCelular(L, dados) {
 }
 function plot(el, dados, layout = {}) {
   let L = layoutBase(layout);
+  // número dentro da barra sempre na horizontal (o Plotly gira o texto quando a barra é estreita)
+  dados.forEach(t => { if (t.type === "bar" && t.textposition === "inside" && t.textangle === undefined) t.textangle = 0; });
   if (CELULAR()) L = paraCelular(L, dados);
   // com responsive: true o Plotly não estica a caixa do gráfico até a altura pedida: ela fica no min-height do CSS e
   // o fim do gráfico (eixo x) vazava por baixo do texto seguinte. A caixa passa a ter a altura do próprio gráfico.
