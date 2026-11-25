@@ -16,6 +16,10 @@
 <style>
   .checagens { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
   .checagens .cartao b.ok { color: #0a6b0a; }
+  .limites { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .limites .cartao h3 { margin: 0 0 6px; font-size: 1.15rem; }
+  .limites .cartao p { margin: 0; }
+  .limites .cartao .muda { display: block; margin-top: 8px; font-size: .88rem; color: var(--tinta-3); }
 </style>
 </head>
 <body>
@@ -38,6 +42,9 @@
       cabeça de chave, forma de entrada (qualifier, wild card, lucky loser), pontos no ranking e tamanho da chave.</p>
     <p class="nota" data-l="en">Of the 50 raw columns in the database, the only ones left out are identifiers (tournament, match and
       player ids), seeding, entry type (qualifier, wild card, lucky loser), ranking points and draw size.</p>
+    <h2><span data-l="pt">Quais são os limites dos dados?</span><span data-l="en">What are the limits of the data?</span></h2>
+    <div id="lim-resposta"></div>
+    <div class="limites" id="limites"></div>
     <div id="termos"></div>
   </section>
 
@@ -87,6 +94,63 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   document.getElementById("conteudo-partida").innerHTML = `<tr><th>${T("Grupo", "Group")}</th><th>${T("Colunas", "Columns")}</th></tr>` +
     grupos.map(([g, c]) => `<tr><td><b>${g}</b></td><td>${c}</td></tr>`).join("");
   document.getElementById("termos").innerHTML = termosDeUso();
+
+  // ---------- os limites dos dados (o que a base não permite afirmar)
+  const fora = r.etapas_filtro.apos_filtro_nivel - r.etapas_filtro.apos_excluir_nao_concluidas;
+  const semStats = 100 - r.pct_com_estatisticas, semMin = r.pct_ausentes.minutos;
+  resposta("lim-resposta", T("A base é grande e conferida, mas tem limites. Eles valem para todos os números do site.",
+    "The data is large and checked, but it has limits. They apply to every number on the site."));
+  const LIM = [
+    ["📅", T("Começa em 1991", "It starts in 1991"),
+      T(`As estatísticas de partida só existem a partir de 1991. Dos Grand Slams de 1968 a 1990 entram só as finais (quem foi campeão), sem números de jogo.
+         Carreiras que começaram antes, como as de Lendl, Becker e Edberg, aparecem pela metade.`,
+        `Match statistics only exist from 1991 on. For the 1968–1990 Grand Slams only the finals are included (who won), with no match numbers.
+         Careers that began earlier, such as Lendl's, Becker's and Edberg's, appear only in part.`),
+      T("Títulos de carreira e o Elo de 1991–92 (aquecimento, todos começam em 1.500) devem ser lidos com cuidado.",
+        "Career titles and the 1991–92 Elo (warm-up, everyone starts at 1,500) should be read with care.")],
+    ["🎾", T("Não tem o ponto a ponto", "There is no point-by-point data"),
+      T(`Cada partida traz só os totais: aces, duplas faltas, pontos de saque, break points. Não dá para saber em que ordem os pontos aconteceram,
+         o placar em cada ponto, a duração das trocas, a velocidade do saque nem o golpe que decidiu.`,
+        `Each match only has totals: aces, double faults, service points, break points. There is no way to know the order of the points,
+         the score at each point, rally length, serve speed or the shot that decided it.`),
+      T("Por isso a 'pressão' é medida só nos momentos que a base registra: break points, tie-breaks e set decisivo.",
+        "That is why 'pressure' is measured only in the moments the data records: break points, tie-breaks and deciding sets.")],
+    ["🏟️", T("Só o circuito principal", "Main tour only"),
+      T(`Ficam de fora Challengers, Futures e qualifying. No confronto direto entram também Copa Davis e Olimpíadas, como na contagem oficial,
+         mas no resto do site não.`, `Challengers, Futures and qualifying are left out. Head-to-heads also include the Davis Cup and the Olympics,
+         as in the official count, but the rest of the site does not.`),
+      T("Os números de quem está começando a carreira são subestimados.", "Numbers for players early in their careers are understated.")],
+    ["🚫", T("Partidas que não terminaram", "Matches that did not finish"),
+      T(`${br(fora, 0)} partidas com W.O., abandono ou desclassificação ficam fora das estatísticas, porque não refletem um jogo completo.
+         Elas só contam no confronto direto (abandono conta) e nas chaves dos torneios.`,
+        `${br(fora, 0)} matches with a walkover, retirement or default are left out of the statistics, because they do not reflect a full match.
+         They only count in head-to-heads (retirements count) and in the tournament draws.`), ""],
+    ["⏸️", T(`Parada em ${dataCurta(r.data_corte)}`, "Frozen in January 2026"),
+      T(`A fonte parou de publicar partidas novas no GitHub em janeiro de 2026. A última temporada completa é ${r.ultima_temporada_completa};
+         de 2026 só entram ${r.ultimos_torneios.join(" e ")}.`, `The source stopped publishing new matches on GitHub in January 2026. The last full
+         season is ${r.ultima_temporada_completa}; from 2026 only ${r.ultimos_torneios.join(" and ")} are included.`),
+      T(`"Hoje", no site, quer dizer o fim de ${r.ultima_temporada_completa}.`, `"Today", on the site, means the end of ${r.ultima_temporada_completa}.`)],
+    ["🧩", T("Buracos e erros da fonte", "Gaps and errors in the source"),
+      T(`A TML é mantida por voluntários a partir do site da ATP. Faltam estatísticas em ${br(semStats, 1)}% das partidas e a duração em ${br(semMin, 1)}%;
+         ${br(r.n_stats_impossiveis, 0)} partidas com estatísticas impossíveis foram descartadas e ${r.correcoes_de_nome.length} nomes trocados foram corrigidos.`,
+        `TML is maintained by volunteers from the ATP website. Statistics are missing for ${br(semStats, 1)}% of matches and duration for ${br(semMin, 1)}%;
+         ${br(r.n_stats_impossiveis, 0)} matches with impossible statistics were dropped and ${r.correcoes_de_nome.length} swapped names were fixed.`),
+      T("Pode haver outros erros que as checagens não pegam.", "There may be other errors the checks don't catch.")],
+    ["⚖️", T("Épocas diferentes, tênis diferente", "Different eras, different tennis"),
+      T(`Raquetes, bolas, pisos e a velocidade das quadras mudaram desde 1991. O Elo mede quanto cada um dominou a própria época, não uma força
+         absoluta; "e se os dois jogassem no auge?" é uma simulação, não uma previsão.`, `Rackets, balls, surfaces and court speed have changed
+         since 1991. Elo measures how much each player dominated his own era, not absolute strength; "what if both played at their peak?" is a
+         simulation, not a prediction.`), ""],
+    ["🔗", T("Associação não é causa", "Association is not causation"),
+      T(`"O que define o vencedor" usa números de depois do jogo: mostra o que anda junto com a vitória, não o que a provoca. E partidas do
+         mesmo jogador não são independentes, então as margens de erro podem estar um pouco otimistas.`, `"What decides the winner" uses
+         numbers from after the match: it shows what goes along with winning, not what causes it. And matches by the same player are not
+         independent, so the margins of error may be slightly optimistic.`),
+      T("Recortes pequenos (grama, carpete, um jogador num único ano) têm poucas partidas e oscilam mais.",
+        "Small slices (grass, carpet, one player in a single year) have few matches and swing more.")],
+  ];
+  document.getElementById("limites").innerHTML = LIM.map(([ico, tit, txt, muda]) =>
+    `<div class="cartao"><h3>${ico} ${tit}</h3><p>${txt}</p>${muda ? `<span class="muda">${muda}</span>` : ""}</div>`).join("");
 
   // ---------- o circuito (4,5 MB: só quando a aba é aberta)
   async function abrirCircuito() {
