@@ -120,6 +120,15 @@ document.getElementById("quadra").innerHTML = svgQuadra();
          mas no resto do site não.`, `Challengers, Futures and qualifying are left out. Head-to-heads also include the Davis Cup and the Olympics,
          as in the official count, but the rest of the site does not.`),
       T("Os números de quem está começando a carreira são subestimados.", "Numbers for players early in their careers are understated.")],
+    ["📈", T("Os melhores jogam muito mais", "The best play far more"),
+      T(`Quem vai longe nos torneios joga mais partidas, e contra rivais mais fortes. Metade dos ${br(r.n_jogadores, 0)} jogadores tem menos de
+         10 partidas na base, enquanto os 50 que mais jogaram aparecem em 21% de todas elas. E o nível sobe a cada rodada: o perdedor típico
+         de uma R32 é o 76º do ranking; o de uma final, o 28º.`, `Players who go deep in tournaments play more matches, and against stronger
+         opponents. Half of the ${br(r.n_jogadores, 0)} players have fewer than 10 matches in the data, while the 50 who played most appear in
+         21% of all of them. And the level rises each round: the typical loser in a round of 32 is ranked 76th; in a final, 28th.`),
+      T(`As médias do circuito pesam mais os grandes, e os números deles são contra adversários mais duros. Por isso as comparações entre
+         jogadores pedem um mínimo de partidas (100, no padrão).`, `Tour averages lean towards the greats, and their numbers come against tougher
+         opponents. That is why player comparisons require a minimum number of matches (100 by default).`)],
     ["🚫", T("Partidas que não terminaram", "Matches that did not finish"),
       T(`${br(fora, 0)} partidas com W.O., abandono ou desclassificação ficam fora das estatísticas, porque não refletem um jogo completo.
          Elas só contam no confronto direto (abandono conta) e nas chaves dos torneios.`,
