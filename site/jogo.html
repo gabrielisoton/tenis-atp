@@ -165,9 +165,9 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
 
   // evolução do jogo: todos os indicadores de uma vez, sem seletor
   const lt = ex.linha_tempo, rot = ex.linha_tempo_rotulos, a0 = lt[0], a1 = lt[lt.length - 1];
-  resposta("tempo-resposta", T(`Hoje há ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% mais aces que em ${a0.ano}, mas os jogos duram ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutos a mais.`,
-      `There are ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% more aces than in ${a0.ano}, yet matches last ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutes longer.`),
-    T("Cada gráfico mostra um indicador de 1991 até hoje, com o valor do primeiro e do último ano.", "Each chart shows one indicator from 1991 to today, with the first and last year's value."));
+  resposta("tempo-resposta", T(`Em ${a1.ano} houve ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% mais aces que em ${a0.ano}, mas os jogos duram ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutos a mais.`,
+      `In ${a1.ano} there were ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% more aces than in ${a0.ano}, yet matches last ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutes longer.`),
+    T("Cada gráfico mostra um indicador de 1991 até 2025, com o valor do primeiro e do último ano.", "Each chart shows one indicator from 1991 to 2025, with the first and last year's value."));
   document.getElementById("tempo-grade").innerHTML = Object.keys(rot).map(k => `<div class="cartao"><div id="tempo-${k}" class="grafico" style="min-height:250px"></div></div>`).join("");
   Object.entries(rot).forEach(([k, [nomePt, un]]) => {
     const nome = tr(nomePt), ehPct = un === "%", f = v => ehPct ? pct(v, 0) : br(v, 1);
