@@ -1,8 +1,8 @@
-/* Navegação do site "Tênis em números" (lida por assets/comum.js). Carregar ANTES de comum.js.
+/* Navegação do site "Second Serve" (lida por assets/comum.js). Carregar ANTES de comum.js.
    idiomas: true liga o seletor PT/EN; cada texto é "igual nos dois" ou ["português", "English"]. */
 window.SITE = {
   idiomas: true,
-  marca: ["Tênis em números", "Tennis by numbers"],
+  marca: ["Second Serve", "Second Serve"],
   paginas: [
     ["index.html", ["Início", "Home"], ["Achados", "Findings"]],
     ["epocas.html", ["Elo · auge", "Elo · peak"], ["Épocas", "Eras"]],
