@@ -313,7 +313,14 @@ def chance_md5(p_md3: float) -> float:
 
 
 def simulador(dep: pd.DataFrame, nomes: list[str], min_partidas_sup: int = 20) -> dict:
-    """Auge sustentado (melhor média de 12 meses) e pico de cada jogador, no geral e em cada superfície."""
+    """Auge sustentado (melhor média de 12 meses) e pico de cada jogador, no geral e em cada superfície.
+
+    A idade usa o mesmo nascimento estimado de `auges` (data da partida − idade registrada, mediana): no auge, a idade
+    no meio dos 12 meses; no pico, na data do pico.
+    """
+    todas = dep.assign(dt=pd.to_datetime(dep["data"]))
+    nasc = (todas["dt"] - pd.to_timedelta(todas["idade"] * 365.25, unit="D")).groupby(todas["jogador"]).median()
+    idade = lambda nome, t: None if pd.isna(nasc.get(nome)) else round((t - nasc[nome]).days / 365.25, 1)  # noqa: E731
     dep = dep[~dep["ano"].between(*AQUECIMENTO)].assign(dt=lambda x: pd.to_datetime(x["data"]))
     saida = {}
     for nome, g in dep[dep["jogador"].isin(nomes)].groupby("jogador"):
@@ -326,8 +333,11 @@ def simulador(dep: pd.DataFrame, nomes: list[str], min_partidas_sup: int = 20) -
             if rol.empty:
                 continue
             fim = rol.idxmax()
-            item[chave] = {"auge": round(float(rol.max()), 1), "ini": (fim - pd.DateOffset(months=11)).strftime("%Y-%m"),
+            ini = fim - pd.DateOffset(months=11)
+            k_pico = h[col].idxmax()
+            item[chave] = {"auge": round(float(rol.max()), 1), "ini": ini.strftime("%Y-%m"),
                            "fim": fim.strftime("%Y-%m"), "pico": round(float(h[col].max()), 1),
-                           "pico_data": h.loc[h[col].idxmax(), "data"][:7], "partidas": int(len(h))}
+                           "pico_data": h.loc[k_pico, "data"][:7], "partidas": int(len(h)),
+                           "idade": idade(nome, ini + (fim - ini) / 2), "pico_idade": idade(nome, h.loc[k_pico, "dt"])}
         saida[nome] = item
     return {"jogadores": saida, "escala_md3": ESCALA_MD3, "min_partidas_sup": min_partidas_sup}

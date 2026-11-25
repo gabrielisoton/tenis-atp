@@ -7,7 +7,7 @@
 <title data-en="Players · Tennis by numbers">Jogadores · Tênis em números</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/estilo.css?v=12">
+<link rel="stylesheet" href="assets/estilo.css?v=13">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=13"></script>
 <script src="assets/comum.js?v=13"></script>
@@ -545,9 +545,11 @@ function desenharAuge() {
     xaxis: { tickformat: ".0%", range: [0, 1], showgrid: false }, yaxis: { autorange: "reversed" },
     shapes: [{ type: "line", x0: .5, x1: .5, yref: "paper", y0: 0, y1: 1, line: { color: "#fff", width: 2, dash: "dot" } }],
     legend: { orientation: "h", y: -0.12, yanchor: "top", x: 0 }, margin: { l: 120, r: 10, t: 50, b: 70 } });
-  const linha = (n, chave, rot) => { const x = J[n][chave]; return x ? `<tr><td>${rot}</td><td class="n"><b>${br(x[modoAuge], 0)}</b></td><td>${periodo(x)}</td></tr>`
-    : `<tr><td>${rot}</td><td class="n">—</td><td class="nota">${T(`menos de ${S.min_partidas_sup} partidas`, `fewer than ${S.min_partidas_sup} matches`)}</td></tr>`; };
-  document.getElementById("x-t").innerHTML = [A, B].map((n, k) => `<tr><th colspan="3" style="color:${k ? CORES.top : CORES.pop}">${n}</th></tr>` +
+  const idadeDe = x => { const v = modoAuge === "auge" ? x.idade : x.pico_idade; return v == null ? "—" : `${br(v, 1)} ${T("anos", "yrs")}`; };
+  const linha = (n, chave, rot) => { const x = J[n][chave]; return x ? `<tr><td>${rot}</td><td class="n"><b>${br(x[modoAuge], 0)}</b></td><td>${periodo(x)}</td><td class="n">${idadeDe(x)}</td></tr>`
+    : `<tr><td>${rot}</td><td class="n">—</td><td class="nota" colspan="2">${T(`menos de ${S.min_partidas_sup} partidas`, `fewer than ${S.min_partidas_sup} matches`)}</td></tr>`; };
+  document.getElementById("x-t").innerHTML = `<tr><th></th><th class="n">Elo</th><th>${modoAuge === "auge" ? T("Melhor temporada", "Best season") : T("Melhor semana", "Best week")}</th><th class="n">${T("Idade", "Age")}</th></tr>` +
+    [A, B].map((n, k) => `<tr><th colspan="4" style="color:${k ? CORES.top : CORES.pop}">${n}</th></tr>` +
     linha(n, "geral", T("Geral", "Overall")) + SUP3.map(s => linha(n, s, tr(s))).join("")).join("");
   document.getElementById("x-nota").innerHTML = T(`Cada um no seu ${modoAuge === "auge" ? "melhor ano (melhor média de 12 meses do Elo)" : "pico (maior Elo)"}, com o Elo da
     superfície. <a href="sobre.html#metodos">Como calculamos →</a>`, `Each at his ${modoAuge === "auge" ? "best year (best 12-month Elo average)" : "peak (highest Elo)"},

@@ -39,7 +39,7 @@ h3 { font-size: 1.35rem; margin: 1.4rem 0 .4rem; }
 
 /* ---------- navegação ---------- */
 .nav {
-  position: sticky; top: 0; z-index: 20;
+  position: sticky; top: 0; z-index: 100;   /* acima dos filtros e das listas de escolha, que ficam entre 10 e 40 */
   background: var(--quadra); color: #fff;
   border-bottom: 3px solid var(--linha);
 }
