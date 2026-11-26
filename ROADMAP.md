@@ -26,8 +26,10 @@
   | **1991–hoje** | ✅ | ✅ | ✅ (~91% das partidas) | ✅ |
 
 - **Temporada em andamento entra parcial** (Action mensal, item 3): conta em Elo, títulos, confrontos e perfis; as
-  contas por temporada usam só temporadas completas. Em nov/2026 a TML de 2026 ia só até 17/01/2026 (Adelaide e
-  Auckland), e o selo "dados até" deixa isso claro.
+  contas por temporada usam só temporadas completas, e o selo "dados até" deixa isso claro.
+- **Fonte:** em jan/2026 a TML saiu do GitHub para https://stats.tennismylife.org/tennis-match-database (o repositório
+  ficou parado em 17/01/2026). Desde nov/2026 o download mensal usa o site novo e baixa todas as temporadas de novo,
+  porque a TML corrige também partidas antigas.
 - **Sem ponto a ponto:** a base tem o total de cada partida, não o que aconteceu em cada game.
 - **Python calcula, o site desenha.** Toda métrica nova nasce em `tenis/analises.py` e, quando o site refaz a conta
   no navegador, tem checagem Python × JS.

@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="assets/estilo.css?v=13">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=14"></script>
-<script src="assets/comum.js?v=13"></script>
+<script src="assets/comum.js?v=14"></script>
 <style>
   .achados { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; margin-top: 8px; }
   .achado { display: flex; flex-direction: column; text-decoration: none; color: inherit; position: relative; padding-top: 18px; }
@@ -69,12 +69,12 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const grupos = [
     ["epocas.html", T("Épocas", "Eras"), [
       card("var(--pop)", T("Elo", "Elo"), T("Quem dominou cada época?", "Who dominated each era?"), `${br(P.elo, 0)}<small>${T("pontos de Elo", "Elo points")}</small>`,
-        T(`O Elo é uma nota de força que sobe a cada vitória. A maior desde 1991 foi a de ${P.jogador}, em ${mesAno(P.data)}; até 2025, quem lidera é ${A.atual.jogador}.`,
-          `Elo is a strength rating that rises with every win. The highest since 1991 was ${P.jogador}'s, in ${mesAno(P.data)}; as of 2025, the leader is ${A.atual.jogador}.`),
+        T(`O Elo é uma nota de força que sobe a cada vitória. A maior desde 1991 foi a de ${P.jogador}, em ${mesAno(P.data)}; hoje, quem lidera é ${A.atual.jogador}.`,
+          `Elo is a strength rating that rises with every win. The highest since 1991 was ${P.jogador}'s, in ${mesAno(P.data)}; today the leader is ${A.atual.jogador}.`),
         "epocas.html#elo", "pico"),
       card("var(--top)", T("O auge", "The peak"), T("Com que idade se joga melhor?", "At what age do players play their best?"), `${AU.idade}<small>${T("anos", "years")}</small>`,
-        T(`O jogador típico chega ao seu melhor aos ${AU.idade} e o auge vem cada vez mais tarde: ${eps.map(([, v]) => v).join(" → ")} anos, dos anos 90 até 2025.`,
-          `The typical player reaches his best at ${AU.idade}, and the peak keeps coming later: ${eps.map(([, v]) => v).join(" → ")}, from the 1990s to 2025.`),
+        T(`O jogador típico chega ao seu melhor aos ${AU.idade} e o auge vem cada vez mais tarde: ${eps.map(([, v]) => v).join(" → ")} anos, dos anos 90 até hoje.`,
+          `The typical player reaches his best at ${AU.idade}, and the peak keeps coming later: ${eps.map(([, v]) => v).join(" → ")}, from the 1990s to today.`),
         "epocas.html#auge", "auge"),
     ]],
     ["jogadores.html", T("Jogadores", "Players"), [
@@ -111,8 +111,8 @@ document.getElementById("quadra").innerHTML = svgQuadra();
           `That's all the Top 10 win over everyone else, and it's enough to win ${pct(EL.vitorias_top10, 0)} of matches against them. And what to practise to win more?`),
         "jogo.html#vencedor", "top10"),
       card("var(--pop)", T("Evolução do jogo", "How the game evolved"), T("O jogo ficou mais rápido?", "Has the game got faster?"), `+${br(TP.minutos[ult] - TP.minutos[0], 0)}<small>${T("minutos por jogo", "minutes per match")}</small>`,
-        T(`No saque, sim: em ${TP.anos[ult]} houve ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% mais aces que em ${TP.anos[0]}. Mas os jogos ficaram mais longos: de ${br(TP.minutos[0], 0)} para ${br(TP.minutos[ult], 0)} minutos.`,
-          `On serve, yes: in ${TP.anos[ult]} there were ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% more aces than in ${TP.anos[0]}. But matches got longer: from ${br(TP.minutos[0], 0)} to ${br(TP.minutos[ult], 0)} minutes.`),
+        T(`No saque, sim: hoje há ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% mais aces que em ${TP.anos[0]}. Mas os jogos ficaram mais longos: de ${br(TP.minutos[0], 0)} para ${br(TP.minutos[ult], 0)} minutos.`,
+          `On serve, yes: there are ${br(100 * (TP.aces[ult] / TP.aces[0] - 1), 0)}% more aces than in ${TP.anos[0]}. But matches got longer: from ${br(TP.minutos[0], 0)} to ${br(TP.minutos[ult], 0)} minutes.`),
         "jogo.html#tempo", "tempo"),
     ]],
   ];

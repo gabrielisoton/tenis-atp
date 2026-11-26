@@ -116,7 +116,8 @@ def exportar(pop: pd.DataFrame, vp: dict, extras: dict) -> dict:
     return {
         "zebras": zebras(pop), "viradas": viradas(pop), "longos": longos(pop), "aces": aces(pop), "pneus": pneus(pop),
         "sequencias": sequencias(pop), "matadores_n1": matadores_n1(pop),
-        "venceu_perdendo": {"pct": vp["resumo"]["pct"], "finais_gs": vp["finais_gs"],
+        # % entre as partidas sem empate em pontos (a mesma base do "ganhar mais pontos garante a vitória?")
+        "venceu_perdendo": {"pct": round(vp["resumo"]["menos"] / (vp["resumo"]["n"] - vp["resumo"]["empates"]), 6), "finais_gs": vp["finais_gs"],
                             "jogadores": [[k, int(c)] for k, c in perdeu]},
         "favorito": {"perto": {"faixa": fx[0]["faixa"], "pct": fx[0]["pop_taxa"]}, "longe": {"faixa": fx[-1]["faixa"], "pct": fx[-1]["pop_taxa"]}},
     }

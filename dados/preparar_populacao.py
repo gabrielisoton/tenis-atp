@@ -166,7 +166,7 @@ def montar_populacao(bruto: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
     etapas["N_populacao"] = len(pop)
     resumo = {
-        "fonte": "TML-Database (Tennismylife) — https://github.com/Tennismylife/TML-Database",
+        "fonte": "TML-Database (Tennismylife) — https://stats.tennismylife.org/tennis-match-database",
         "periodo": f"{pop['ano'].min()}–{pop['ano'].max()}",
         "ano_min": int(pop["ano"].min()), "ano_max": int(pop["ano"].max()),
         "n_temporadas": int(pop["ano"].nunique()),

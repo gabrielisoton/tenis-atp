@@ -7,7 +7,7 @@ function secaoBase(el, r, { unidade = "Unidade amostral", tituloPop = "Populaç�
   <div class="grade g2">
     <div class="cartao">
       <h3>${T("Fonte e contexto", "Source and context")}</h3>
-      <p><b>${T("Fonte", "Source")}:</b> <a href="https://github.com/Tennismylife/TML-Database">TML-Database (Tennismylife)</a>,
+      <p><b>${T("Fonte", "Source")}:</b> <a href="https://stats.tennismylife.org/tennis-match-database">TML-Database (Tennismylife)</a>,
         ${T(`base pública de partidas da ATP desde 1968, com um arquivo por temporada, mantida pelo projeto`,
             `a public database of ATP matches since 1968, one file per season, maintained by the`)}
         <a href="https://stats.tennismylife.org/tennis-match-database">Tennismylife</a>${T("", " project")}.</p>

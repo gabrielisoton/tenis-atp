@@ -21,7 +21,7 @@ BASE = Path(__file__).resolve().parent
 RAW = BASE / "base" / "raw"
 RAW_ANTIGO = BASE / "base" / "raw_antigo"       # 1968–1990, só para as finais de Slam (ignorado no git)
 SAIDA = BASE / "base" / "titulos.parquet"
-URL = "https://raw.githubusercontent.com/Tennismylife/TML-Database/master/{ano}.csv"
+URL = "https://stats.tennismylife.org/data/{ano}.csv"
 NIVEIS = {"G": "Grand Slam", "F": "ATP Finals", "M": "Masters 1000", "500": "ATP 500", "250": "ATP 250"}
 ANOS_ANTIGOS = range(1968, 1991)
 

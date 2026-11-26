@@ -78,6 +78,6 @@ Seletor **PT / EN** na barra (a escolha fica salva e vai na URL, `?lang=en`).
   `site/data/en.json`.
 
 ## Dados
-Fonte: [TML-Database (Tennismylife)](https://github.com/Tennismylife/TML-Database). Uso pessoal, educacional e de
+Fonte: [TML-Database (Tennismylife)](https://stats.tennismylife.org/tennis-match-database). Uso pessoal, educacional e de
 pesquisa não comercial, com citação da fonte; uso comercial (inclusive treinar modelos de previsão para serviços
 comerciais) exige autorização ([termos](https://stats.tennismylife.org/tennis-match-database#usage-terms)).

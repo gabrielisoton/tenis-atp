@@ -3,12 +3,13 @@
 1991 é a primeira temporada com estatísticas de saque e duração em quase todas as partidas; antes disso a
 base só tem resultado, placar e (desde 1973) ranking.
 
-As duas últimas temporadas são baixadas de novo a cada execução, porque a TML acrescenta partidas da temporada
-em andamento e corrige a anterior. No fim grava `base/fonte.json`, a impressão digital (sha256) de cada CSV:
+Todas as temporadas são baixadas de novo a cada execução (~25 MB), porque a TML acrescenta partidas da temporada
+em andamento e corrige também as antigas. No fim grava `base/fonte.json`, a impressão digital (sha256) de cada CSV:
 a atualização automática (.github/workflows/atualizar.yml) só refaz a base quando esse arquivo muda.
 
-Fonte: https://github.com/Tennismylife/TML-Database (mesmo esquema de colunas
-da antiga base JeffSackmann/tennis_atp, removida do GitHub em 2026).
+Fonte: https://stats.tennismylife.org/tennis-match-database (a TML-Database saiu do GitHub em janeiro de 2026;
+o repositório https://github.com/Tennismylife/TML-Database ficou só como referência histórica). Mesmo esquema
+de colunas da antiga base JeffSackmann/tennis_atp.
 """
 import hashlib
 import json
@@ -20,9 +21,8 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent  # pasta dados/
 RAW = BASE / "base" / "raw"
 FONTE = BASE / "base" / "fonte.json"
-URL = "https://raw.githubusercontent.com/Tennismylife/TML-Database/master/{ano}.csv"
+URL = "https://stats.tennismylife.org/data/{ano}.csv"
 ANO_INI = 1991
-RECENTES = 2  # temporadas mais recentes, sempre baixadas de novo
 
 
 def main() -> None:
@@ -30,8 +30,6 @@ def main() -> None:
     ano_fim = date.today().year
     for ano in range(ANO_INI, ano_fim + 1):
         destino = RAW / f"{ano}.csv"
-        if destino.exists() and ano <= ano_fim - RECENTES:
-            continue
         try:
             urllib.request.urlretrieve(URL.format(ano=ano), destino)
             print(f"baixado {destino.name} ({destino.stat().st_size / 1024:.0f} KB)")

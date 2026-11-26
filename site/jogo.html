@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="assets/estilo.css?v=13">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=14"></script>
-<script src="assets/comum.js?v=13"></script>
+<script src="assets/comum.js?v=14"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <style>
   .guia { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-top: 14px; }
@@ -91,24 +91,24 @@
     <div class="cartao" style="margin-top:14px"><h3 style="margin-top:0"><span data-l="pt">O que mais chama a atenção</span><span data-l="en">What stands out most</span></h3>
       <ul data-l="pt">
       <li>As partidas <b>encurtaram e depois ficaram bem mais longas</b>: o melhor de 3 caiu de 96 minutos em 1991 para cerca
-        de 88 no fim dos anos 90 (quadras rápidas, saque e voleio) e subiu para 109–111 minutos nos anos 2020. Uma hipótese é o
+        de 88 no fim dos anos 90 (quadras rápidas, saque e voleio) e subiu para 105–111 minutos nos anos 2020. Uma hipótese é o
         jogo mais físico, com trocas longas do fundo de quadra. A base não permite testar a causa.</li>
-      <li>Os <b>aces subiram cerca de 70%</b> por partida (8,0 em 1991, 13,4 em 2025). Os vencedores também ficaram mais altos
-        (184 cm em média em 1991, 188 cm em 2025).</li>
+      <li>Os <b>aces subiram cerca de 80%</b> por partida (7,9 em 1991, 14,2 em 2026). Os vencedores também ficaram mais altos
+        (184 cm em média em 1991, 188 cm em 2026).</li>
       <li>A <b>idade dos vencedores subiu</b> de 24,3 anos (1991) até o pico de 28,2 (2016–17), a era do Big 3 e dos veteranos,
-        e voltou a cerca de 26,5 com a nova geração.</li>
+        e voltou a cerca de 26,5–27 com a nova geração.</li>
       <li>A % de vitórias do favorito <b>chegou ao máximo no domínio do Big 3</b> (68–69% em 2014–15) e <b>voltou a cerca de
-        64%</b>, o mesmo nível dos anos 90. Os <b>canhotos</b> caíram de 20% das vitórias em 1991 para 12% em 2025.</li></ul>
+        64%</b>, o mesmo nível dos anos 90. Os <b>canhotos</b> caíram de 20% das vitórias em 1991 para cerca de 12% nos últimos anos.</li></ul>
       <ul data-l="en">
       <li>Matches <b>got shorter, then much longer</b>: best of 3 dropped from 96 minutes in 1991 to about 88 in the late
-        1990s (fast courts, serve and volley) and rose to 109–111 minutes in the 2020s. One hypothesis is a more physical game,
+        1990s (fast courts, serve and volley) and rose to 105–111 minutes in the 2020s. One hypothesis is a more physical game,
         with long baseline rallies. The data cannot test the cause.</li>
-      <li><b>Aces rose by about 70%</b> per match (8.0 in 1991, 13.4 in 2025). Winners also got taller (184 cm on average in
-        1991, 188 cm in 2025).</li>
+      <li><b>Aces rose by about 80%</b> per match (7.9 in 1991, 14.2 in 2026). Winners also got taller (184 cm on average in
+        1991, 188 cm in 2026).</li>
       <li>The <b>winners' age rose</b> from 24.3 (1991) to a peak of 28.2 (2016–17), the era of the Big 3 and the veterans,
-        and went back to about 26.5 with the new generation.</li>
+        and went back to about 26.5–27 with the new generation.</li>
       <li>The favourite's win rate <b>peaked during the Big 3's dominance</b> (68–69% in 2014–15) and <b>went back to about
-        64%</b>, the same level as the 1990s. <b>Left-handers</b> fell from 20% of wins in 1991 to 12% in 2025.</li></ul></div>
+        64%</b>, the same level as the 1990s. <b>Left-handers</b> fell from 20% of wins in 1991 to about 12% in recent years.</li></ul></div>
   </section>
   <section class="painel-aba" data-p="curiosidades" hidden>
     <h2 style="margin-top:6px"><span data-l="pt">O que já aconteceu de mais incrível no circuito?</span><span data-l="en">What are the most incredible things that have happened on tour?</span></h2>
@@ -165,9 +165,9 @@ ligarAbas(document.getElementById("area"), "#abas-x", true);
 
   // evolução do jogo: todos os indicadores de uma vez, sem seletor
   const lt = ex.linha_tempo, rot = ex.linha_tempo_rotulos, a0 = lt[0], a1 = lt[lt.length - 1];
-  resposta("tempo-resposta", T(`Em ${a1.ano} houve ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% mais aces que em ${a0.ano}, mas os jogos duram ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutos a mais.`,
-      `In ${a1.ano} there were ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% more aces than in ${a0.ano}, yet matches last ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutes longer.`),
-    T("Cada gráfico mostra um indicador de 1991 até 2025, com o valor do primeiro e do último ano.", "Each chart shows one indicator from 1991 to 2025, with the first and last year's value."));
+  resposta("tempo-resposta", T(`Hoje há ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% mais aces que em ${a0.ano}, mas os jogos duram ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutos a mais.`,
+      `There are ${br(100 * (a1.aces_media / a0.aces_media - 1), 0)}% more aces than in ${a0.ano}, yet matches last ${br(a1.minutos_bo3_media - a0.minutos_bo3_media, 0)} minutes longer.`),
+    T("Cada gráfico mostra um indicador de 1991 até hoje, com o valor do primeiro e do último ano.", "Each chart shows one indicator from 1991 to today, with the first and last year's value."));
   document.getElementById("tempo-grade").innerHTML = Object.keys(rot).map(k => `<div class="cartao"><div id="tempo-${k}" class="grafico" style="min-height:250px"></div></div>`).join("");
   Object.entries(rot).forEach(([k, [nomePt, un]]) => {
     const nome = tr(nomePt), ehPct = un === "%", f = v => ehPct ? pct(v, 0) : br(v, 1);

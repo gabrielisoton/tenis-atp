@@ -28,11 +28,11 @@ def checar(cond, msg):
 checar(v["acerto_elo"] > v["acerto_ranking"], f"Elo acerta {v['acerto_elo']:.1%} × ranking {v['acerto_ranking']:.1%}")
 for dec, x in v["por_decada"].items():
     checar(x["elo"] >= x["ranking"] - 0.005, f"{dec}: Elo {x['elo']:.1%} × ranking {x['ranking']:.1%}")
-# 2. calibração fora da amostra: ajustada em 1993–2015, conferida em 2016–2025
+# 2. calibração fora da amostra: ajustada em 1993–2015, conferida de 2016 em diante
 x = d[d["ano"] > 2015]
 dif = ((x["elo_v"] + x["elo_sup_v"]) - (x["elo_p"] + x["elo_sup_p"])) / 2
 ll = lambda c: float(-np.log(elo.chance(dif, 0, c)).mean())  # noqa: E731
-checar(ll(elo.ESCALA_PROB) < ll(1.0), f"calibração melhora a log-loss em 2016–2025: {ll(1.0):.4f} → {ll(elo.ESCALA_PROB):.4f}")
+checar(ll(elo.ESCALA_PROB) < ll(1.0), f"calibração melhora a log-loss de 2016 em diante: {ll(1.0):.4f} → {ll(elo.ESCALA_PROB):.4f}")
 cal = pd.DataFrame(v["calibracao"])
 checar((cal["previsto"] - cal["real"]).abs().max() < 0.06, f"calibração: maior erro por faixa {(cal['previsto'] - cal['real']).abs().max():.3f} < 0,06")
 # 3. picos coerentes com a história do esporte (fora do aquecimento 1991–1992)

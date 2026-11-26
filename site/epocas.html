@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="assets/estilo.css?v=13">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=14"></script>
-<script src="assets/comum.js?v=13"></script>
+<script src="assets/comum.js?v=14"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <script src="assets/jogadores.js?v=10"></script>
 <style>
@@ -124,11 +124,11 @@ document.getElementById("quadra").innerHTML = svgQuadra();
   const temporadasN1 = {};
   E.n1_por_ano.forEach(r => { temporadasN1[r.jogador] = (temporadasN1[r.jogador] || 0) + 1; });
   const maisN1 = Object.entries(temporadasN1).sort((a, b) => b[1] - a[1])[0];
-  resposta("elo-resposta", T(`${g0.jogador} teve o maior auge desde 1991 (${br(g0.elo, 0)} pontos, em ${mesAno(g0.data)}) e terminou ${maisN1[1]} temporadas como o mais forte. Até 2025, quem lidera é ${n1.jogador}.`,
-      `${g0.jogador} had the highest peak since 1991 (${br(g0.elo, 0)} points, in ${mesAno(g0.data)}) and ended ${maisN1[1]} seasons as the strongest. As of 2025, the leader is ${n1.jogador}.`));
+  resposta("elo-resposta", T(`${g0.jogador} teve o maior auge desde 1991 (${br(g0.elo, 0)} pontos, em ${mesAno(g0.data)}) e terminou ${maisN1[1]} temporadas como o mais forte. Hoje, quem lidera é ${n1.jogador}.`,
+      `${g0.jogador} had the highest peak since 1991 (${br(g0.elo, 0)} points, in ${mesAno(g0.data)}) and ended ${maisN1[1]} seasons as the strongest. Today the leader is ${n1.jogador}.`));
   placar(document.getElementById("placar"), [
     { rot: T("Maior auge desde 1991", "Highest peak since 1991"), num: br(g0.elo, 0), sub: `${g0.jogador} · ${mesAno(g0.data)}` },
-    { rot: T("O mais forte até 2025", "Strongest as of 2025"), num: br(n1.elo, 0), sub: n1.jogador },
+    { rot: T("O mais forte hoje", "Strongest today"), num: br(n1.elo, 0), sub: `${n1.jogador} · ${T("até", "as of")} ${mesAno(M.ultima_data)}` },
     { rot: T("Mais anos como o mais forte", "Most years as the strongest"), num: maisN1[1], sub: maisN1[0] },
   ]);
 
@@ -185,7 +185,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
     document.getElementById("t-picos").innerHTML = `<tr><th>#</th><th>${T("Jogador", "Player")}</th><th>Elo</th><th>${T("Quando", "When")}</th><th>${T("Idade", "Age")}</th></tr>` +
       lista.map((r, i) => `<tr><td>${ordinal(i + 1)}</td><td>${r.jogador}</td><td class="n"><b>${br(r.elo, 0)}</b></td><td>${mesAno(r.data)}</td><td class="n">${r.idade === null ? "—" : br(r.idade, 1)}</td></tr>`).join("");
     const atual = sup === "geral" ? E.atual.geral.slice(0, 10) : E.atual[sup];
-    document.getElementById("tit-atual").textContent = T(`Melhores Elo até 2025 ${sup === "geral" ? "" : naSup(sup)}`, `Best Elo as of 2025 ${sup === "geral" ? "" : naSup(sup)}`);
+    document.getElementById("tit-atual").textContent = T(`Melhores Elo hoje ${sup === "geral" ? "" : naSup(sup)}`, `Best Elo now ${sup === "geral" ? "" : naSup(sup)}`);
     document.getElementById("t-atual").innerHTML = `<tr><th>#</th><th>${T("Jogador", "Player")}</th><th>Elo</th></tr>` +
       atual.map((r, i) => `<tr><td>${ordinal(i + 1)}</td><td>${r.jogador}</td><td class="n"><b>${br(r.elo, 0)}</b></td></tr>`).join("") +
       `<tr><td colspan="3" class="nota">${T(`Jogou nos 12 meses até ${mesAno(M.ultima_data)}.`, `Played in the 12 months to ${mesAno(M.ultima_data)}.`)}</td></tr>`;
@@ -234,7 +234,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       pontos(ok.filter(r => ep(r) <= 2002), T("auge até 2002", "peak up to 2002"), false),
       pontos(ok.filter(r => ep(r) > 2002 && ep(r) <= 2012), T("auge em 2003–2012", "peak in 2003–2012"), false),
       pontos(ok.filter(r => ep(r) > 2012), T("auge de 2013 em diante", "peak from 2013 on"), false),
-      pontos(A.filter(r => r.no_auge), T("no auge em 2025 (vazado)", "at peak in 2025 (hollow)"), true)],
+      pontos(A.filter(r => r.no_auge), T("no auge agora (vazado)", "at peak right now (hollow)"), true)],
       { height: 470, title: { text: T("Idade × força no auge de cada craque", "Age × strength at each great's peak"), x: 0, font: { size: 16, family: "Barlow Condensed" } },
         legend: { orientation: "h", x: 0, y: -0.2, yanchor: "top" },
         annotations: rotulos.map(r => ({ x: r.auge_idade, y: r.auge, text: r.jogador.split(" ").slice(-1)[0], showarrow: false, yshift: 12, font: { size: 11, color: "#4b5650" } })),
@@ -245,12 +245,12 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       A.slice(0, 25).map((r, i) => `<tr><td>${ordinal(i + 1)}</td><td>${r.jogador}</td><td class="n"><b>${br(r.auge, 0)}</b></td><td>${intervalo(r)}</td>
         <td class="n">${r.auge_idade === null ? "—" : br(r.auge_idade, 1)}</td><td class="n">${br(r.pico, 0)}</td><td>${mesAno(r.pico_data + "-01")}</td>
         <td class="n">${r.pico_idade === null ? "—" : br(r.pico_idade, 1)}</td>
-        <td>${r.no_auge ? `<span class="tag" style="background:#fbfde9">${T("no auge em 2025", "at peak in 2025")}</span>` : r.carreira_antes_1991 ? `<span class="tag" style="background:#f1efe8">${T("carreira antes de 1991", "career before 1991")}</span>` : ""}</td></tr>`).join("");
+        <td>${r.no_auge ? `<span class="tag" style="background:#fbfde9">${T("no auge agora", "at peak now")}</span>` : r.carreira_antes_1991 ? `<span class="tag" style="background:#f1efe8">${T("carreira antes de 1991", "career before 1991")}</span>` : ""}</td></tr>`).join("");
     desenharCurvaIdade();
     const e0 = EP[0], e2 = EP[EP.length - 1];
-    document.getElementById("auge-nota").innerHTML = T(`<b>Leitura:</b> passe o mouse ou toque num ponto para ver o craque. Os vazados estavam no
-      auge em 2025, então a melhor temporada deles pode estar por vir.`, `<b>Reading:</b> hover or tap a dot to see the player. Hollow dots were at their peak
-      in 2025, so their best season may still be ahead.`);
+    document.getElementById("auge-nota").innerHTML = T(`<b>Leitura:</b> passe o mouse ou toque num ponto para ver o craque. Os vazados ainda estão no
+      auge agora, então a melhor temporada deles pode estar por vir.`, `<b>Reading:</b> hover or tap a dot to see the player. Hollow dots are at their peak
+      right now, so their best season may still be ahead.`);
   }
 
   function desenharCurvaIdade() {
@@ -289,10 +289,10 @@ document.getElementById("quadra").innerHTML = svgQuadra();
         xaxis: { title: T("idade (anos)", "age (years)"), dtick: 2 }, yaxis: { title: T("Elo em relação aos 20 anos", "Elo relative to age 20"), gridcolor: "rgba(137,135,129,.22)", zeroline: true },
         legend: { orientation: "h", y: -0.2, yanchor: "top", x: 0 }, margin: { l: 70, r: 10, t: 50, b: 110 } });
     const [ea, eb] = [EPS[0][1], EPS[EPS.length - 1][1]];
-    resposta("cv-resposta", T(`O jogador típico chega ao seu melhor aos ${D.pico} anos e cai devagar depois dos 30. O auge veio cada vez mais tarde: ${ea.pico} anos nos anos 90, ${eb.pico} nos anos mais recentes (até 2025).`,
-        `The typical player reaches his best at ${D.pico} and declines slowly after 30. The peak came later and later: ${ea.pico} in the 1990s, ${eb.pico} in recent years (up to 2025).`));
-    document.getElementById("cv-nota").innerHTML = T(`<b>Leitura:</b> carreiras mais longas: aos 30, o jogador dos anos recentes está quase no mesmo nível do
-      auge, enquanto nos anos 90 já tinha caído bastante.`, `<b>Reading:</b> careers got longer: at 30, the recent player is almost at his peak
+    resposta("cv-resposta", T(`O jogador típico chega ao seu melhor aos ${D.pico} anos e cai devagar depois dos 30. Hoje o auge vem mais tarde: ${ea.pico} anos nos anos 90, ${eb.pico} agora.`,
+        `The typical player reaches his best at ${D.pico} and declines slowly after 30. The peak now comes later: ${ea.pico} in the 1990s, ${eb.pico} now.`));
+    document.getElementById("cv-nota").innerHTML = T(`<b>Leitura:</b> carreiras mais longas: aos 30, o jogador de hoje está quase no mesmo nível do
+      auge, enquanto nos anos 90 já tinha caído bastante.`, `<b>Reading:</b> careers got longer: at 30, today's player is almost at his peak
       level, while in the 1990s he had already dropped a lot.`);
   }
 

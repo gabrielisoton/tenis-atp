@@ -22,7 +22,7 @@ from tenis import analises as an
 
 INICIAL = 1500.0
 # Elo puro sai confiante demais nos extremos (só circuito principal). As PROBABILIDADES usam a diferença
-# multiplicada por ESCALA_PROB, ajustada em 1993–2015 e conferida em 2016–2025 (scripts/validar_elo.py).
+# multiplicada por ESCALA_PROB, ajustada em 1993–2015 e conferida de 2016 em diante (scripts/validar_elo.py).
 ESCALA_PROB = 0.84
 # Simulador "Pico × Pico": escala ajustada só em partidas melhor de 3; o melhor de 5 sai convertendo a chance
 # por set (validado em scripts/validar_elo.py: prevê os jogos de Slam melhor que usar a mesma chance).

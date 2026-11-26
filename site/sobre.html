@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="assets/estilo.css?v=13">
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="assets/site.js?v=14"></script>
-<script src="assets/comum.js?v=13"></script>
-<script src="assets/base.js?v=5"></script>
+<script src="assets/comum.js?v=14"></script>
+<script src="assets/base.js?v=6"></script>
 <script src="assets/descritiva.js?v=7"></script>
 <style>
   .checagens { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
@@ -134,11 +134,12 @@ document.getElementById("quadra").innerHTML = svgQuadra();
          Elas só contam no confronto direto (abandono conta) e nas chaves dos torneios.`,
         `${br(fora, 0)} matches with a walkover, retirement or default are left out of the statistics, because they do not reflect a full match.
          They only count in head-to-heads (retirements count) and in the tournament draws.`), ""],
-    ["⏸️", T(`Parada em ${dataCurta(r.data_corte)}`, "Frozen in January 2026"),
-      T(`A fonte parou de publicar partidas novas no GitHub em janeiro de 2026. A última temporada completa é ${r.ultima_temporada_completa};
-         de 2026 só entram ${r.ultimos_torneios.join(" e ")}.`, `The source stopped publishing new matches on GitHub in January 2026. The last full
-         season is ${r.ultima_temporada_completa}; from 2026 only ${r.ultimos_torneios.join(" and ")} are included.`),
-      T(`"Hoje", no site, quer dizer o fim de ${r.ultima_temporada_completa}.`, `"Today", on the site, means the end of ${r.ultima_temporada_completa}.`)],
+    ["🔄", T("Uma foto de cada mês", "A monthly snapshot"),
+      T(`A base é baixada de novo todo mês do site da TML e o site é refeito. Os dados vão até ${dataCurta(r.data_corte)}${r.temporada_parcial ?
+         `, com a temporada ${r.ano_max} ainda em andamento` : ""}. A TML também corrige partidas antigas, então números do passado podem mudar um pouco.`,
+        `The data is downloaded again every month from the TML website and the site is rebuilt. It runs to ${dataCurta(r.data_corte)}${r.temporada_parcial ?
+         `, with the ${r.ano_max} season still under way` : ""}. TML also corrects old matches, so past numbers may shift slightly.`),
+      T(`"Hoje", no site, quer dizer a data dos dados (${dataCurta(r.data_corte)}).`, `"Today", on the site, means the date of the data (${dataCurta(r.data_corte)}).`)],
     ["🧩", T("Buracos e erros da fonte", "Gaps and errors in the source"),
       T(`A TML é mantida por voluntários a partir do site da ATP. Faltam estatísticas em ${br(semStats, 1)}% das partidas e a duração em ${br(semMin, 1)}%;
          ${br(r.n_stats_impossiveis, 0)} partidas com estatísticas impossíveis foram descartadas e ${r.correcoes_de_nome.length} nomes trocados foram corrigidos.`,
@@ -224,17 +225,17 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       daquela superfície (carpete conta como dura); a previsão usa a média do Elo geral com o da superfície. Só partidas concluídas do
       circuito principal, sem Challengers, qualifying ou Copa Davis, então os valores ficam abaixo dos de sites que usam essas partidas.
       O Elo puro sai confiante demais nos extremos; as chances usam a diferença × ${br(M.escala_prob, 2)}, ajustada em 1993–2015 e
-      conferida em 2016–2025. ${M.aquecimento[0]}–${M.aquecimento[1]} são aquecimento (todos começam em 1500).`,
+      conferida de 2016 em diante. ${M.aquecimento[0]}–${M.aquecimento[1]} são aquecimento (todos começam em 1500).`,
       `<b>Elo:</b> everyone starts at ${M.inicial}; after each match the rating changes by K × (result − forecast probability), with
       K = 250 / (matches + 5)^0.4 (players with few matches move fast). Surface Elo uses only that surface's matches (carpet counts as
       hard); the forecast averages overall and surface Elo. Only completed main-tour matches, without Challengers, qualifying or Davis Cup,
       so values sit below those of sites that use them. Raw Elo is overconfident at the extremes; probabilities use the gap ×
-      ${br(M.escala_prob, 2)}, fitted on 1993–2015 and checked on 2016–2025. ${M.aquecimento[0]}–${M.aquecimento[1]} are a warm-up (everyone starts at 1500).`);
+      ${br(M.escala_prob, 2)}, fitted on 1993–2015 and checked from 2016 onwards. ${M.aquecimento[0]}–${M.aquecimento[1]} are a warm-up (everyone starts at 1500).`);
     const regras = EM_INGLES ? [
       ["Statistics (Players, The game, Eras)", "completed main-tour singles matches: Grand Slams, ATP Finals, Masters 1000, ATP 500 and 250. No Davis Cup, Olympics, team events or exhibitions; walkovers, retirements and defaults are left out."],
       ["Titles and the race by age", "every final won counts, including when the opponent retired. Grand Slams since 1968; other titles since 1991 (before that the source codes tournaments differently). No Olympics or Davis Cup."],
       ["Head to head", "the official ATP rule: main tour, Davis Cup, Olympics and ATP Cup/United Cup; retirements count, walkovers do not. No Laver Cup."],
-      ["Peaks and ages", "the sustained peak is the best 12-month average of end-of-month Elo. Players at their peak in 2025 and careers already under way in 1991 are left out of the age figures."],
+      ["Peaks and ages", "the sustained peak is the best 12-month average of end-of-month Elo. Players at their peak right now and careers already under way in 1991 are left out of the age figures."],
       ["Best age (career curve)", "the delta method: each player is compared with himself a year later (both years with 10+ matches), and the average changes are added up age by age. The simple average by age misleads, because only good players keep playing (survivorship bias). The band is the 95% CI from resampling players."],
       ["Margin of error", "for proportions, the 95% Wilson interval: it stays valid near 0% or 100% and with few matches. It treats points as independent, so the real uncertainty is a bit larger."],
       ["What decides the winner", "logistic regression of the win on the differences between the two players' serve components (1st serve in, points on 1st and 2nd serve, aces and double faults per game), standardised; each match enters in a random direction. Only serve components, because one player's return is the mirror of the other's serve."],
@@ -244,7 +245,7 @@ document.getElementById("quadra").innerHTML = svgQuadra();
       ["Estatísticas (Jogadores, O jogo, Épocas)", "partidas de simples concluídas do circuito principal: Grand Slams, ATP Finals, Masters 1000, ATP 500 e 250. Sem Copa Davis, Olimpíadas, eventos por equipes ou exibições; W/O, abandonos e desclassificações ficam de fora."],
       ["Títulos e corrida por idade", "conta toda final vencida, inclusive quando o adversário abandonou. Grand Slams desde 1968; os demais títulos desde 1991 (antes a fonte codifica os torneios de outro jeito). Sem Olimpíadas nem Copa Davis."],
       ["Confrontos diretos", "a regra do H2H oficial da ATP: circuito principal, Copa Davis, Olimpíadas e ATP Cup/United Cup; abandono conta, W/O não. Sem Laver Cup."],
-      ["Auge e idades", "o auge sustentado é a melhor média de 12 meses do Elo de fim de mês. Quem estava no auge em 2025 e carreiras já em curso em 1991 ficam fora das contas de idade."],
+      ["Auge e idades", "o auge sustentado é a melhor média de 12 meses do Elo de fim de mês. Quem está no auge agora e carreiras já em curso em 1991 ficam fora das contas de idade."],
       ["Melhor idade (curva da carreira)", "método delta: cada jogador é comparado com ele mesmo um ano depois (os dois anos com 10+ partidas), e as variações médias são somadas idade a idade. A média simples por idade engana, porque só os bons continuam jogando (viés de sobrevivência). A faixa é o IC 95% por reamostragem de jogadores."],
       ["Margem de erro", "nas proporções, o intervalo de 95% de Wilson: continua válido perto de 0% ou 100% e com poucas partidas. Ele trata os pontos como independentes, então a incerteza real é um pouco maior."],
       ["O que define o vencedor", "regressão logística da vitória nas diferenças entre os componentes do saque dos dois jogadores (1º saque dentro, pontos com o 1º e o 2º saque, aces e duplas faltas por game), padronizadas; cada partida entra num sentido sorteado. Só o saque, porque a devolução de um é o espelho do saque do outro."],
